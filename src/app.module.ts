@@ -1,0 +1,51 @@
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { LoggerModule } from './logger/logger.module';
+import { TasksModule } from './tasks/tasks.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { appConfig } from './config/app.config';
+import { appConfigSchema } from './config/config.types';
+import { typeOrmConfig } from './config/db.config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypedConfigService } from './config/typed-config.service';
+import { Task } from './tasks/task.entity';
+import { User } from './users/users.entity';
+import { UsersModule } from './users/users.module';
+import { TaskLabel } from './tasks/task-label.entity';
+
+@Module({
+  imports: [
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: TypedConfigService) => ({
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        ...configService.get('database'),
+        entities: [Task, User, TaskLabel],
+      }),
+    }),
+    ConfigModule.forRoot({
+      load: [appConfig, typeOrmConfig],
+      validationSchema: appConfigSchema,
+      validationOptions: {
+        // doesnt allow new or unknown env variables. cant add new ones. when set to false
+        allowUnknown: true,
+        // shows all the potential errors not one by one
+        abortEarly: true,
+      },
+    }),
+    LoggerModule,
+    TasksModule,
+    UsersModule,
+  ],
+  controllers: [AppController],
+  providers: [
+    AppService,
+    {
+      provide: TypedConfigService,
+      useExisting: ConfigService,
+    },
+  ],
+})
+export class AppModule {}
