@@ -96,7 +96,7 @@ export class TasksService {
 
   public async delete(task: Task): Promise<void> {
     try {
-      await this.taskRepository.delete(task);
+      await this.taskRepository.delete(task.id);
     } catch {
       throw new InternalServerErrorException('Failed to delete task');
     }
@@ -120,6 +120,17 @@ export class TasksService {
         return await this.taskRepository.save(task);
       }
       return task;
+    } catch {
+      throw new InternalServerErrorException('Failed to add labels to task');
+    }
+  }
+
+  public async removeLabel(id: string, lables: string[]): Promise<Task> {
+    try {
+      const task = await this.getOneTask(id);
+      if (!task) throw new NotFoundException('Task not found');
+      task.labels = task.labels.filter((label) => !lables.includes(label.name));
+      return await this.taskRepository.save(task);
     } catch {
       throw new InternalServerErrorException('Failed to add labels to task');
     }

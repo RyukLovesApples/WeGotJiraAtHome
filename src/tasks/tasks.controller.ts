@@ -101,23 +101,30 @@ export class TasksController {
       throw new InternalServerErrorException('Failed to delete task');
     }
   }
+  @Delete('/:id/labels')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  public async removeLabels(
+    @Param() { id }: FindOneParams,
+    @Body() labels: string[],
+  ): Promise<Task> {
+    try {
+      return this.tasksService.removeLabel(id, labels);
+    } catch (error) {
+      console.error('Failed to delete label: ', error);
+      throw new InternalServerErrorException('Failed to delete labels');
+    }
+  }
 
   private async findOneOrFail(id: string): Promise<Task> {
-    const task = await this.tasksService.getOneTask(id);
-    if (!task) {
-      throw new NotFoundException('Task not found');
+    try {
+      const task = await this.tasksService.getOneTask(id);
+      if (!task) {
+        throw new NotFoundException('Task not found');
+      }
+      return task;
+    } catch (error) {
+      console.error('Failed to delete labels: ', error);
+      throw new InternalServerErrorException('Failed to delete labels');
     }
-    return task;
   }
 }
-
-// Update only the status of tasks
-// @Patch('/:id/status')
-// public updateTaskStatus(
-//   @Param() params: FindOneParams,
-//   @Body() body: UpdateTaskStatusDto,
-// ): ITask {
-//   const task: ITask = this.findOneOrFail(params.id);
-//   task.status = body.status;
-//   return task;
-// }
