@@ -13,6 +13,7 @@ import { Repository } from 'typeorm';
 import { User } from 'src/users/users.entity';
 import { TaskLabel } from './task-label.entity';
 import { CreateTaskLabelDto } from './create-task-label.dto';
+import { FindTaskParams } from './find-task.params';
 
 @Injectable()
 export class TasksService {
@@ -25,9 +26,12 @@ export class TasksService {
     private labelRepository: Repository<TaskLabel>,
   ) {}
 
-  public async getAll(): Promise<Task[]> {
+  public async getAll(filters: FindTaskParams): Promise<Task[]> {
     try {
-      return await this.taskRepository.find();
+      return await this.taskRepository.find({
+        where: { status: filters.status },
+        relations: ['labels'],
+      });
     } catch {
       throw new InternalServerErrorException('Failed to retrieve tasks');
     }

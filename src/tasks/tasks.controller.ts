@@ -11,6 +11,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './create-task.dto';
@@ -19,15 +20,16 @@ import { UpdateTaskDto } from './update-task.dto';
 import { WrongTaskStatusException } from './exeptions/wrong-task-status.exeption';
 import { Task } from './task.entity';
 import { CreateTaskLabelDto } from './create-task-label.dto';
+import { FindTaskParams } from './find-task.params';
 
 @Controller('tasks')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @Get()
-  public async findAll(): Promise<Task[]> {
+  public async findAll(@Query() filters: FindTaskParams): Promise<Task[]> {
     try {
-      return await this.tasksService.getAll();
+      return await this.tasksService.getAll(filters);
     } catch {
       throw new InternalServerErrorException('Failed to retrieve tasks');
     }
