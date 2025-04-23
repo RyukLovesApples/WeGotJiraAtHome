@@ -52,7 +52,9 @@ export class TasksService {
         id: createTaskDto.userId,
       });
       if (!user) throw new NotFoundException('User not found');
-
+      if (createTaskDto.labels) {
+        createTaskDto.labels = this.uniqueLabels(createTaskDto.labels);
+      }
       const labels = createTaskDto.labels?.map((label) =>
         this.labelRepository.create({ name: label.name }),
       );
@@ -82,6 +84,9 @@ export class TasksService {
       ) {
         throw new WrongTaskStatusException();
       }
+      if (updateTaskDto.labels) {
+        updateTaskDto.labels = this.uniqueLabels(updateTaskDto.labels);
+      }
       Object.assign(task, updateTaskDto);
       return await this.taskRepository.save(task);
     } catch {
@@ -102,13 +107,19 @@ export class TasksService {
     labelDto: CreateTaskLabelDto[],
   ): Promise<Task> {
     try {
-      const labels = labelDto.map((label) =>
-        this.labelRepository.create(label),
-      );
       const task = await this.getOneTask(id);
       if (!task) throw new NotFoundException('Task not found');
-      task.labels = [...task.labels, ...labels];
-      return await this.taskRepository.save(task);
+      const existingLabelNames = new Set(
+        task.labels.map((label) => label.name),
+      );
+      const labels = this.uniqueLabels(labelDto)
+        .filter((dto) => !existingLabelNames.has(dto.name))
+        .map((label) => this.labelRepository.create(label));
+      if (labels.length > 0) {
+        task.labels = [...task.labels, ...labels];
+        return await this.taskRepository.save(task);
+      }
+      return task;
     } catch {
       throw new InternalServerErrorException('Failed to add labels to task');
     }
@@ -124,5 +135,10 @@ export class TasksService {
       TaskStatus.CLOSED,
     ];
     return statusOrder.indexOf(currentStatus) <= statusOrder.indexOf(newStatus);
+  }
+
+  private uniqueLabels(labelDto: CreateTaskLabelDto[]): CreateTaskLabelDto[] {
+    const uniques = [...new Set(labelDto.map((label) => label.name))];
+    return uniques.map((name) => ({ name }));
   }
 }
