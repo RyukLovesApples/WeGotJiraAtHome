@@ -101,6 +101,7 @@ export class TasksController {
       throw new InternalServerErrorException('Failed to delete task');
     }
   }
+
   @Delete('/:id/labels')
   @HttpCode(HttpStatus.NO_CONTENT)
   public async removeLabels(
