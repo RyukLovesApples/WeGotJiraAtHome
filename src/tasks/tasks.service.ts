@@ -9,7 +9,7 @@ import { UpdateTaskDto } from './update-task.dto';
 import { WrongTaskStatusException } from './exeptions/wrong-task-status.exeption';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Task } from './task.entity';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { User } from 'src/users/users.entity';
 import { TaskLabel } from './task-label.entity';
 import { CreateTaskLabelDto } from './create-task-label.dto';
@@ -32,11 +32,26 @@ export class TasksService {
     pagination: PaginationParams,
   ): Promise<[Task[], number]> {
     try {
+      const queryBuilder = this.taskRepository
+        .createQueryBuilder('task')
+        .leftJoinAndSelect('task.labels', 'labels');
+      const where: FindOptionsWhere<Task> = {};
+      if (filters.status) {
+        queryBuilder.andWhere('task.status = :status', {
+          status: filters.status,
+        });
+      }
+      const search = filters.search?.trim();
+      if (search) {
+        queryBuilder.andWhere(
+          'task.title ILIKE :search OR task.description ILIKE :search',
+          { search: `%${search}%` },
+        );
+      }
+      queryBuilder.skip(pagination.offset).take(pagination.limit);
       return await this.taskRepository.findAndCount({
-        where: { status: filters.status },
+        where,
         relations: ['labels'],
-        skip: pagination.offset,
-        take: pagination.limit,
       });
     } catch {
       throw new InternalServerErrorException('Failed to retrieve tasks');
