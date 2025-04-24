@@ -14,6 +14,7 @@ import { User } from 'src/users/users.entity';
 import { TaskLabel } from './task-label.entity';
 import { CreateTaskLabelDto } from './create-task-label.dto';
 import { FindTaskParams } from './find-task.params';
+import { PaginationParams } from './task-pagination.params';
 
 @Injectable()
 export class TasksService {
@@ -26,11 +27,16 @@ export class TasksService {
     private labelRepository: Repository<TaskLabel>,
   ) {}
 
-  public async getAll(filters: FindTaskParams): Promise<Task[]> {
+  public async getAll(
+    filters: FindTaskParams,
+    pagination: PaginationParams,
+  ): Promise<[Task[], number]> {
     try {
-      return await this.taskRepository.find({
+      return await this.taskRepository.findAndCount({
         where: { status: filters.status },
         relations: ['labels'],
+        skip: pagination.offset,
+        take: pagination.limit,
       });
     } catch {
       throw new InternalServerErrorException('Failed to retrieve tasks');

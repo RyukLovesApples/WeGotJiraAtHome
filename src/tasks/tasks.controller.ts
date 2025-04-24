@@ -21,15 +21,31 @@ import { WrongTaskStatusException } from './exeptions/wrong-task-status.exeption
 import { Task } from './task.entity';
 import { CreateTaskLabelDto } from './create-task-label.dto';
 import { FindTaskParams } from './find-task.params';
+import { PaginationParams } from './task-pagination.params';
+import { PaginationResponse } from './pagination.response';
 
 @Controller('tasks')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @Get()
-  public async findAll(@Query() filters: FindTaskParams): Promise<Task[]> {
+  public async findAll(
+    @Query() filters: FindTaskParams,
+    @Query() pagination: PaginationParams,
+  ): Promise<PaginationResponse<Task>> {
     try {
-      return await this.tasksService.getAll(filters);
+      const [items, total] = await this.tasksService.getAll(
+        filters,
+        pagination,
+      );
+      return {
+        data: items,
+        meta: {
+          total: total,
+          limit: pagination.limit,
+          offset: pagination.offset,
+        },
+      };
     } catch {
       throw new InternalServerErrorException('Failed to retrieve tasks');
     }
