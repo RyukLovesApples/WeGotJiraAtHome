@@ -1,6 +1,7 @@
 import {
   IsArray,
   IsEnum,
+  IsIn,
   IsOptional,
   IsString,
   MinLength,
@@ -28,4 +29,12 @@ export class FindTaskParams {
       .filter((label) => label.length !== 0);
   })
   labels?: string[];
+
+  @IsOptional()
+  @IsIn(['title', 'status', 'createdAt'])
+  sortBy?: string = 'createdAt';
+
+  @IsOptional()
+  @IsEnum(['ASC', 'DESC'])
+  sortingOrder: 'ASC' | 'DESC' = 'DESC';
 }

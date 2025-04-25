@@ -57,10 +57,8 @@ export class TasksService {
           })
           .getQuery();
         queryBuilder.andWhere(`task.id IN ${subQuery}`);
-        // queryBuilder.andWhere('labels.name IN (:...names)', {
-        //   names: filters.labels,
-        // });
       }
+      queryBuilder.orderBy(`task.${filters.sortBy}`, filters.sortingOrder);
       queryBuilder.skip(pagination.offset).take(pagination.limit);
       console.log(queryBuilder.getSql());
       return await queryBuilder.getManyAndCount();
