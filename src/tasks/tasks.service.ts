@@ -9,7 +9,7 @@ import { UpdateTaskDto } from './update-task.dto';
 import { WrongTaskStatusException } from './exeptions/wrong-task-status.exeption';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Task } from './task.entity';
-import { FindOptionsWhere, Like, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { User } from 'src/users/users.entity';
 import { TaskLabel } from './task-label.entity';
 import { CreateTaskLabelDto } from './create-task-label.dto';
@@ -47,9 +47,25 @@ export class TasksService {
           { search: `%${search}%` },
         );
       }
+      if (filters.labels?.length) {
+        const subQuery = queryBuilder
+          .subQuery()
+          .select('labels.taskId')
+          .from('task_label', 'labels')
+          .where('labels.name IN (:...names)', {
+            names: filters.labels,
+          })
+          .getQuery();
+        queryBuilder.andWhere(`task.id IN ${subQuery}`);
+        // queryBuilder.andWhere('labels.name IN (:...names)', {
+        //   names: filters.labels,
+        // });
+      }
       queryBuilder.skip(pagination.offset).take(pagination.limit);
+      console.log(queryBuilder.getSql());
       return await queryBuilder.getManyAndCount();
-    } catch {
+    } catch (error) {
+      console.error('Could not load tasks: ', error);
       throw new InternalServerErrorException('Failed to retrieve tasks');
     }
   }
@@ -110,7 +126,8 @@ export class TasksService {
       }
       Object.assign(task, updateTaskDto);
       return await this.taskRepository.save(task);
-    } catch {
+    } catch (error) {
+      console.error('Could not update task:', error);
       throw new InternalServerErrorException('Failed to update task');
     }
   }
