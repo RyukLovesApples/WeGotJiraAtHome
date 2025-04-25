@@ -35,7 +35,6 @@ export class TasksService {
       const queryBuilder = this.taskRepository
         .createQueryBuilder('task')
         .leftJoinAndSelect('task.labels', 'labels');
-      const where: FindOptionsWhere<Task> = {};
       if (filters.status) {
         queryBuilder.andWhere('task.status = :status', {
           status: filters.status,
@@ -44,15 +43,12 @@ export class TasksService {
       const search = filters.search?.trim();
       if (search) {
         queryBuilder.andWhere(
-          'task.title ILIKE :search OR task.description ILIKE :search',
+          '(task.title ILIKE :search OR task.description ILIKE :search)',
           { search: `%${search}%` },
         );
       }
       queryBuilder.skip(pagination.offset).take(pagination.limit);
-      return await this.taskRepository.findAndCount({
-        where,
-        relations: ['labels'],
-      });
+      return await queryBuilder.getManyAndCount();
     } catch {
       throw new InternalServerErrorException('Failed to retrieve tasks');
     }
