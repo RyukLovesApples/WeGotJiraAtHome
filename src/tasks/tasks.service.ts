@@ -60,7 +60,8 @@ export class TasksService {
       }
       queryBuilder.orderBy(`task.${filters.sortBy}`, filters.sortingOrder);
       queryBuilder.skip(pagination.offset).take(pagination.limit);
-      console.log(queryBuilder.getSql());
+      // log for the aktuell sql query -> getSql()
+      // console.log(queryBuilder.getSql());
       return await queryBuilder.getManyAndCount();
     } catch (error) {
       console.error('Could not load tasks: ', error);
@@ -74,7 +75,8 @@ export class TasksService {
         where: { id },
         relations: ['labels', 'user'],
       });
-    } catch {
+    } catch (error) {
+      console.error('Could not load a task by id: ', error);
       throw new InternalServerErrorException(
         `Failed to retrieve task with id ${id}`,
       );
@@ -103,7 +105,8 @@ export class TasksService {
       });
 
       return await this.taskRepository.save(task);
-    } catch {
+    } catch (error) {
+      console.error('Could not create new task: ', error);
       throw new InternalServerErrorException('Failed to create task');
     }
   }
@@ -133,7 +136,8 @@ export class TasksService {
   public async delete(task: Task): Promise<void> {
     try {
       await this.taskRepository.delete(task.id);
-    } catch {
+    } catch (error) {
+      console.error('Could not delete task: ', error);
       throw new InternalServerErrorException('Failed to delete task');
     }
   }
@@ -156,7 +160,8 @@ export class TasksService {
         return await this.taskRepository.save(task);
       }
       return task;
-    } catch {
+    } catch (error) {
+      console.error('Could not add label to task: ', error);
       throw new InternalServerErrorException('Failed to add labels to task');
     }
   }
@@ -167,11 +172,13 @@ export class TasksService {
       if (!task) throw new NotFoundException('Task not found');
       task.labels = task.labels.filter((label) => !lables.includes(label.name));
       return await this.taskRepository.save(task);
-    } catch {
+    } catch (error) {
+      console.error('Could not remove label from task: ', error);
       throw new InternalServerErrorException('Failed to add labels to task');
     }
   }
-
+  // simple valid logic for changing status. open -> in progress -> closed
+  // for frontend should change the function to send message to client if he is sure
   private isValidStatusTransition(
     currentStatus: TaskStatus,
     newStatus: TaskStatus,

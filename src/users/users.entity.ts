@@ -1,3 +1,4 @@
+import { IsStrongPassword } from 'class-validator';
 import { Task } from 'src/tasks/task.entity';
 import {
   Column,
@@ -25,6 +26,12 @@ export class User {
     nullable: false,
   })
   email: string;
+  // set password to nullable until integretion of authentication
+
+  @Column({
+    nullable: true,
+  })
+  password: string;
 
   @CreateDateColumn()
   createdAt: Date;
