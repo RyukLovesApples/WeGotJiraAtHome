@@ -1,4 +1,3 @@
-import { IsStrongPassword } from 'class-validator';
 import { Task } from 'src/tasks/task.entity';
 import {
   Column,
