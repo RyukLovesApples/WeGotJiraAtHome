@@ -17,19 +17,18 @@ export class User {
     type: 'varchar',
     length: 100,
     nullable: false,
+    unique: true,
   })
   username: string;
 
   @Column({
     type: 'varchar',
     nullable: false,
+    unique: true,
   })
   email: string;
-  // set password to nullable until integretion of authentication
 
-  @Column({
-    nullable: true,
-  })
+  @Column()
   password: string;
 
   @CreateDateColumn()

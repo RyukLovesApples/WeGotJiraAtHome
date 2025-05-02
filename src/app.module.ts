@@ -13,6 +13,7 @@ import { Task } from './tasks/task.entity';
 import { User } from './users/users.entity';
 import { UsersModule } from './users/users.module';
 import { TaskLabel } from './tasks/task-label.entity';
+import { authConfig } from './config/auth.config';
 
 @Module({
   imports: [
@@ -26,7 +27,7 @@ import { TaskLabel } from './tasks/task-label.entity';
       }),
     }),
     ConfigModule.forRoot({
-      load: [appConfig, typeOrmConfig],
+      load: [appConfig, typeOrmConfig, authConfig],
       validationSchema: appConfigSchema,
       validationOptions: {
         // doesnt allow new or unknown env variables. cant add new ones. when set to false
