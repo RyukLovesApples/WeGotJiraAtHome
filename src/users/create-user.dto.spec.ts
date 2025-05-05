@@ -20,11 +20,10 @@ describe('Create User Dto', () => {
     expect(errors[0].property).toBe('email');
     expect(errors[0].constraints).toHaveProperty('isEmail');
   });
-  it('validate data to be strong password', async () => {
+  it('validate data to be strong password, should be invalid', async () => {
     dto.password = 'adljbasdfV123';
     const errors = await validate(dto);
     const error = errors.find((err) => err.property === 'password');
-    console.log(error);
     expect(error).not.toBeUndefined();
     const messages = Object.values(error?.constraints ?? {});
     expect(messages).toContain('password is not strong enough');
