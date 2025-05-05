@@ -1,4 +1,10 @@
-import { IsEmail, IsNotEmpty, IsString, Matches } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  Matches,
+  MinLength,
+} from 'class-validator';
 
 export class CreateUserDto {
   @IsNotEmpty()
@@ -19,8 +25,6 @@ export class CreateUserDto {
   @Matches(/(?=.*[@$!%*?&])/, {
     message: 'Password must contain at least one special character.',
   })
-  @Matches(/.{10,}/, {
-    message: 'Password must be at least 10 characters long.',
-  })
+  @MinLength(10, { message: 'Password must be at least 10 characters long.' })
   password: string;
 }
