@@ -11,6 +11,7 @@ import { CreateUserDto } from '../create-user.dto';
 import { User } from '../users.entity';
 import { JwtService } from '@nestjs/jwt';
 import { LoginUserDto } from '../login-user.dto';
+import { LoginResponse } from '../login-user.response';
 
 @Injectable()
 export class AuthService {
@@ -38,7 +39,7 @@ export class AuthService {
     }
   }
 
-  public async login(loginUserDto: LoginUserDto): Promise<string> {
+  public async login(loginUserDto: LoginUserDto): Promise<LoginResponse> {
     try {
       const user = await this.userService.findOneByEmail(loginUserDto.email);
       if (!user) {
@@ -51,7 +52,8 @@ export class AuthService {
       if (!isAuthorized) {
         throw new UnauthorizedException('Password or email does not match');
       }
-      return this.generateJwtToken(user);
+      const accessToken = this.generateJwtToken(user);
+      return { accessToken };
     } catch (error) {
       if (error instanceof UnauthorizedException) {
         throw error;

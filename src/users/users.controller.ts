@@ -33,7 +33,7 @@ export class UsersController {
   //   }
   // }
 
-  @Post()
+  @Post('register')
   public async createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
     try {
       return await this.authService.register(createUserDto);
