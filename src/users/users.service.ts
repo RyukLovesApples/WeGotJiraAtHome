@@ -48,17 +48,11 @@ export class UsersService {
       }
       return user;
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        this.logger.error(
-          `Failed to fetch user with email "${email}"`,
-          error.stack,
-        );
-      } else {
-        this.logger.error(
-          `Unknown error occurred while fetching user with email "${email}"`,
-        );
+      if (error instanceof NotFoundException) {
+        throw error;
       }
-      throw error;
+      this.logger.error('Failed to fetch user with email', error);
+      throw new InternalServerErrorException('Something went wrong');
     }
   }
 

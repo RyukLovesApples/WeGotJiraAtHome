@@ -3,12 +3,14 @@ import {
   Injectable,
   UnauthorizedException,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { UsersService } from '../users.service';
 import { PasswordService } from '../password/password.service';
 import { CreateUserDto } from '../create-user.dto';
 import { User } from '../users.entity';
 import { JwtService } from '@nestjs/jwt';
+import { LoginUserDto } from '../login-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +19,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly passwordService: PasswordService,
   ) {}
-  public async register(createUserDto: CreateUserDto) {
+  public async register(createUserDto: CreateUserDto): Promise<User> {
     try {
       const user = await this.userService.findOneByEmail(createUserDto.email);
       if (user) {
@@ -36,15 +38,18 @@ export class AuthService {
     }
   }
 
-  public async login(email: string, password: string): Promise<string> {
+  public async login(loginUserDto: LoginUserDto): Promise<string> {
     try {
-      const user = await this.userService.findOneByEmail(email);
+      const user = await this.userService.findOneByEmail(loginUserDto.email);
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
       const isAuthorized = await this.passwordService.comparePassword(
-        password,
+        loginUserDto.password,
         user.password,
       );
       if (!isAuthorized) {
-        throw new UnauthorizedException('Password does not match');
+        throw new UnauthorizedException('Password or email does not match');
       }
       return this.generateJwtToken(user);
     } catch (error) {
