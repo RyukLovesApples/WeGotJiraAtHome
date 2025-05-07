@@ -36,7 +36,7 @@ export class TestSetup {
   async cleanup() {
     const entities = this.dataSource.entityMetadatas;
     const tableNames = entities
-      .map((entity) => `${entity.tableName}`)
+      .map((entity) => `"${entity.tableName}"`)
       .join(', ');
     await this.dataSource.query(
       `TRUNCATE ${tableNames} RESTART IDENTITY CASCADE`,

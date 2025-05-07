@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { MessageFormatterService } from 'src/message-formatter/message-formatter.service';
+import { MessageFormatterService } from './../message-formatter/message-formatter.service';
 
 @Injectable()
 export class LoggerService {
@@ -7,7 +7,8 @@ export class LoggerService {
     private readonly messageFormatterService: MessageFormatterService,
   ) {}
 
-  log(): void {
+  log(): string {
     console.log(this.messageFormatterService.format('Hello World'));
+    return this.messageFormatterService.format('Hello World');
   }
 }

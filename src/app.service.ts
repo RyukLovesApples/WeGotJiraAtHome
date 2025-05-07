@@ -9,7 +9,7 @@ export class AppService {
     private readonly loggerService: LoggerService,
     private readonly configService: TypedConfigService,
   ) {}
-  getHello(): void {
+  getHello(): string {
     const prefix = this.configService.get<AppConfig>('app')?.messagePrefix;
     console.log(prefix);
     return this.loggerService.log();
