@@ -14,27 +14,27 @@ import { Task } from './task.entity';
 @Unique(['name', 'taskId'])
 export class TaskLabel {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
   @Column({
     type: 'varchar',
     nullable: false,
   })
-  name: string;
+  name!: string;
   @Column({
     nullable: false,
   })
   @Index()
-  taskId: string;
+  taskId!: string;
   @ManyToOne(() => Task, (task) => task.labels, {
     nullable: false,
     onDelete: 'CASCADE',
     orphanedRowAction: 'delete',
   })
-  task: Task;
+  task!: Task;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

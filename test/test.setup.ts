@@ -5,9 +5,9 @@ import { DataSource } from 'typeorm';
 import { testConfig } from './config/test.config';
 
 export class TestSetup {
-  app: INestApplication;
+  app!: INestApplication;
 
-  dataSource: DataSource;
+  dataSource!: DataSource;
 
   static async create(module: any) {
     const instance = new TestSetup();

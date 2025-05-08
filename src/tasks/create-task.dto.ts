@@ -13,19 +13,19 @@ import { Type } from 'class-transformer';
 export class CreateTaskDto {
   @IsNotEmpty()
   @IsString()
-  title: string;
+  title!: string;
 
   @IsNotEmpty()
   @IsString()
-  description: string;
+  description!: string;
 
   @IsNotEmpty()
   @IsEnum(TaskStatus)
-  status: TaskStatus;
+  status!: TaskStatus;
 
   @IsNotEmpty()
   @IsUUID()
-  userId: string;
+  userId!: string;
 
   @IsOptional()
   @ValidateNested({ each: true })

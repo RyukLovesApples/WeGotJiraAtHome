@@ -5,5 +5,5 @@ import { TaskStatus } from './task.model';
 export class UpdateTaskStatusDto {
   @IsNotEmpty()
   @IsEnum(TaskStatus)
-  status: TaskStatus;
+  status!: TaskStatus;
 }

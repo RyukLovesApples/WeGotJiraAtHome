@@ -9,10 +9,11 @@ import {
 export class CreateUserDto {
   @IsNotEmpty()
   @IsString()
-  username: string;
+  username!: string;
   @IsNotEmpty()
   @IsEmail()
-  email: string;
+  email!: string;
+  @IsNotEmpty()
   @Matches(/(?=.*[a-z])/, {
     message: 'Password must contain at least one lowercase letter.',
   })
@@ -26,5 +27,5 @@ export class CreateUserDto {
     message: 'Password must contain at least one special character.',
   })
   @MinLength(10, { message: 'Password must be at least 10 characters long.' })
-  password: string;
+  password!: string;
 }

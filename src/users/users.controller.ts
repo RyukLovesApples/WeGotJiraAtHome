@@ -4,12 +4,17 @@ import {
   Body,
   Logger,
   InternalServerErrorException,
+  UseInterceptors,
+  SerializeOptions,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { CreateUserDto } from './create-user.dto';
 import { User } from './users.entity';
 import { AuthService } from './auth/auth.service';
 
 @Controller('users')
+@UseInterceptors(ClassSerializerInterceptor)
+@SerializeOptions({ strategy: 'excludeAll' })
 export class UsersController {
   private readonly logger = new Logger(UsersController.name);
 

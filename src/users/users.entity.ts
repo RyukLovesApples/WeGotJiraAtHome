@@ -1,3 +1,4 @@
+import { Expose } from 'class-transformer';
 import { Task } from 'src/tasks/task.entity';
 import {
   Column,
@@ -11,7 +12,8 @@ import {
 @Entity()
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @Expose()
+  id!: string;
 
   @Column({
     type: 'varchar',
@@ -19,24 +21,29 @@ export class User {
     nullable: false,
     unique: true,
   })
-  username: string;
+  @Expose()
+  username!: string;
 
   @Column({
     type: 'varchar',
     nullable: false,
     unique: true,
   })
-  email: string;
+  @Expose()
+  email!: string;
 
   @Column()
-  password: string;
+  password!: string;
 
   @CreateDateColumn()
-  createdAt: Date;
+  @Expose()
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  @Expose()
+  updatedAt!: Date;
 
   @OneToMany(() => Task, (task) => task.user)
-  tasks: Task[];
+  @Expose()
+  tasks?: Task[];
 }

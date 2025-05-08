@@ -150,13 +150,13 @@ export class TasksService {
       const task = await this.getOneTask(id);
       if (!task) throw new NotFoundException('Task not found');
       const existingLabelNames = new Set(
-        task.labels.map((label) => label.name),
+        task.labels!.map((label) => label.name),
       );
       const labels = this.uniqueLabels(labelDto)
         .filter((dto) => !existingLabelNames.has(dto.name))
         .map((label) => this.labelRepository.create(label));
       if (labels.length > 0) {
-        task.labels = [...task.labels, ...labels];
+        task.labels = [...task.labels!, ...labels];
         return await this.taskRepository.save(task);
       }
       return task;
@@ -170,7 +170,9 @@ export class TasksService {
     try {
       const task = await this.getOneTask(id);
       if (!task) throw new NotFoundException('Task not found');
-      task.labels = task.labels.filter((label) => !lables.includes(label.name));
+      task.labels = task.labels!.filter(
+        (label) => !lables.includes(label.name),
+      );
       return await this.taskRepository.save(task);
     } catch (error) {
       console.error('Could not remove label from task: ', error);

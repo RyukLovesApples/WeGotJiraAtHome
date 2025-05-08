@@ -14,37 +14,37 @@ import { TaskLabel } from './task-label.entity';
 @Entity()
 export class Task {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
   @Column({
     type: 'varchar',
     length: 50,
     nullable: false,
   })
-  title: string;
+  title!: string;
   @Column({
     type: 'text',
     nullable: false,
   })
-  description: string;
+  description!: string;
   @Column({
     type: 'enum',
     enum: TaskStatus,
     default: TaskStatus.OPEN,
   })
-  status: TaskStatus;
+  status!: TaskStatus;
 
   @ManyToOne(() => User, (user) => user.tasks, { nullable: false })
-  user: User;
+  user!: User;
 
   @OneToMany(() => TaskLabel, (label) => label.task, {
     cascade: true,
     eager: true,
   })
-  labels: TaskLabel[];
+  labels?: TaskLabel[];
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }
