@@ -40,17 +40,11 @@ export class UsersService {
     }
   }
 
-  public async findOneByEmail(email: string): Promise<User> {
+  public async findOneByEmail(email: string): Promise<User | null> {
     try {
-      const user = await this.userRepository.findOneBy({ email });
-      if (!user) {
-        throw new NotFoundException(`User with email "${email}" not found.`);
-      }
-      return user;
+      const user = await this.userRepository.findOne({ where: { email } });
+      return user || null;
     } catch (error: unknown) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
       this.logger.error('Failed to fetch user with email', error);
       throw new InternalServerErrorException('Something went wrong');
     }

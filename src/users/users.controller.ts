@@ -34,7 +34,7 @@ export class UsersController {
   // }
 
   @Post('register')
-  public async createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
+  public async register(@Body() createUserDto: CreateUserDto): Promise<User> {
     try {
       return await this.authService.register(createUserDto);
     } catch (error: unknown) {
