@@ -6,7 +6,7 @@ import { User } from 'src/users/users.entity';
 import { LoginResponse } from 'src/users/login-user.response';
 import * as bcrypt from 'bcrypt';
 
-describe('AppController (e2e)', () => {
+describe('AuthController (e2e)', () => {
   let testSetup: TestSetup;
 
   beforeEach(async () => {
@@ -82,7 +82,7 @@ describe('AppController (e2e)', () => {
   });
 
   // Login tests
-  it('/users/login (POST), successful login with JWT response', async () => {
+  it('/auth/login (POST), successful login with JWT response', async () => {
     await request(testSetup.app.getHttpServer())
       .post('/users/register')
       .send(testUser)
@@ -96,5 +96,17 @@ describe('AppController (e2e)', () => {
         expect(res.body).toHaveProperty('accessToken');
         expect(res.body.accessToken).toMatch(/^[A-Za-z0-9-._~+/]+=*$/);
       });
+  });
+
+  it('/auth/login (POST), failed login, wrong password', async () => {
+    await request(testSetup.app.getHttpServer())
+      .post('/users/register')
+      .send(testUser)
+      .expect(201);
+
+    return request(testSetup.app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: testUser.email, password: '' })
+      .expect(400);
   });
 });
