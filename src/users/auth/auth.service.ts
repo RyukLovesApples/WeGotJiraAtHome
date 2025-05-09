@@ -2,7 +2,6 @@ import {
   ConflictException,
   Injectable,
   UnauthorizedException,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { UsersService } from '../users.service';
@@ -30,29 +29,19 @@ export class AuthService {
   }
 
   public async login(loginUserDto: LoginUserDto): Promise<LoginResponse> {
-    try {
-      const user = await this.userService.findOneByEmail(loginUserDto.email);
-      if (!user) {
-        throw new NotFoundException('User not found');
-      }
-      const isAuthorized = await this.passwordService.comparePassword(
-        loginUserDto.password,
-        user.password,
-      );
-      if (!isAuthorized) {
-        throw new UnauthorizedException('Password or email does not match');
-      }
-      const accessToken = this.generateJwtToken(user);
-      return { accessToken };
-    } catch (error) {
-      if (error instanceof UnauthorizedException) {
-        throw error;
-      }
-      console.error('Could not login user: ', error);
-      throw new InternalServerErrorException(
-        'Something went wrong during login',
-      );
+    const user = await this.userService.findOneByEmail(loginUserDto.email);
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
+    const isAuthorized = await this.passwordService.comparePassword(
+      loginUserDto.password,
+      user.password,
+    );
+    if (!isAuthorized) {
+      throw new UnauthorizedException('Password or email does not match');
+    }
+    const accessToken = this.generateJwtToken(user);
+    return { accessToken };
   }
 
   public generateJwtToken(user: User): string {

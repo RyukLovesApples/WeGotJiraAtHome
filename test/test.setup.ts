@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DataSource } from 'typeorm';
 import { testConfig } from './config/test.config';
+import { ValidationPipe } from '@nestjs/common';
 
 export class TestSetup {
   app!: INestApplication;
@@ -30,6 +31,7 @@ export class TestSetup {
       })
       .compile();
     this.app = moduleFixture.createNestApplication();
+    this.app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
     this.dataSource = moduleFixture.get(DataSource);
     await this.app.init();
   }
