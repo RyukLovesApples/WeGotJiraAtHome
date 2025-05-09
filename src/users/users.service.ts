@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  Logger,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './users.entity';
@@ -13,7 +8,6 @@ import { PasswordService } from './password/password.service';
 @Injectable()
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
-
   constructor(
     private readonly passwordService: PasswordService,
     @InjectRepository(User)
@@ -21,51 +15,26 @@ export class UsersService {
   ) {}
 
   public async findOne(id: string): Promise<User> {
-    try {
-      const user = await this.userRepository.findOneBy({ id });
-      if (!user) {
-        throw new NotFoundException(`User not found`);
-      }
-      return user;
-    } catch (error: unknown) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      if (error instanceof Error) {
-        this.logger.error('Failed to fetch user', error.stack);
-      } else {
-        this.logger.error('Unknown error occurred while fetching user');
-      }
-      throw new InternalServerErrorException('Unable to find user');
+    const user = await this.userRepository.findOneBy({ id });
+    if (!user) {
+      throw new NotFoundException(`User not found`);
     }
+    return user;
   }
 
   public async findOneByEmail(email: string): Promise<User | null> {
-    try {
-      const user = await this.userRepository.findOne({ where: { email } });
-      return user || null;
-    } catch (error: unknown) {
-      this.logger.error('Failed to fetch user with email', error);
-      throw new InternalServerErrorException('Something went wrong');
-    }
+    const user = await this.userRepository.findOne({ where: { email } });
+    return user || null;
   }
 
   public async createUser(userDto: CreateUserDto): Promise<User> {
-    try {
-      const { password, ...rest } = userDto;
-      const hashedPassword = await this.passwordService.hashPassword(password);
-      const user = this.userRepository.create({
-        ...rest,
-        password: hashedPassword,
-      });
-      return await this.userRepository.save(user);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        this.logger.error('Failed to create new user', error.stack);
-      } else {
-        this.logger.error('Unknown error occurred while creating new user');
-      }
-      throw new InternalServerErrorException('Unable to create new user');
-    }
+    const { password, ...rest } = userDto;
+    const hashedPassword = await this.passwordService.hashPassword(password);
+    // should always create the object with create method for serialization (works only on instance of class not plain js object)
+    const user = this.userRepository.create({
+      ...rest,
+      password: hashedPassword,
+    });
+    return await this.userRepository.save(user);
   }
 }

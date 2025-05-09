@@ -3,7 +3,6 @@ import {
   Post,
   Body,
   Logger,
-  InternalServerErrorException,
   UseInterceptors,
   SerializeOptions,
   ClassSerializerInterceptor,
@@ -40,15 +39,6 @@ export class UsersController {
 
   @Post('register')
   public async register(@Body() createUserDto: CreateUserDto): Promise<User> {
-    try {
-      return await this.authService.register(createUserDto);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        this.logger.error('Failed to create new user', error.stack);
-      } else {
-        this.logger.error('An unknown error occurred while creating user');
-      }
-      throw new InternalServerErrorException('Unable to create new user');
-    }
+    return await this.authService.register(createUserDto);
   }
 }

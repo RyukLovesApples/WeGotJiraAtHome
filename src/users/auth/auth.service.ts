@@ -21,22 +21,12 @@ export class AuthService {
     private readonly passwordService: PasswordService,
   ) {}
   public async register(createUserDto: CreateUserDto): Promise<User> {
-    try {
-      const user = await this.userService.findOneByEmail(createUserDto.email);
-      if (user) {
-        throw new ConflictException('User with email already exists');
-      }
-      const registeredUser = await this.userService.createUser(createUserDto);
-      return registeredUser;
-    } catch (error) {
-      if (error instanceof ConflictException) {
-        throw error;
-      }
-      console.error('Error during registration:', error);
-      throw new InternalServerErrorException(
-        'Something went wrong during registration',
-      );
+    const user = await this.userService.findOneByEmail(createUserDto.email);
+    if (user) {
+      throw new ConflictException('User with email already exists');
     }
+    const registeredUser = await this.userService.createUser(createUserDto);
+    return registeredUser;
   }
 
   public async login(loginUserDto: LoginUserDto): Promise<LoginResponse> {

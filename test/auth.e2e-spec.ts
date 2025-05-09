@@ -28,7 +28,7 @@ describe('AppController (e2e)', () => {
     password: 'Password123%',
   };
 
-  it('/users/register (POST)', () => {
+  it('/users/register (POST), successfully registered, no password exposure', () => {
     return request(testSetup.app.getHttpServer())
       .post('/users/register')
       .send(testUser)
@@ -38,5 +38,16 @@ describe('AppController (e2e)', () => {
         expect(res.body.email).toBe(testUser.email);
         expect(res.body).not.toHaveProperty('password');
       });
+  });
+
+  it('/users/register (POST), failed registration, duplicate email', async () => {
+    await request(testSetup.app.getHttpServer())
+      .post('/users/register')
+      .send(testUser);
+
+    return await request(testSetup.app.getHttpServer())
+      .post('/users/register')
+      .send(testUser)
+      .expect(409);
   });
 });
