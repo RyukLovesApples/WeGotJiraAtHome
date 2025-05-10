@@ -26,6 +26,12 @@ describe('AuthController (e2e)', () => {
     email: string;
   }
 
+  type HttpErrorResponse = {
+    message: string[];
+    error: string;
+    statusCode: number;
+  };
+
   const testUser: CreateUserDto = {
     username: 'adonis',
     email: 'adonis@test.com',
@@ -98,7 +104,7 @@ describe('AuthController (e2e)', () => {
       });
   });
 
-  it('/auth/login (POST), failed login, wrong password', async () => {
+  it('/auth/login (POST), failed login, empty password', async () => {
     await request(testSetup.app.getHttpServer())
       .post('/users/register')
       .send(testUser)
@@ -107,6 +113,70 @@ describe('AuthController (e2e)', () => {
     return request(testSetup.app.getHttpServer())
       .post('/auth/login')
       .send({ email: testUser.email, password: '' })
-      .expect(400);
+      .expect(400)
+      .expect((res) => {
+        if (res.error && 'text' in res.error) {
+          const errorBody = JSON.parse(res.error.text) as HttpErrorResponse;
+          expect(errorBody.message).toContain('password should not be empty');
+        }
+      });
+  });
+
+  it('/auth/login (POST), failed login, not an email format', async () => {
+    await request(testSetup.app.getHttpServer())
+      .post('/users/register')
+      .send(testUser)
+      .expect(201);
+
+    return request(testSetup.app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: 'adonisgmail.com', password: testUser.password })
+      .expect(400)
+      .expect((res) => {
+        if (res.error && 'text' in res.error) {
+          const errorBody = JSON.parse(res.error.text) as HttpErrorResponse;
+          expect(errorBody.message).toContain('email must be an email');
+        }
+      });
+  });
+
+  it('/auth/login (POST), failed login, unautherized, email does not exist', async () => {
+    await request(testSetup.app.getHttpServer())
+      .post('/users/register')
+      .send(testUser)
+      .expect(201);
+
+    return request(testSetup.app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: 'adonis@gmail.com', password: testUser.password })
+      .expect(404)
+      .expect((res) => {
+        if (res.error && 'text' in res.error) {
+          const errorBody = JSON.parse(res.error.text) as HttpErrorResponse;
+          expect(errorBody.message).toContain(
+            `User with email adonis@gmail.com does not exist`,
+          );
+        }
+      });
+  });
+
+  it('/auth/login (POST), failed login, password does not match', async () => {
+    await request(testSetup.app.getHttpServer())
+      .post('/users/register')
+      .send(testUser)
+      .expect(201);
+
+    return request(testSetup.app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: testUser.email, password: 'adonis' })
+      .expect(401)
+      .expect((res) => {
+        if (res.error && 'text' in res.error) {
+          const errorBody = JSON.parse(res.error.text) as HttpErrorResponse;
+          expect(errorBody.message).toContain(
+            'Password or email does not match',
+          );
+        }
+      });
   });
 });

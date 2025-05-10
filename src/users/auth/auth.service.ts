@@ -31,7 +31,9 @@ export class AuthService {
   public async login(loginUserDto: LoginUserDto): Promise<LoginResponse> {
     const user = await this.userService.findOneByEmail(loginUserDto.email);
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException(
+        `User with email ${loginUserDto.email} does not exist`,
+      );
     }
     const isAuthorized = await this.passwordService.comparePassword(
       loginUserDto.password,
