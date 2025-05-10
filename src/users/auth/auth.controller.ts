@@ -11,11 +11,11 @@ import {
 import { LoginUserDto } from '../login-user.dto';
 import { AuthService } from './auth.service';
 import { LoginResponse } from '../login-user.response';
-import { User } from '../users.entity';
 import { AuthRequest } from './auth.request';
 import { UsersService } from '../users.service';
 import { AuthGuard } from './auth.guard';
 import { plainToInstance } from 'class-transformer';
+import { UserDto } from '../user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -32,12 +32,15 @@ export class AuthController {
   }
   @Get('profile')
   @UseGuards(AuthGuard)
-  public async profileAccess(@Request() request: AuthRequest): Promise<User> {
+  public async profileAccess(
+    @Request() request: AuthRequest,
+  ): Promise<UserDto> {
     const user = await this.usersService.findOne(request.user.sub);
     if (user) {
-      return plainToInstance(User, user, {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      return plainToInstance(UserDto, user, {
         excludeExtraneousValues: true,
-      }) as User;
+      }) as UserDto;
     }
     throw new NotFoundException();
   }
