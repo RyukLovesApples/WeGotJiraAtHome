@@ -17,16 +17,8 @@ import { authConfig } from './config/auth.config';
 
 @Module({
   imports: [
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: TypedConfigService) => ({
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        ...configService.get('database'),
-        entities: [Task, User, TaskLabel],
-      }),
-    }),
     ConfigModule.forRoot({
+      isGlobal: true,
       load: [appConfig, typeOrmConfig, authConfig],
       validationSchema: appConfigSchema,
       validationOptions: {
@@ -35,6 +27,15 @@ import { authConfig } from './config/auth.config';
         // shows all the potential errors not one by one
         abortEarly: true,
       },
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: TypedConfigService) => ({
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        ...configService.get('database'),
+        entities: [Task, User, TaskLabel],
+      }),
     }),
     LoggerModule,
     TasksModule,

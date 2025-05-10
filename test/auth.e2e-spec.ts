@@ -3,7 +3,6 @@ import { AppModule } from './../src/app.module';
 import { TestSetup } from './test.setup';
 import { CreateUserDto } from 'src/users/create-user.dto';
 import { User } from 'src/users/users.entity';
-import { LoginResponse } from 'src/users/login-user.response';
 import * as bcrypt from 'bcrypt';
 
 describe('AuthController (e2e)', () => {
@@ -31,6 +30,10 @@ describe('AuthController (e2e)', () => {
     error: string;
     statusCode: number;
   };
+
+  interface LoginResponse {
+    body: { accessToken: string };
+  }
 
   const testUser: CreateUserDto = {
     username: 'adonis',
@@ -98,7 +101,7 @@ describe('AuthController (e2e)', () => {
       .post('/auth/login')
       .send({ email: testUser.email, password: testUser.password })
       .expect(200)
-      .expect((res: { body: LoginResponse }) => {
+      .expect((res: LoginResponse) => {
         expect(res.body).toHaveProperty('accessToken');
         expect(res.body.accessToken).toMatch(/^[A-Za-z0-9-._~+/]+=*$/);
       });
@@ -177,6 +180,25 @@ describe('AuthController (e2e)', () => {
             'Password or email does not match',
           );
         }
+      });
+  });
+  it('/auth/profile (GET), successful access through auth guard, return value includes email, username but password it not exposed', async () => {
+    await request(testSetup.app.getHttpServer())
+      .post('/users/register')
+      .send(testUser);
+
+    const response: LoginResponse = await request(testSetup.app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: testUser.email, password: testUser.password });
+    const token = response.body.accessToken;
+    return request(testSetup.app.getHttpServer())
+      .get('/auth/profile')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200)
+      .expect((res: { body: User }) => {
+        expect(res.body.email).toBe(testUser.email);
+        expect(res.body.username).toBe(testUser.username);
+        expect(res.body).not.toHaveProperty('password');
       });
   });
 });
