@@ -201,4 +201,12 @@ describe('AuthController (e2e)', () => {
         expect(res.body).not.toHaveProperty('password');
       });
   });
+
+  it('auth/profile (GET), failed access through auth guard, returned value "401"', async () => {
+    const incorrectToken = 'asödlfklöökasdfjsdflök';
+    return request(testSetup.app.getHttpServer())
+      .get('/auth/profile')
+      .send(incorrectToken)
+      .expect(401);
+  });
 });
