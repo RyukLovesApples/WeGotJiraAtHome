@@ -10,6 +10,7 @@ import {
 import { CreateUserDto } from './create-user.dto';
 import { User } from './users.entity';
 import { AuthService } from './auth/auth.service';
+import { Public } from './decorators/public.decorator';
 
 @Controller('users')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -38,6 +39,7 @@ export class UsersController {
   // }
 
   @Post('register')
+  @Public()
   public async register(@Body() createUserDto: CreateUserDto): Promise<User> {
     return await this.authService.register(createUserDto);
   }

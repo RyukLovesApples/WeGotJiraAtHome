@@ -16,6 +16,7 @@ import { UsersService } from '../users.service';
 import { AuthGuard } from './auth.guard';
 import { plainToInstance } from 'class-transformer';
 import { UserDto } from '../user.dto';
+import { Public } from '../decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -24,6 +25,7 @@ export class AuthController {
     private readonly usersService: UsersService,
   ) {}
   @Post('login')
+  @Public()
   @HttpCode(200)
   public async login(
     @Body() loginUserDto: LoginUserDto,

@@ -182,6 +182,7 @@ describe('AuthController (e2e)', () => {
         }
       });
   });
+  // Guard tests
   it('/auth/profile (GET), successful access through auth guard, return value includes email, username but password it not exposed', async () => {
     await request(testSetup.app.getHttpServer())
       .post('/users/register')
