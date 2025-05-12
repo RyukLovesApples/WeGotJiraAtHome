@@ -4,6 +4,12 @@ import { TestSetup } from './test.setup';
 import { CreateUserDto } from 'src/users/create-user.dto';
 import { User } from 'src/users/users.entity';
 import * as bcrypt from 'bcrypt';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Role } from 'src/users/role.enum';
+import { PasswordService } from 'src/users/password/password.service';
+import { Repository } from 'typeorm';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from 'jsonwebtoken';
 
 describe('AuthController (e2e)', () => {
   let testSetup: TestSetup;
@@ -183,7 +189,7 @@ describe('AuthController (e2e)', () => {
       });
   });
   // Guard tests
-  it('/auth/profile (GET), successful access through auth guard, return value includes email, username but password it not exposed', async () => {
+  it('/auth/profile (GET), successful access through auth guard, response includes email, username but password it not exposed', async () => {
     await request(testSetup.app.getHttpServer())
       .post('/users/register')
       .send(testUser);
@@ -197,6 +203,7 @@ describe('AuthController (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .expect(200)
       .expect((res: { body: User }) => {
+        expect(res.body.id).toBeDefined();
         expect(res.body.email).toBe(testUser.email);
         expect(res.body.username).toBe(testUser.username);
         expect(res.body).not.toHaveProperty('password');
@@ -218,5 +225,30 @@ describe('AuthController (e2e)', () => {
       .expect((res: { body: HttpErrorResponse }) => {
         expect(res.body.message).toContain('Unauthorized');
       });
+  });
+
+  it('should check JWT payload data and include user role in response', async () => {
+    const userRepo: Repository<User> = testSetup.app.get(
+      getRepositoryToken(User),
+    );
+    await userRepo.save({
+      ...testUser,
+      roles: [Role.ADMIN],
+      password: await testSetup.app
+        .get(PasswordService)
+        .hashPassword(testUser.password),
+    });
+    const response: LoginResponse = await request(testSetup.app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: testUser.email, password: testUser.password });
+    const token = response.body.accessToken;
+
+    const jwtData: JwtPayload = testSetup.app.get(JwtService).verify(token);
+    expect(jwtData.sub).toBeDefined();
+    expect(jwtData.username).toBeDefined();
+    expect(jwtData.roles).toBeDefined();
+    expect(jwtData.roles).toContain(Role.ADMIN);
+    expect(jwtData.password).not.toBeDefined();
+    expect(jwtData.email).not.toBeDefined();
   });
 });

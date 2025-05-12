@@ -48,7 +48,7 @@ export class User {
   @Expose()
   tasks?: Task[];
 
-  @Column('text', { array: true, default: Role.USER })
+  @Column('text', { array: true, default: [Role.USER] })
   @Expose()
   roles!: Role[];
 }
