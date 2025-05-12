@@ -6,14 +6,12 @@ import {
   NotFoundException,
   Post,
   Request,
-  UseGuards,
 } from '@nestjs/common';
 import { LoginUserDto } from '../login-user.dto';
 import { AuthService } from './auth.service';
 import { LoginResponse } from '../login-user.response';
 import { AuthRequest } from './auth.request';
 import { UsersService } from '../users.service';
-import { AuthGuard } from './auth.guard';
 import { plainToInstance } from 'class-transformer';
 import { UserDto } from '../user.dto';
 import { Public } from '../decorators/public.decorator';
@@ -33,7 +31,6 @@ export class AuthController {
     return await this.authService.login(loginUserDto);
   }
   @Get('profile')
-  @UseGuards(AuthGuard)
   public async profileAccess(
     @Request() request: AuthRequest,
   ): Promise<UserDto> {
