@@ -210,4 +210,13 @@ describe('AuthController (e2e)', () => {
       .send(incorrectToken)
       .expect(401);
   });
+
+  it('/tasks (GET), unauthorized access without login, test global auth guard', async () => {
+    return request(testSetup.app.getHttpServer())
+      .get('/tasks')
+      .expect(401)
+      .expect((res: { body: HttpErrorResponse }) => {
+        expect(res.body.message).toContain('Unauthorized');
+      });
+  });
 });
