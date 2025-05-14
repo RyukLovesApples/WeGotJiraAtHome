@@ -23,6 +23,8 @@ import { CreateTaskLabelDto } from './create-task-label.dto';
 import { FindTaskParams } from './find-task.params';
 import { PaginationParams } from './task-pagination.params';
 import { PaginationResponse } from './pagination.response';
+import { CurrentUserId } from './../users/decorators/current-user-id.decorator';
+import { CreateUserDto } from 'src/users/create-user.dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -64,12 +66,14 @@ export class TasksController {
   }
 
   @Post()
-  public async create(@Body() createTaskDto: CreateTaskDto): Promise<Task> {
-    try {
-      return await this.tasksService.create(createTaskDto);
-    } catch {
-      throw new InternalServerErrorException('Failed to create task');
+  public async create(
+    @Body() createTaskDto: CreateTaskDto,
+    @CurrentUserId() userId: string,
+  ): Promise<Task> {
+    if (!userId) {
+      console.log('No user id in params');
     }
+    return await this.tasksService.create(createTaskDto, userId);
   }
 
   @Patch('/:id')
@@ -135,15 +139,10 @@ export class TasksController {
   }
 
   private async findOneOrFail(id: string): Promise<Task> {
-    try {
-      const task = await this.tasksService.getOneTask(id);
-      if (!task) {
-        throw new NotFoundException('Task not found');
-      }
-      return task;
-    } catch (error) {
-      console.error('Failed to delete labels: ', error);
-      throw new InternalServerErrorException('Failed to delete labels');
+    const task = await this.tasksService.getOneTask(id);
+    if (!task) {
+      throw new NotFoundException('Task not found');
     }
+    return task;
   }
 }

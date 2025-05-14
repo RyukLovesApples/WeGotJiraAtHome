@@ -23,10 +23,6 @@ export class CreateTaskDto {
   @IsEnum(TaskStatus)
   status!: TaskStatus;
 
-  @IsNotEmpty()
-  @IsUUID()
-  userId!: string;
-
   @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => CreateTaskLabelDto)
