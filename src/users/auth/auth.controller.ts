@@ -15,6 +15,9 @@ import { UsersService } from '../users.service';
 import { plainToInstance } from 'class-transformer';
 import { UserDto } from '../user.dto';
 import { Public } from '../decorators/public.decorator';
+import { AdminResponse } from '../responses/Admin.response';
+import { Roles } from '../decorators/roles.decorator';
+import { Role } from '../role.enum';
 
 @Controller('auth')
 export class AuthController {
@@ -42,5 +45,10 @@ export class AuthController {
       }) as UserDto;
     }
     throw new NotFoundException();
+  }
+  @Get('admin')
+  @Roles(Role.ADMIN)
+  adminAccessOnly(): AdminResponse {
+    return new AdminResponse({ message: 'This is for admin only!' });
   }
 }
