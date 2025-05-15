@@ -5,11 +5,14 @@ import { CreateUserDto } from 'src/users/create-user.dto';
 import { TaskStatus } from 'src/tasks/task.model';
 import { Task } from 'src/tasks/task.entity';
 import { PaginationResponse } from 'src/tasks/pagination.response';
+import { CreateTaskDto } from 'src/tasks/create-task.dto';
+import { Http2Server } from 'http2';
 
-describe('Tasks (e2e)', () => {
+describe('Tasks Integration(e2e)', () => {
   let testSetup: TestSetup;
-  let accessToken: string;
-  let taskId: string;
+  let accessToken: string | undefined;
+  let taskId: string | undefined;
+  let server: Http2Server;
 
   const testUser: CreateUserDto = {
     username: 'adonis',
@@ -17,30 +20,31 @@ describe('Tasks (e2e)', () => {
     password: 'Password123%',
   };
 
-  const mockTasks = [
+  const unauthorizedUser: CreateUserDto = {
+    username: 'adonis1',
+    email: 'adonis1@test.com',
+    password: 'Password123%1',
+  };
+
+  const mockTasks: CreateTaskDto[] = [
     {
-      title: 'test task 1',
-      description: 'testing tasks for crud and access',
+      title: 'test task0',
+      description: 'testing tasks for crud and access0',
       status: TaskStatus.OPEN,
     },
     {
-      title: 'test task 2',
-      description: 'testing tasks for crud and access',
+      title: 'test task1',
+      description: 'testing tasks for crud and access1',
       status: TaskStatus.OPEN,
     },
     {
-      title: 'test task 3',
-      description: 'testing tasks for crud and access',
+      title: 'test task2',
+      description: 'testing tasks for crud and access2',
       status: TaskStatus.OPEN,
     },
     {
-      title: 'test task 4',
-      description: 'testing tasks for crud and access',
-      status: TaskStatus.OPEN,
-    },
-    {
-      title: 'test task 5',
-      description: 'testing tasks for crud and access',
+      title: 'test task3',
+      description: 'testing tasks for crud and access3',
       status: TaskStatus.OPEN,
     },
   ];
@@ -49,26 +53,44 @@ describe('Tasks (e2e)', () => {
     body: { accessToken: string };
   }
 
-  beforeEach(async () => {
-    testSetup = await TestSetup.create(AppModule);
-    await request(testSetup.app.getHttpServer())
-      .post('/users/register')
-      .send(testUser);
+  interface CreateTaskResponse {
+    data: Task;
+    token: string;
+  }
 
-    const response: LoginResponse = await request(testSetup.app.getHttpServer())
+  const registerAndLogin = async (user: CreateUserDto): Promise<string> => {
+    await request(server).post('/users/register').send(user);
+
+    const response: LoginResponse = await request(server)
       .post('/auth/login')
-      .send({ email: testUser.email, password: testUser.password });
+      .send({
+        email: user.email,
+        password: user.password,
+      });
     const token = response.body.accessToken;
-    accessToken = token;
-    const task: { body: Task } = await request(testSetup.app.getHttpServer())
+    return token;
+  };
+
+  const createTask = async (
+    user: CreateUserDto,
+    task: CreateTaskDto,
+    noReturn?: string,
+  ): Promise<CreateTaskResponse | void> => {
+    const token = await registerAndLogin(user);
+    const response: { body: Task } = await request(server)
       .post('/tasks')
       .set('Authorization', `Bearer ${token}`)
-      .send({
-        title: 'test task',
-        description: 'testing tasks for crud and access',
-        status: TaskStatus.OPEN,
-      });
-    taskId = task?.body.id;
+      .send(task)
+      .expect(201);
+    if (!noReturn) return { data: response.body, token };
+  };
+
+  beforeEach(async () => {
+    testSetup = await TestSetup.create(AppModule);
+    server = testSetup.app.getHttpServer() as Http2Server;
+    const response = await createTask(testUser, mockTasks[0]);
+    taskId = response?.data.id;
+    accessToken = response?.token;
   });
 
   afterEach(async () => {
@@ -79,25 +101,9 @@ describe('Tasks (e2e)', () => {
     await testSetup.teardown();
   });
 
-  it('/tasks/id, should deny access to unauthorized user', async () => {
-    const unauthorizedUser = {
-      username: 'adonis1',
-      email: 'adonis1@test.com',
-      password: 'Password123%1',
-    };
-    await request(testSetup.app.getHttpServer())
-      .post('/users/register')
-      .send(unauthorizedUser);
-
-    const response: LoginResponse = await request(testSetup.app.getHttpServer())
-      .post('/auth/login')
-      .send({
-        email: unauthorizedUser.email,
-        password: unauthorizedUser.password,
-      });
-    const token = response.body.accessToken;
-
-    return await request(testSetup.app.getHttpServer())
+  it('/tasks/id, denies access to non-user', async () => {
+    const token = await registerAndLogin(unauthorizedUser);
+    return await request(server)
       .get(`/tasks/${taskId}`)
       .set('Authorization', `Bearer ${token}`)
       .expect(403)
@@ -108,25 +114,12 @@ describe('Tasks (e2e)', () => {
       });
   });
   it('/tasks (GET), should only show list of user tasks', async () => {
-    const created = await request(testSetup.app.getHttpServer())
-      .post('/tasks')
-      .set('Authorization', `Bearer ${accessToken}`)
-      .send({
-        title: 'test task 1',
-        description: 'testing tasks for crud and access 1',
-        status: TaskStatus.IN_PROGRESS,
-      })
-      .expect(201);
-
-    const res: { body: PaginationResponse<Task> } = await request(
-      testSetup.app.getHttpServer(),
-    )
+    await createTask(unauthorizedUser, mockTasks[0], 'noRetrun');
+    await createTask(testUser, mockTasks[1]);
+    const res: { body: PaginationResponse<Task> } = await request(server)
       .get('/tasks')
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200);
-
-    console.log('Fetched tasks response:', res.body);
-
     expect(Array.isArray(res.body.data)).toBe(true);
     expect(res.body.data.length).toBeGreaterThanOrEqual(2);
   });

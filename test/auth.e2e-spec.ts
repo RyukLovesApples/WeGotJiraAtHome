@@ -10,13 +10,16 @@ import { PasswordService } from 'src/users/password/password.service';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from 'jsonwebtoken';
-import { AdminResponse } from './../users/responses/Admin.response';
+import { AdminResponse } from '../src/users/responses/Admin.response';
+import { Http2Server } from 'http2';
 
 describe('AuthController (e2e)', () => {
   let testSetup: TestSetup;
+  let server: Http2Server;
 
   beforeEach(async () => {
     testSetup = await TestSetup.create(AppModule);
+    server = testSetup.app.getHttpServer() as Http2Server;
   });
 
   afterEach(async () => {
@@ -50,7 +53,7 @@ describe('AuthController (e2e)', () => {
 
   // Registration tests
   it('/users/register (POST), successfully registered, no password exposure', () => {
-    return request(testSetup.app.getHttpServer())
+    return request(server)
       .post('/users/register')
       .send(testUser)
       .expect(201)
