@@ -1,32 +1,33 @@
 import {
-  BadRequestException,
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
-  InternalServerErrorException,
   NotFoundException,
   Param,
   Patch,
   Post,
   Query,
+  UseInterceptors,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './create-task.dto';
 import { FindOneParams } from './find-one.params';
 import { UpdateTaskDto } from './update-task.dto';
-import { WrongTaskStatusException } from './exeptions/wrong-task-status.exeption';
 import { Task } from './task.entity';
 import { CreateTaskLabelDto } from './create-task-label.dto';
 import { FindTaskParams } from './find-task.params';
 import { PaginationParams } from './task-pagination.params';
 import { PaginationResponse } from './pagination.response';
 import { CurrentUserId } from './../users/decorators/current-user-id.decorator';
-import { CreateUserDto } from 'src/users/create-user.dto';
+import { TaskDto } from './task.dto';
 
 @Controller('tasks')
+@UseInterceptors(ClassSerializerInterceptor)
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
@@ -34,45 +35,39 @@ export class TasksController {
   public async findAll(
     @Query() filters: FindTaskParams,
     @Query() pagination: PaginationParams,
+    @CurrentUserId() userId: string,
   ): Promise<PaginationResponse<Task>> {
-    try {
-      const [items, total] = await this.tasksService.getAll(
-        filters,
-        pagination,
-      );
-      return {
-        data: items,
-        meta: {
-          total: total,
-          limit: pagination.limit,
-          offset: pagination.offset,
-        },
-      };
-    } catch {
-      throw new InternalServerErrorException('Failed to retrieve tasks');
-    }
+    const [items, total] = await this.tasksService.getAll(
+      filters,
+      pagination,
+      userId,
+    );
+
+    return {
+      data: items,
+      meta: {
+        total: total,
+        limit: pagination.limit,
+        offset: pagination.offset,
+      },
+    };
   }
 
   @Get('/:id')
-  public async findOne(@Param() params: FindOneParams): Promise<Task> {
-    try {
-      return await this.findOneOrFail(params.id);
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw new InternalServerErrorException('Failed to retrieve the task');
-    }
+  public async findOne(
+    @Param() params: FindOneParams,
+    @CurrentUserId() userId: string,
+  ): Promise<Task> {
+    const task = await this.findOneOrFail(params.id);
+    this.checkOwnership(task, userId);
+    return task;
   }
 
   @Post()
   public async create(
     @Body() createTaskDto: CreateTaskDto,
     @CurrentUserId() userId: string,
-  ): Promise<Task> {
-    if (!userId) {
-      console.log('No user id in params');
-    }
+  ): Promise<TaskDto> {
     return await this.tasksService.create(createTaskDto, userId);
   }
 
@@ -80,48 +75,33 @@ export class TasksController {
   public async updateTask(
     @Param() params: FindOneParams,
     @Body() updateTaskDto: UpdateTaskDto,
+    @CurrentUserId() userId: string,
   ): Promise<Task> {
-    try {
-      const task: Task = await this.findOneOrFail(params.id);
-      return await this.tasksService.updateTask(task, updateTaskDto);
-    } catch (error) {
-      if (error instanceof WrongTaskStatusException) {
-        throw new BadRequestException(error.message);
-      }
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw new InternalServerErrorException('Failed to update task');
-    }
+    const task: Task = await this.findOneOrFail(params.id);
+    this.checkOwnership(task, userId);
+    return await this.tasksService.updateTask(task, updateTaskDto);
   }
 
   @Delete('/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  public async delete(@Param() params: FindOneParams): Promise<void> {
-    try {
-      const task: Task = await this.findOneOrFail(params.id);
-      await this.tasksService.delete(task);
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw new InternalServerErrorException('Failed to delete task');
-    }
+  public async delete(
+    @Param() params: FindOneParams,
+    @CurrentUserId() userId: string,
+  ): Promise<void> {
+    const task: Task = await this.findOneOrFail(params.id);
+    this.checkOwnership(task, userId);
+    await this.tasksService.delete(task);
   }
 
   @Post('/:id/labels')
   public async addLabels(
     @Param() param: FindOneParams,
     @Body() labels: CreateTaskLabelDto[],
+    @CurrentUserId() userId: string,
   ): Promise<Task> {
-    try {
-      return await this.tasksService.addLabels(param.id, labels);
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw new InternalServerErrorException('Failed to delete task');
-    }
+    const task = await this.findOneOrFail(param.id);
+    this.checkOwnership(task, userId);
+    return await this.tasksService.addLabels(param.id, labels);
   }
 
   @Delete('/:id/labels')
@@ -129,13 +109,11 @@ export class TasksController {
   public async removeLabels(
     @Param() { id }: FindOneParams,
     @Body() labels: string[],
+    @CurrentUserId() userId: string,
   ): Promise<Task> {
-    try {
-      return this.tasksService.removeLabel(id, labels);
-    } catch (error) {
-      console.error('Failed to delete label: ', error);
-      throw new InternalServerErrorException('Failed to delete labels');
-    }
+    const task = await this.findOneOrFail(id);
+    this.checkOwnership(task, userId);
+    return this.tasksService.removeLabel(id, labels);
   }
 
   private async findOneOrFail(id: string): Promise<Task> {
@@ -144,5 +122,13 @@ export class TasksController {
       throw new NotFoundException('Task not found');
     }
     return task;
+  }
+
+  private checkOwnership(task: Task, userId: string) {
+    if (task.user.id !== userId) {
+      throw new ForbiddenException(
+        'Access to task denied. You are not the owner!',
+      );
+    }
   }
 }

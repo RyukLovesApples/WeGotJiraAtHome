@@ -10,7 +10,7 @@ import { PasswordService } from 'src/users/password/password.service';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from 'jsonwebtoken';
-import { AdminResponse } from 'src/users/responses/Admin.response';
+import { AdminResponse } from './../users/responses/Admin.response';
 
 describe('AuthController (e2e)', () => {
   let testSetup: TestSetup;

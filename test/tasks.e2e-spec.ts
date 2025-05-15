@@ -4,7 +4,7 @@ import * as request from 'supertest';
 import { CreateUserDto } from 'src/users/create-user.dto';
 import { TaskStatus } from 'src/tasks/task.model';
 import { Task } from 'src/tasks/task.entity';
-import { CreateTaskDto } from 'src/tasks/create-task.dto';
+import { PaginationResponse } from 'src/tasks/pagination.response';
 
 describe('Tasks (e2e)', () => {
   let testSetup: TestSetup;
@@ -16,6 +16,34 @@ describe('Tasks (e2e)', () => {
     email: 'adonis@test.com',
     password: 'Password123%',
   };
+
+  const mockTasks = [
+    {
+      title: 'test task 1',
+      description: 'testing tasks for crud and access',
+      status: TaskStatus.OPEN,
+    },
+    {
+      title: 'test task 2',
+      description: 'testing tasks for crud and access',
+      status: TaskStatus.OPEN,
+    },
+    {
+      title: 'test task 3',
+      description: 'testing tasks for crud and access',
+      status: TaskStatus.OPEN,
+    },
+    {
+      title: 'test task 4',
+      description: 'testing tasks for crud and access',
+      status: TaskStatus.OPEN,
+    },
+    {
+      title: 'test task 5',
+      description: 'testing tasks for crud and access',
+      status: TaskStatus.OPEN,
+    },
+  ];
 
   interface LoginResponse {
     body: { accessToken: string };
@@ -40,7 +68,6 @@ describe('Tasks (e2e)', () => {
         description: 'testing tasks for crud and access',
         status: TaskStatus.OPEN,
       });
-    console.log(task.body);
     taskId = task?.body.id;
   });
 
@@ -73,6 +100,34 @@ describe('Tasks (e2e)', () => {
     return await request(testSetup.app.getHttpServer())
       .get(`/tasks/${taskId}`)
       .set('Authorization', `Bearer ${token}`)
+      .expect(403)
+      .expect((res: { body: Error }) => {
+        expect(res.body.message).toContain(
+          'Access to task denied. You are not the owner!',
+        );
+      });
+  });
+  it('/tasks (GET), should only show list of user tasks', async () => {
+    const created = await request(testSetup.app.getHttpServer())
+      .post('/tasks')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        title: 'test task 1',
+        description: 'testing tasks for crud and access 1',
+        status: TaskStatus.IN_PROGRESS,
+      })
+      .expect(201);
+
+    const res: { body: PaginationResponse<Task> } = await request(
+      testSetup.app.getHttpServer(),
+    )
+      .get('/tasks')
+      .set('Authorization', `Bearer ${accessToken}`)
       .expect(200);
+
+    console.log('Fetched tasks response:', res.body);
+
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data.length).toBeGreaterThanOrEqual(2);
   });
 });

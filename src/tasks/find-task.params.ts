@@ -32,9 +32,11 @@ export class FindTaskParams {
 
   @IsOptional()
   @IsIn(['title', 'status', 'createdAt'])
-  sortBy?: string = 'createdAt';
+  @Transform(({ value }: { value?: string }): string => value || 'createdAt')
+  sortBy?: string;
 
   @IsOptional()
-  @IsEnum(['ASC', 'DESC'])
-  sortingOrder: 'ASC' | 'DESC' = 'DESC';
+  @IsIn(['ASC', 'DESC'])
+  @Transform(({ value }: { value?: string }) => value || 'DESC')
+  sortingOrder?: 'ASC' | 'DESC';
 }

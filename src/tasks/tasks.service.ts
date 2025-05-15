@@ -15,6 +15,8 @@ import { TaskLabel } from './task-label.entity';
 import { CreateTaskLabelDto } from './create-task-label.dto';
 import { FindTaskParams } from './find-task.params';
 import { PaginationParams } from './task-pagination.params';
+import { plainToInstance } from 'class-transformer';
+import { TaskDto } from './task.dto';
 
 @Injectable()
 export class TasksService {
@@ -30,10 +32,13 @@ export class TasksService {
   public async getAll(
     filters: FindTaskParams,
     pagination: PaginationParams,
+    userId: string,
   ): Promise<[Task[], number]> {
     const queryBuilder = this.taskRepository
       .createQueryBuilder('task')
-      .leftJoinAndSelect('task.labels', 'labels');
+      .leftJoinAndSelect('task.user', 'user')
+      .leftJoinAndSelect('task.labels', 'labels')
+      .where(`task.userId = :userId`, { userId });
     if (filters.status) {
       queryBuilder.andWhere('task.status = :status', {
         status: filters.status,
@@ -57,11 +62,17 @@ export class TasksService {
         .getQuery();
       queryBuilder.andWhere(`task.id IN ${subQuery}`);
     }
-    queryBuilder.orderBy(`task.${filters.sortBy}`, filters.sortingOrder);
+    queryBuilder.orderBy(
+      `task.${filters.sortBy || 'createdAt'}`,
+      filters.sortingOrder || 'DESC',
+    );
     queryBuilder.skip(pagination.offset).take(pagination.limit);
-    // log for the aktuell sql query -> getSql()
+    // log for the sql query -> getSql()
     // console.log(queryBuilder.getSql());
-    return await queryBuilder.getManyAndCount();
+    const [items, total] = await queryBuilder.getManyAndCount();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    const tasks = plainToInstance(Task, items) as Task[];
+    return [tasks, total];
   }
 
   public async getOneTask(id: string): Promise<Task | null> {
@@ -74,7 +85,7 @@ export class TasksService {
   public async create(
     createTaskDto: CreateTaskDto,
     userId: string,
-  ): Promise<Task> {
+  ): Promise<TaskDto> {
     const user = await this.userRepository.findOneBy({
       id: userId,
     });
@@ -86,7 +97,7 @@ export class TasksService {
       this.labelRepository.create({ name: label.name }),
     );
 
-    const task = this.taskRepository.create({
+    const newTask = this.taskRepository.create({
       title: createTaskDto.title,
       description: createTaskDto.description,
       status: createTaskDto.status,
@@ -94,7 +105,11 @@ export class TasksService {
       labels: labels,
     });
 
-    return await this.taskRepository.save(task);
+    const task: Task = await this.taskRepository.save(newTask);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    return plainToInstance(TaskDto, task, {
+      excludeExtraneousValues: true,
+    }) as TaskDto;
   }
 
   public async updateTask(

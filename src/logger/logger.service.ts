@@ -8,7 +8,6 @@ export class LoggerService {
   ) {}
 
   log(): string {
-    console.log(this.messageFormatterService.format('Hello World'));
     return this.messageFormatterService.format('Hello World');
   }
 }

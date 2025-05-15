@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Task } from './task.entity';
+import { Expose } from 'class-transformer';
 
 @Entity()
 @Unique(['name', 'taskId'])
@@ -19,11 +20,13 @@ export class TaskLabel {
     type: 'varchar',
     nullable: false,
   })
+  @Expose()
   name!: string;
   @Column({
     nullable: false,
   })
   @Index()
+  @Expose()
   taskId!: string;
   @ManyToOne(() => Task, (task) => task.labels, {
     nullable: false,
@@ -33,8 +36,10 @@ export class TaskLabel {
   task!: Task;
 
   @CreateDateColumn()
+  @Expose()
   createdAt!: Date;
 
   @UpdateDateColumn()
+  @Expose()
   updatedAt!: Date;
 }
