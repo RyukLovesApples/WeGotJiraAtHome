@@ -7,6 +7,7 @@ import {
   unauthorizedUser,
   mockTasks,
 } from './mockVariables/mockVariables';
+import { LoginResponse, CreateTaskResponse } from './types/test.types';
 import { Task } from 'src/tasks/task.entity';
 import { PaginationResponse } from 'src/tasks/pagination.response';
 import { CreateTaskDto } from 'src/tasks/create-task.dto';
@@ -17,15 +18,6 @@ describe('Tasks Integration(e2e)', () => {
   let accessToken: string | undefined;
   let taskId: string | undefined;
   let server: Http2Server;
-
-  interface LoginResponse {
-    accessToken: string;
-  }
-
-  interface CreateTaskResponse {
-    data: Task;
-    token: string;
-  }
 
   const registerAndLogin = async (user: CreateUserDto): Promise<string> => {
     await request(server).post('/users/register').send(user);

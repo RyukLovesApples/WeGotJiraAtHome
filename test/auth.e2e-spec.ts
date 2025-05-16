@@ -14,6 +14,11 @@ import { AdminResponse } from '../src/users/responses/Admin.response';
 import { Http2Server } from 'http2';
 import Test from 'supertest/lib/test';
 import { testUser } from './mockVariables/mockVariables';
+import {
+  LoginResponse,
+  HttpErrorResponse,
+  RegisterResponse,
+} from './types/test.types';
 
 describe('AuthController (e2e)', () => {
   let testSetup: TestSetup;
@@ -31,21 +36,6 @@ describe('AuthController (e2e)', () => {
   afterAll(async () => {
     await testSetup.teardown();
   });
-
-  interface RegisterResponse {
-    username: string;
-    email: string;
-  }
-
-  type HttpErrorResponse = {
-    message: string[];
-    error: string;
-    statusCode: number;
-  };
-
-  interface LoginResponse {
-    accessToken: string;
-  }
 
   const registerUser = async (user: CreateUserDto) => {
     return await request(server).post('/users/register').send(user).expect(201);
