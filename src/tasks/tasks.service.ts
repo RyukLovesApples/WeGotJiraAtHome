@@ -70,9 +70,7 @@ export class TasksService {
     // log for the sql query -> getSql()
     // console.log(queryBuilder.getSql());
     const [items, total] = await queryBuilder.getManyAndCount();
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    const tasks = plainToInstance(Task, items) as Task[];
-    return [tasks, total];
+    return [items, total];
   }
 
   public async getOneTask(id: string): Promise<Task | null> {
@@ -109,7 +107,7 @@ export class TasksService {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     return plainToInstance(TaskDto, task, {
       excludeExtraneousValues: true,
-    }) as TaskDto;
+    });
   }
 
   public async updateTask(

@@ -12,6 +12,7 @@ import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from 'jsonwebtoken';
 import { AdminResponse } from '../src/users/responses/Admin.response';
 import { Http2Server } from 'http2';
+import Test from 'supertest/lib/test';
 
 describe('AuthController (e2e)', () => {
   let testSetup: TestSetup;
@@ -42,13 +43,34 @@ describe('AuthController (e2e)', () => {
   };
 
   interface LoginResponse {
-    body: { accessToken: string };
+    accessToken: string;
   }
 
   const testUser: CreateUserDto = {
     username: 'adonis',
     email: 'adonis@test.com',
     password: 'Password123%',
+  };
+
+  const registerUser = async (user: CreateUserDto) => {
+    return await request(server).post('/users/register').send(user).expect(201);
+  };
+
+  const loginUser = (user: CreateUserDto): Test => {
+    return request(server).post('/auth/login').send(user);
+  };
+
+  const createUserWithRole = async (user: CreateUserDto, roles: Role[]) => {
+    const userRepo: Repository<User> = testSetup.app.get(
+      getRepositoryToken(User),
+    );
+    await userRepo.save({
+      ...user,
+      roles,
+      password: await testSetup.app
+        .get(PasswordService)
+        .hashPassword(user.password),
+    });
   };
 
   // Registration tests
@@ -65,22 +87,12 @@ describe('AuthController (e2e)', () => {
   });
 
   it('/users/register (POST), failed registration, duplicate email', async () => {
-    await request(testSetup.app.getHttpServer())
-      .post('/users/register')
-      .send(testUser);
-
-    return await request(testSetup.app.getHttpServer())
-      .post('/users/register')
-      .send(testUser)
-      .expect(409);
+    await request(server).post('/users/register').send(testUser);
+    return request(server).post('/users/register').send(testUser).expect(409);
   });
 
   it('/users/register (POST), should hash the password before saving to the DB', async () => {
-    await request(testSetup.app.getHttpServer())
-      .post('/users/register')
-      .send(testUser)
-      .expect(201);
-
+    await registerUser(testUser);
     const { dataSource } = testSetup;
     const savedUser = (await dataSource
       .getRepository(User)
@@ -94,38 +106,23 @@ describe('AuthController (e2e)', () => {
 
   it('/users/register (POST), should fail with missing email', async () => {
     const invalidUser = { ...testUser, email: '' };
-    await request(testSetup.app.getHttpServer())
-      .post('/users/register')
-      .send(invalidUser)
-      .expect(400);
+    await request(server).post('/users/register').send(invalidUser).expect(400);
   });
 
   // Login tests
   it('/auth/login (POST), successful login with JWT response', async () => {
-    await request(testSetup.app.getHttpServer())
-      .post('/users/register')
-      .send(testUser)
-      .expect(201);
-
-    return await request(testSetup.app.getHttpServer())
-      .post('/auth/login')
-      .send({ email: testUser.email, password: testUser.password })
+    await registerUser(testUser);
+    return loginUser(testUser)
       .expect(200)
-      .expect((res: LoginResponse) => {
+      .expect((res: { body: LoginResponse }) => {
         expect(res.body).toHaveProperty('accessToken');
         expect(res.body.accessToken).toMatch(/^[A-Za-z0-9-._~+/]+=*$/);
       });
   });
 
   it('/auth/login (POST), failed login, empty password', async () => {
-    await request(testSetup.app.getHttpServer())
-      .post('/users/register')
-      .send(testUser)
-      .expect(201);
-
-    return request(testSetup.app.getHttpServer())
-      .post('/auth/login')
-      .send({ email: testUser.email, password: '' })
+    await registerUser(testUser);
+    return loginUser({ ...testUser, password: '' })
       .expect(400)
       .expect((res) => {
         if (res.error && 'text' in res.error) {
@@ -136,14 +133,8 @@ describe('AuthController (e2e)', () => {
   });
 
   it('/auth/login (POST), failed login, not an email format', async () => {
-    await request(testSetup.app.getHttpServer())
-      .post('/users/register')
-      .send(testUser)
-      .expect(201);
-
-    return request(testSetup.app.getHttpServer())
-      .post('/auth/login')
-      .send({ email: 'adonisgmail.com', password: testUser.password })
+    await registerUser(testUser);
+    return loginUser({ ...testUser, email: 'adonisgmail.com' })
       .expect(400)
       .expect((res) => {
         if (res.error && 'text' in res.error) {
@@ -154,14 +145,8 @@ describe('AuthController (e2e)', () => {
   });
 
   it('/auth/login (POST), failed login, unautherized, email does not exist', async () => {
-    await request(testSetup.app.getHttpServer())
-      .post('/users/register')
-      .send(testUser)
-      .expect(201);
-
-    return request(testSetup.app.getHttpServer())
-      .post('/auth/login')
-      .send({ email: 'adonis@gmail.com', password: testUser.password })
+    await registerUser(testUser);
+    return loginUser({ ...testUser, email: 'adonis@gmail.com' })
       .expect(404)
       .expect((res) => {
         if (res.error && 'text' in res.error) {
@@ -174,14 +159,8 @@ describe('AuthController (e2e)', () => {
   });
 
   it('/auth/login (POST), failed login, password does not match', async () => {
-    await request(testSetup.app.getHttpServer())
-      .post('/users/register')
-      .send(testUser)
-      .expect(201);
-
-    return request(testSetup.app.getHttpServer())
-      .post('/auth/login')
-      .send({ email: testUser.email, password: 'adonis' })
+    await registerUser(testUser);
+    return loginUser({ ...testUser, password: 'adonis' })
       .expect(401)
       .expect((res) => {
         if (res.error && 'text' in res.error) {
@@ -194,15 +173,10 @@ describe('AuthController (e2e)', () => {
   });
   // Guard tests
   it('/auth/profile (GET), successful access through auth guard, response includes email, username but password it not exposed', async () => {
-    await request(testSetup.app.getHttpServer())
-      .post('/users/register')
-      .send(testUser);
-
-    const response: LoginResponse = await request(testSetup.app.getHttpServer())
-      .post('/auth/login')
-      .send({ email: testUser.email, password: testUser.password });
-    const token = response.body.accessToken;
-    return request(testSetup.app.getHttpServer())
+    await registerUser(testUser);
+    const response = await loginUser(testUser);
+    const token = (response.body as LoginResponse).accessToken;
+    return request(server)
       .get('/auth/profile')
       .set('Authorization', `Bearer ${token}`)
       .expect(200)
@@ -214,16 +188,16 @@ describe('AuthController (e2e)', () => {
       });
   });
 
-  it('auth/profile (GET), failed access through auth guard, returned value "401"', async () => {
+  it('auth/profile (GET), failed access through auth guard', async () => {
     const incorrectToken = 'asödlfklöökasdfjsdflök';
-    return request(testSetup.app.getHttpServer())
+    return request(server)
       .get('/auth/profile')
-      .send(incorrectToken)
+      .set('Authorization', `Bearer ${incorrectToken}`)
       .expect(401);
   });
 
   it('/tasks (GET), unauthorized access without login, test global auth guard', async () => {
-    return request(testSetup.app.getHttpServer())
+    return request(server)
       .get('/tasks')
       .expect(401)
       .expect((res: { body: HttpErrorResponse }) => {
@@ -232,21 +206,9 @@ describe('AuthController (e2e)', () => {
   });
 
   it('should check JWT payload data and include user role in response', async () => {
-    const userRepo: Repository<User> = testSetup.app.get(
-      getRepositoryToken(User),
-    );
-    await userRepo.save({
-      ...testUser,
-      roles: [Role.ADMIN],
-      password: await testSetup.app
-        .get(PasswordService)
-        .hashPassword(testUser.password),
-    });
-    const response: LoginResponse = await request(testSetup.app.getHttpServer())
-      .post('/auth/login')
-      .send({ email: testUser.email, password: testUser.password });
-    const token = response.body.accessToken;
-
+    await createUserWithRole(testUser, [Role.ADMIN]);
+    const response = await loginUser(testUser);
+    const token = (response.body as LoginResponse).accessToken;
     const jwtData: JwtPayload = testSetup.app.get(JwtService).verify(token);
     expect(jwtData.sub).toBeDefined();
     expect(jwtData.username).toBeDefined();
@@ -257,21 +219,10 @@ describe('AuthController (e2e)', () => {
   });
 
   it('/auth/admin role guard should protect route (GET), successful access', async () => {
-    const userRepo: Repository<User> = testSetup.app.get(
-      getRepositoryToken(User),
-    );
-    await userRepo.save({
-      ...testUser,
-      roles: [Role.ADMIN],
-      password: await testSetup.app
-        .get(PasswordService)
-        .hashPassword(testUser.password),
-    });
-    const response: LoginResponse = await request(testSetup.app.getHttpServer())
-      .post('/auth/login')
-      .send({ email: testUser.email, password: testUser.password });
-    const token = response.body.accessToken;
-    return request(testSetup.app.getHttpServer())
+    await createUserWithRole(testUser, [Role.ADMIN]);
+    const response = await loginUser(testUser);
+    const token = (response.body as LoginResponse).accessToken;
+    return request(server)
       .get('/auth/admin')
       .set('Authorization', `Bearer ${token}`)
       .expect(200)
@@ -280,27 +231,16 @@ describe('AuthController (e2e)', () => {
       });
   });
   it('/auth/admin role guard should protect route (GET), access denied, role not defined', async () => {
-    const userRepo: Repository<User> = testSetup.app.get(
-      getRepositoryToken(User),
-    );
-    await userRepo.save({
-      ...testUser,
-      roles: [],
-      password: await testSetup.app
-        .get(PasswordService)
-        .hashPassword(testUser.password),
-    });
-    const response: LoginResponse = await request(testSetup.app.getHttpServer())
-      .post('/auth/login')
-      .send({ email: testUser.email, password: testUser.password });
-    const token = response.body.accessToken;
-    return request(testSetup.app.getHttpServer())
+    await registerUser(testUser);
+    const response = await loginUser(testUser);
+    const token = (response.body as LoginResponse).accessToken;
+    return request(server)
       .get('/auth/admin')
       .set('Authorization', `Bearer ${token}`)
       .expect(403);
   });
   it('/users/register (POST), should not allow to register as admin', async () => {
-    return await request(testSetup.app.getHttpServer())
+    return await request(server)
       .post('/users/register')
       .send({ ...testUser, roles: [Role.ADMIN] })
       .expect(201)
