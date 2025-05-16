@@ -1,17 +1,15 @@
 import { AppModule } from 'src/app.module';
 import { TestSetup } from './test.setup';
 import * as request from 'supertest';
-import { CreateUserDto } from 'src/users/create-user.dto';
+import { Task } from 'src/tasks/task.entity';
+import { PaginationResponse } from 'src/tasks/pagination.response';
+import { Http2Server } from 'http2';
 import {
   testUser,
   unauthorizedUser,
   mockTasks,
 } from './mockVariables/mockVariables';
-import { LoginResponse, CreateTaskResponse } from './types/test.types';
-import { Task } from 'src/tasks/task.entity';
-import { PaginationResponse } from 'src/tasks/pagination.response';
-import { CreateTaskDto } from 'src/tasks/create-task.dto';
-import { Http2Server } from 'http2';
+import { registerAndLogin, createTask } from './helpers/test-helpers';
 
 describe('Tasks Integration(e2e)', () => {
   let testSetup: TestSetup;
@@ -19,36 +17,10 @@ describe('Tasks Integration(e2e)', () => {
   let taskId: string | undefined;
   let server: Http2Server;
 
-  const registerAndLogin = async (user: CreateUserDto): Promise<string> => {
-    await request(server).post('/users/register').send(user);
-    const response: { body: LoginResponse } = await request(server)
-      .post('/auth/login')
-      .send({
-        email: user.email,
-        password: user.password,
-      });
-    const token = response.body.accessToken;
-    return token;
-  };
-
-  const createTask = async (
-    user: CreateUserDto,
-    task: CreateTaskDto,
-    noReturn?: string,
-  ): Promise<CreateTaskResponse | void> => {
-    const token = await registerAndLogin(user);
-    const response: { body: Task } = await request(server)
-      .post('/tasks')
-      .set('Authorization', `Bearer ${token}`)
-      .send(task)
-      .expect(201);
-    if (!noReturn) return { data: response.body, token };
-  };
-
   beforeEach(async () => {
     testSetup = await TestSetup.create(AppModule);
     server = testSetup.app.getHttpServer() as Http2Server;
-    const response = await createTask(testUser, mockTasks[0]);
+    const response = await createTask(server, testUser, mockTasks[0]);
     taskId = response?.data.id;
     accessToken = response?.token;
   });
@@ -62,7 +34,7 @@ describe('Tasks Integration(e2e)', () => {
   });
 
   it('/tasks/id, denies access to non-user', async () => {
-    const token = await registerAndLogin(unauthorizedUser);
+    const token = await registerAndLogin(server, unauthorizedUser);
     return await request(server)
       .get(`/tasks/${taskId}`)
       .set('Authorization', `Bearer ${token}`)
@@ -74,8 +46,8 @@ describe('Tasks Integration(e2e)', () => {
       });
   });
   it('/tasks (GET), should only show list of user tasks', async () => {
-    await createTask(unauthorizedUser, mockTasks[0], 'noRetrun');
-    await createTask(testUser, mockTasks[1]);
+    await createTask(server, unauthorizedUser, mockTasks[0], 'noRetrun');
+    await createTask(server, testUser, mockTasks[1]);
     const res: { body: PaginationResponse<Task> } = await request(server)
       .get('/tasks')
       .set('Authorization', `Bearer ${accessToken}`)
