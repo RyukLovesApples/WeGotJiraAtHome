@@ -2,7 +2,11 @@ import { AppModule } from 'src/app.module';
 import { TestSetup } from './test.setup';
 import * as request from 'supertest';
 import { CreateUserDto } from 'src/users/create-user.dto';
-import { TaskStatus } from 'src/tasks/task.model';
+import {
+  testUser,
+  unauthorizedUser,
+  mockTasks,
+} from './mockVariables/mockVariables';
 import { Task } from 'src/tasks/task.entity';
 import { PaginationResponse } from 'src/tasks/pagination.response';
 import { CreateTaskDto } from 'src/tasks/create-task.dto';
@@ -14,43 +18,8 @@ describe('Tasks Integration(e2e)', () => {
   let taskId: string | undefined;
   let server: Http2Server;
 
-  const testUser: CreateUserDto = {
-    username: 'adonis',
-    email: 'adonis@test.com',
-    password: 'Password123%',
-  };
-
-  const unauthorizedUser: CreateUserDto = {
-    username: 'adonis1',
-    email: 'adonis1@test.com',
-    password: 'Password123%1',
-  };
-
-  const mockTasks: CreateTaskDto[] = [
-    {
-      title: 'test task0',
-      description: 'testing tasks for crud and access0',
-      status: TaskStatus.OPEN,
-    },
-    {
-      title: 'test task1',
-      description: 'testing tasks for crud and access1',
-      status: TaskStatus.OPEN,
-    },
-    {
-      title: 'test task2',
-      description: 'testing tasks for crud and access2',
-      status: TaskStatus.OPEN,
-    },
-    {
-      title: 'test task3',
-      description: 'testing tasks for crud and access3',
-      status: TaskStatus.OPEN,
-    },
-  ];
-
   interface LoginResponse {
-    body: { accessToken: string };
+    accessToken: string;
   }
 
   interface CreateTaskResponse {
@@ -60,8 +29,7 @@ describe('Tasks Integration(e2e)', () => {
 
   const registerAndLogin = async (user: CreateUserDto): Promise<string> => {
     await request(server).post('/users/register').send(user);
-
-    const response: LoginResponse = await request(server)
+    const response: { body: LoginResponse } = await request(server)
       .post('/auth/login')
       .send({
         email: user.email,

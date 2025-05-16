@@ -13,6 +13,7 @@ import { JwtPayload } from 'jsonwebtoken';
 import { AdminResponse } from '../src/users/responses/Admin.response';
 import { Http2Server } from 'http2';
 import Test from 'supertest/lib/test';
+import { testUser } from './mockVariables/mockVariables';
 
 describe('AuthController (e2e)', () => {
   let testSetup: TestSetup;
@@ -45,12 +46,6 @@ describe('AuthController (e2e)', () => {
   interface LoginResponse {
     accessToken: string;
   }
-
-  const testUser: CreateUserDto = {
-    username: 'adonis',
-    email: 'adonis@test.com',
-    password: 'Password123%',
-  };
 
   const registerUser = async (user: CreateUserDto) => {
     return await request(server).post('/users/register').send(user).expect(201);
