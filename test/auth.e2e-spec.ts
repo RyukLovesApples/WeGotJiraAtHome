@@ -17,6 +17,7 @@ import {
 import {
   createUserWithRole,
   loginUser,
+  parseErrorText,
   registerUser,
 } from './helpers/test-helpers';
 
@@ -91,10 +92,8 @@ describe('AuthController (e2e)', () => {
       return loginUser(server, { ...testUser, password: '' })
         .expect(400)
         .expect((res) => {
-          if (res.error && 'text' in res.error) {
-            const errorBody = JSON.parse(res.error.text) as HttpErrorResponse;
-            expect(errorBody.message).toContain('password should not be empty');
-          }
+          const errorBody = parseErrorText(res);
+          expect(errorBody?.message).toContain('password should not be empty');
         });
     });
     it('/auth/login (POST), failed login, not an email format', async () => {
@@ -102,10 +101,8 @@ describe('AuthController (e2e)', () => {
       return loginUser(server, { ...testUser, email: 'adonisgmail.com' })
         .expect(400)
         .expect((res) => {
-          if (res.error && 'text' in res.error) {
-            const errorBody = JSON.parse(res.error.text) as HttpErrorResponse;
-            expect(errorBody.message).toContain('email must be an email');
-          }
+          const errorBody = parseErrorText(res);
+          expect(errorBody?.message).toContain('email must be an email');
         });
     });
     it('/auth/login (POST), failed login, unautherized, email does not exist', async () => {
@@ -113,12 +110,10 @@ describe('AuthController (e2e)', () => {
       return loginUser(server, { ...testUser, email: 'adonis@gmail.com' })
         .expect(404)
         .expect((res) => {
-          if (res.error && 'text' in res.error) {
-            const errorBody = JSON.parse(res.error.text) as HttpErrorResponse;
-            expect(errorBody.message).toContain(
-              `User with email adonis@gmail.com does not exist`,
-            );
-          }
+          const errorBody = parseErrorText(res);
+          expect(errorBody?.message).toContain(
+            `User with email adonis@gmail.com does not exist`,
+          );
         });
     });
     it('/auth/login (POST), failed login, password does not match', async () => {
@@ -126,12 +121,10 @@ describe('AuthController (e2e)', () => {
       return loginUser(server, { ...testUser, password: 'adonis' })
         .expect(401)
         .expect((res) => {
-          if (res.error && 'text' in res.error) {
-            const errorBody = JSON.parse(res.error.text) as HttpErrorResponse;
-            expect(errorBody.message).toContain(
-              'Password or email does not match',
-            );
-          }
+          const errorBody = parseErrorText(res);
+          expect(errorBody?.message).toContain(
+            'Password or email does not match',
+          );
         });
     });
   });

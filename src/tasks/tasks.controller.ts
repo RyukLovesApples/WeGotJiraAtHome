@@ -107,13 +107,13 @@ export class TasksController {
   @Delete('/:id/labels')
   @HttpCode(HttpStatus.NO_CONTENT)
   public async removeLabels(
-    @Param() { id }: FindOneParams,
-    @Body() labels: string[],
+    @Param() params: FindOneParams,
+    @Body() labelIds: string[],
     @CurrentUserId() userId: string,
-  ): Promise<Task> {
-    const task = await this.findOneOrFail(id);
+  ): Promise<Task | null> {
+    const task = await this.findOneOrFail(params.id);
     this.checkOwnership(task, userId);
-    return this.tasksService.removeLabel(id, labels);
+    return this.tasksService.removeLabel(params.id, labelIds);
   }
 
   private async findOneOrFail(id: string): Promise<Task> {

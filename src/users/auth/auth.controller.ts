@@ -42,7 +42,7 @@ export class AuthController {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       return plainToInstance(UserDto, user, {
         excludeExtraneousValues: true,
-      }) as UserDto;
+      });
     }
     throw new NotFoundException();
   }

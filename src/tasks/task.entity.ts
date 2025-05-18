@@ -15,6 +15,7 @@ import { Exclude, Expose } from 'class-transformer';
 @Entity()
 @Exclude()
 export class Task {
+  @Expose()
   @PrimaryGeneratedColumn('uuid')
   id!: string;
   @Column({
@@ -28,7 +29,7 @@ export class Task {
     type: 'text',
     nullable: false,
   })
-  // @Expose()
+  @Expose()
   description!: string;
   @Column({
     type: 'enum',

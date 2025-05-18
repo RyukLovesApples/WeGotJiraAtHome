@@ -16,23 +16,23 @@ export const unauthorizedUser: CreateUserDto = {
 
 export const mockTasks: CreateTaskDto[] = [
   {
-    title: 'test task0',
-    description: 'testing tasks for crud and access0',
+    title: '1 test task',
+    description: '4testing tasks for crud and access0',
+    status: TaskStatus.CLOSED,
+  },
+  {
+    title: '2 test task',
+    description: '3testing tasks for crud and access1 keyword',
+    status: TaskStatus.CLOSED,
+  },
+  {
+    title: '3 test task',
+    description: '2testing tasks for crud and access2 keyword',
     status: TaskStatus.OPEN,
   },
   {
-    title: 'test task1',
-    description: 'testing tasks for crud and access1',
-    status: TaskStatus.OPEN,
-  },
-  {
-    title: 'test task2',
-    description: 'testing tasks for crud and access2',
-    status: TaskStatus.OPEN,
-  },
-  {
-    title: 'test task3',
-    description: 'testing tasks for crud and access3',
-    status: TaskStatus.OPEN,
+    title: '4 test task3',
+    description: '1testing tasks for crud and access3',
+    status: TaskStatus.IN_PROGRESS,
   },
 ];

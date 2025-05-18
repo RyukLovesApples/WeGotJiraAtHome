@@ -1,15 +1,11 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { TaskStatus } from './task.model';
 import { CreateTaskDto } from './create-task.dto';
 import { UpdateTaskDto } from './update-task.dto';
 import { WrongTaskStatusException } from './exeptions/wrong-task-status.exeption';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Task } from './task.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { User } from 'src/users/users.entity';
 import { TaskLabel } from './task-label.entity';
 import { CreateTaskLabelDto } from './create-task-label.dto';
@@ -118,7 +114,7 @@ export class TasksService {
       updateTaskDto.status &&
       !this.isValidStatusTransition(task.status, updateTaskDto.status)
     ) {
-      throw new WrongTaskStatusException();
+      throw new WrongTaskStatusException(task.status, updateTaskDto.status);
     }
     if (updateTaskDto.labels) {
       updateTaskDto.labels = this.uniqueLabels(updateTaskDto.labels);
@@ -128,36 +124,38 @@ export class TasksService {
   }
 
   public async delete(task: Task): Promise<void> {
-    try {
-      await this.taskRepository.delete(task.id);
-    } catch (error) {
-      console.error('Could not delete task: ', error);
-      throw new InternalServerErrorException('Failed to delete task');
-    }
+    await this.taskRepository.delete(task.id);
   }
 
   public async addLabels(
-    id: string,
+    taskId: string,
     labelDto: CreateTaskLabelDto[],
   ): Promise<Task> {
-    const task = await this.getOneTask(id);
+    const task = await this.getOneTask(taskId);
     if (!task) throw new NotFoundException('Task not found');
     const existingLabelNames = new Set(task.labels!.map((label) => label.name));
     const labels = this.uniqueLabels(labelDto)
       .filter((dto) => !existingLabelNames.has(dto.name))
-      .map((label) => this.labelRepository.create(label));
+      .map((label) => this.labelRepository.create({ ...label, task }));
     if (labels.length > 0) {
+      await this.labelRepository.save(labels);
       task.labels = [...task.labels!, ...labels];
       return await this.taskRepository.save(task);
     }
     return task;
   }
 
-  public async removeLabel(id: string, lables: string[]): Promise<Task> {
-    const task = await this.getOneTask(id);
+  public async removeLabel(
+    taskId: string,
+    labelIds: string[],
+  ): Promise<Task | null> {
+    const task = await this.getOneTask(taskId);
     if (!task) throw new NotFoundException('Task not found');
-    task.labels = task.labels!.filter((label) => !lables.includes(label.name));
-    return await this.taskRepository.save(task);
+    await this.labelRepository.delete({
+      id: In(labelIds),
+      taskId,
+    });
+    return this.getOneTask(taskId);
   }
   // simple valid logic for changing status. open -> in progress -> closed
   // for frontend should change the function to send message to client if he is sure

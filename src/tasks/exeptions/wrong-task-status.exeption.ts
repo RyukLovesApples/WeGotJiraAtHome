@@ -1,6 +1,11 @@
-export class WrongTaskStatusException extends Error {
-  constructor() {
-    super('Wrong task status transition');
-    this.name = 'WrongTaskStatusExeption';
+import { HttpException, HttpStatus } from '@nestjs/common';
+import { TaskStatus } from '../task.model';
+
+export class WrongTaskStatusException extends HttpException {
+  constructor(currentStatus: TaskStatus, updateStatus: TaskStatus) {
+    super(
+      `Cannot change task status from ${currentStatus} to ${updateStatus}`,
+      HttpStatus.CONFLICT,
+    );
   }
 }

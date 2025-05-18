@@ -8,7 +8,11 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { PasswordService } from 'src/users/password/password.service';
 import { User } from 'src/users/users.entity';
 import { INestApplication } from '@nestjs/common';
-import { CreateTaskResponse, LoginResponse } from 'test/types/test.types';
+import {
+  CreateTaskResponse,
+  HttpErrorResponse,
+  LoginResponse,
+} from 'test/types/test.types';
 import { CreateTaskDto } from 'src/tasks/create-task.dto';
 import { Task } from 'src/tasks/task.entity';
 
@@ -64,4 +68,13 @@ export const createTask = async (
     .send(task)
     .expect(201);
   if (!noReturn) return { data: response.body, token };
+};
+
+export const parseErrorText = (
+  res: request.Response,
+): HttpErrorResponse | void => {
+  if (res.error && 'text' in res.error) {
+    const errorBody = JSON.parse(res.error.text) as HttpErrorResponse;
+    return errorBody;
+  }
 };
