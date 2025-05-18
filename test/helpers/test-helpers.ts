@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Http2Server } from 'http2';
-import { CreateUserDto } from 'src/users/create-user.dto';
+import { CreateUserDto } from 'src/users/dtos/create-user.dto';
 import { Role } from 'src/users/role.enum';
 import { Test } from 'supertest';
 import { Repository } from 'typeorm';
@@ -13,7 +13,7 @@ import {
   HttpErrorResponse,
   LoginResponse,
 } from 'test/types/test.types';
-import { CreateTaskDto } from 'src/tasks/create-task.dto';
+import { CreateTaskDto } from 'src/tasks/dtos/create-task.dto';
 import { Task } from 'src/tasks/task.entity';
 
 export const registerUser = (

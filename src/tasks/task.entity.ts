@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { TaskStatus } from './task.model';
+import { TaskStatus } from './task-status.enum';
 import { User } from 'src/users/users.entity';
 import { TaskLabel } from './task-label.entity';
 import { Exclude, Expose } from 'class-transformer';

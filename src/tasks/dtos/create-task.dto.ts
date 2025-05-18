@@ -5,7 +5,7 @@ import {
   ValidateNested,
   IsOptional,
 } from 'class-validator';
-import { TaskStatus } from './task.model';
+import { TaskStatus } from '../task-status.enum';
 import { CreateTaskLabelDto } from './create-task-label.dto';
 import { Type } from 'class-transformer';
 

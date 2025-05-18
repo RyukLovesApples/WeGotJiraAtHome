@@ -8,7 +8,7 @@
 // }
 
 import { Expose, Type } from 'class-transformer';
-import { Task } from './task.entity';
+import { Task } from '../task.entity';
 
 const decorators = {
   expose: Expose as () => PropertyDecorator,

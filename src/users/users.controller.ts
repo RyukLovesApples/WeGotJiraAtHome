@@ -7,7 +7,7 @@ import {
   SerializeOptions,
   ClassSerializerInterceptor,
 } from '@nestjs/common';
-import { CreateUserDto } from './create-user.dto';
+import { CreateUserDto } from './dtos/create-user.dto';
 import { User } from './users.entity';
 import { AuthService } from './auth/auth.service';
 import { Public } from './decorators/public.decorator';

@@ -1,18 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { TaskStatus } from './task.model';
-import { CreateTaskDto } from './create-task.dto';
-import { UpdateTaskDto } from './update-task.dto';
-import { WrongTaskStatusException } from './exeptions/wrong-task-status.exeption';
+import { TaskStatus } from './task-status.enum';
+import { CreateTaskDto } from './dtos/create-task.dto';
+import { UpdateTaskDto } from './dtos/update-task.dto';
+import { WrongTaskStatusException } from './exceptions/wrong-task-status.exeption';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Task } from './task.entity';
 import { In, Repository } from 'typeorm';
 import { User } from 'src/users/users.entity';
 import { TaskLabel } from './task-label.entity';
-import { CreateTaskLabelDto } from './create-task-label.dto';
-import { FindTaskParams } from './find-task.params';
-import { PaginationParams } from './task-pagination.params';
+import { CreateTaskLabelDto } from './dtos/create-task-label.dto';
+import { FindTaskParams } from './params/find-task.params';
+import { PaginationParams } from './params/task-pagination.params';
 import { plainToInstance } from 'class-transformer';
-import { TaskDto } from './task.dto';
+import { TaskDto } from './dtos/task.dto';
 
 @Injectable()
 export class TasksService {

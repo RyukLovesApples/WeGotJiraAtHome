@@ -7,13 +7,13 @@ import {
   Post,
   Request,
 } from '@nestjs/common';
-import { LoginUserDto } from '../login-user.dto';
+import { LoginUserDto } from '../dtos/login-user.dto';
 import { AuthService } from './auth.service';
-import { LoginResponse } from '../login-user.response';
+import { LoginResponse } from '../responses/login-user.response';
 import { AuthRequest } from './auth.request';
 import { UsersService } from '../users.service';
 import { plainToInstance } from 'class-transformer';
-import { UserDto } from '../user.dto';
+import { UserDto } from '../dtos/user.dto';
 import { Public } from '../decorators/public.decorator';
 import { AdminResponse } from '../responses/Admin.response';
 import { Roles } from '../decorators/roles.decorator';

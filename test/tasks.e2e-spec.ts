@@ -2,7 +2,7 @@ import { AppModule } from 'src/app.module';
 import { TestSetup } from './test.setup';
 import * as request from 'supertest';
 import { Task } from 'src/tasks/task.entity';
-import { PaginationResponse } from 'src/tasks/pagination.response';
+import { PaginationResponse } from 'src/tasks/responses/pagination.response';
 import { Http2Server } from 'http2';
 import {
   testUser,
@@ -15,8 +15,8 @@ import {
   parseErrorText,
 } from './helpers/test-helpers';
 import { randomUUID } from 'crypto';
-import { TaskStatus } from 'src/tasks/task.model';
-import { WrongTaskStatusException } from 'src/tasks/exeptions/wrong-task-status.exeption';
+import { TaskStatus } from 'src/tasks/task-status.enum';
+import { WrongTaskStatusException } from 'src/tasks/exceptions/wrong-task-status.exeption';
 import { TaskLabel } from 'src/tasks/task-label.entity';
 
 describe('Tasks Integration(e2e)', () => {
@@ -314,6 +314,7 @@ describe('Tasks Integration(e2e)', () => {
       .get(`/tasks/${taskId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect((res: { body: Task }) => {
+        expect(res.body.labels?.length).toEqual(2);
         expect(res.body.labels![0].name).toContain('label1');
         labelId.push(res.body.labels![0].id);
       });
@@ -327,7 +328,6 @@ describe('Tasks Integration(e2e)', () => {
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200)
       .expect((res: { body: Task }) => {
-        console.log(res.body);
         expect(res.body.labels?.length).toEqual(1);
       });
   });

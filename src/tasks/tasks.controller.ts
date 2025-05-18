@@ -15,16 +15,16 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
-import { CreateTaskDto } from './create-task.dto';
-import { FindOneParams } from './find-one.params';
-import { UpdateTaskDto } from './update-task.dto';
+import { CreateTaskDto } from './dtos/create-task.dto';
+import { FindOneParams } from './params/find-one.params';
+import { UpdateTaskDto } from './dtos/update-task.dto';
 import { Task } from './task.entity';
-import { CreateTaskLabelDto } from './create-task-label.dto';
-import { FindTaskParams } from './find-task.params';
-import { PaginationParams } from './task-pagination.params';
-import { PaginationResponse } from './pagination.response';
+import { CreateTaskLabelDto } from './dtos/create-task-label.dto';
+import { FindTaskParams } from './params/find-task.params';
+import { PaginationParams } from './params/task-pagination.params';
+import { PaginationResponse } from './responses/pagination.response';
 import { CurrentUserId } from './../users/decorators/current-user-id.decorator';
-import { TaskDto } from './task.dto';
+import { TaskDto } from './dtos/task.dto';
 
 @Controller('tasks')
 @UseInterceptors(ClassSerializerInterceptor)

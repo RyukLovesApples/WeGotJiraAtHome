@@ -1,6 +1,6 @@
-import { CreateTaskDto } from 'src/tasks/create-task.dto';
-import { TaskStatus } from 'src/tasks/task.model';
-import { CreateUserDto } from 'src/users/create-user.dto';
+import { CreateTaskDto } from 'src/tasks/dtos/create-task.dto';
+import { TaskStatus } from 'src/tasks/task-status.enum';
+import { CreateUserDto } from 'src/users/dtos/create-user.dto';
 
 export const testUser: CreateUserDto = {
   username: 'adonis',
