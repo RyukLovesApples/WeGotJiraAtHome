@@ -8,6 +8,7 @@ import {
 import { TaskStatus } from '../task-status.enum';
 import { CreateTaskLabelDto } from './create-task-label.dto';
 import { Type } from 'class-transformer';
+import { Project } from 'src/projects/project.entity';
 
 export class CreateTaskDto {
   @IsNotEmpty()
@@ -26,4 +27,7 @@ export class CreateTaskDto {
   @ValidateNested({ each: true })
   @Type(() => CreateTaskLabelDto)
   labels?: CreateTaskLabelDto[];
+
+  @IsOptional()
+  project?: Project;
 }

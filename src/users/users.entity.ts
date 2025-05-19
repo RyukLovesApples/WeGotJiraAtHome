@@ -9,6 +9,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Role } from './role.enum';
+import { Project } from 'src/projects/project.entity';
+import { ProjectUser } from 'src/projects/project-user.entity';
 
 @Entity()
 export class User {
@@ -47,6 +49,17 @@ export class User {
   @OneToMany(() => Task, (task) => task.user)
   @Expose()
   tasks?: Task[];
+
+  @OneToMany(() => Project, (project) => project.user, {
+    nullable: true,
+  })
+  @Expose()
+  projects?: Project[];
+
+  @OneToMany(() => ProjectUser, (projectUser) => projectUser.user, {
+    nullable: true,
+  })
+  projectUsers?: ProjectUser[];
 
   @Column('text', { array: true, default: [Role.USER] })
   @Expose()

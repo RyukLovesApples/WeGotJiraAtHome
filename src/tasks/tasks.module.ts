@@ -11,5 +11,6 @@ import { TaskLabel } from './task-label.entity';
   imports: [TypeOrmModule.forFeature([Task, User, TaskLabel]), UsersModule],
   controllers: [TasksController],
   providers: [TasksService],
+  exports: [TasksService],
 })
 export class TasksModule {}

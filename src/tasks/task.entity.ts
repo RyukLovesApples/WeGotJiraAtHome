@@ -11,6 +11,7 @@ import { TaskStatus } from './task-status.enum';
 import { User } from 'src/users/users.entity';
 import { TaskLabel } from './task-label.entity';
 import { Exclude, Expose } from 'class-transformer';
+import { Project } from 'src/projects/project.entity';
 
 @Entity()
 @Exclude()
@@ -49,6 +50,12 @@ export class Task {
     eager: true,
   })
   labels?: TaskLabel[];
+
+  @Expose()
+  @ManyToOne(() => Project, (project) => project.tasks, {
+    nullable: true,
+  })
+  project?: Project;
 
   @CreateDateColumn()
   @Expose()

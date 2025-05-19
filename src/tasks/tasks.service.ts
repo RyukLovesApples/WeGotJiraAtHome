@@ -97,6 +97,7 @@ export class TasksService {
       status: createTaskDto.status,
       user: user,
       labels: labels,
+      project: createTaskDto.project,
     });
 
     const task: Task = await this.taskRepository.save(newTask);

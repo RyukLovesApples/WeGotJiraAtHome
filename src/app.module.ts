@@ -14,6 +14,9 @@ import { User } from './users/users.entity';
 import { UsersModule } from './users/users.module';
 import { TaskLabel } from './tasks/task-label.entity';
 import { authConfig } from './config/auth.config';
+import { ProjectsModule } from './projects/projects.module';
+import { Project } from './projects/project.entity';
+import { ProjectUser } from './projects/project-user.entity';
 
 @Module({
   imports: [
@@ -34,12 +37,13 @@ import { authConfig } from './config/auth.config';
       useFactory: (configService: TypedConfigService) => ({
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         ...configService.get('database'),
-        entities: [Task, User, TaskLabel],
+        entities: [Task, User, TaskLabel, Project, ProjectUser],
       }),
     }),
     LoggerModule,
     TasksModule,
     UsersModule,
+    ProjectsModule,
   ],
   controllers: [AppController],
   providers: [
