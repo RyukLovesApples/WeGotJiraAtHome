@@ -44,7 +44,6 @@ describe('Project Integration', () => {
       .send({ name: 'test', description: 'test description', tasks: mockTasks })
       .expect(201)
       .expect((res: { body: Project }) => {
-        console.log(res.body);
         expect(res.body.id).toBeDefined();
         expect(res.body.name).toBe('test');
         expect(res.body.user).toBeDefined();

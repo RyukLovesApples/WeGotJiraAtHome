@@ -35,4 +35,11 @@ export class ProjectsService {
       relations: ['tasks', 'user'],
     });
   }
+
+  async getAllUserProjects(userId: string): Promise<Project[]> {
+    const user = await this.userRepo.findOneBy({ id: userId });
+    if (!user) throw new NotFoundException(`User with id ${userId} not found!`);
+    const projects = await this.projectRepo.findBy({ user: user });
+    return projects;
+  }
 }

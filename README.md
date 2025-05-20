@@ -1,98 +1,129 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# WeGotJiraAtHome
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Project Goal
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+A full-featured, test-driven project and task management API inspired by Jira — because sometimes, you want **Jira at home**. The goal is to deepen my understanding of maintainable and scalable backend architecture through real-world development practices.
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Overview
 
-## Project setup
+**WeGotJiraAtHome** is a backend application built using NestJS that provides:
 
-```bash
-$ npm install
-```
+- Role-based access control (Admin, Regular User)
+- Authentication via JWT
+- Projects with ownership and members
+- Tasks with status updates, labels, and filters
+- Modular architecture for maintainability and scalability
+- Full integration test coverage
+- Isolated environment setup for testing
 
-## Compile and run the project
+---
 
-```bash
-# development
-$ npm run start
+## Features
 
-# watch mode
-$ npm run start:dev
+### Auth & Users
 
-# production mode
-$ npm run start:prod
-```
+- Register/Login with password validation
+- JWT authentication with embedded role info
+- Guards for public/private and role-restricted routes
+- Custom decorators for cleaner controller logic
+- Admin role support for developer-level access
 
-## Run tests
+### Projects
 
-```bash
-# unit tests
-$ npm run test
+- Create projects (with optional tasks)
+- Automatically assign project creator as `OWNER`
+- Designed for full CRUD of project users
+- Planned: job title support (e.g. *Project Manager*, *Developer*)
 
-# e2e tests
-$ npm run test:e2e
+### Tasks
 
-# test coverage
-$ npm run test:cov
-```
+- Full CRUD for tasks
+- Attach multiple labels to tasks
+- Filter by status, labels, title, and description
+- Pagination and sorting support
+- DTO validation and robust error handling
 
-## Deployment
+### Testing
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+- E2E tests with Jest
+- Modular test setup (`test-setup.ts`)
+- Test helpers and mock data organized by concern
+- Isolated test environment and dedicated test DB
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+---
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+## Tech Stack
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+- **Framework**: NestJS
+- **Auth**: AuthGuard, bcrypt, JwtModule
+- **Database**: PostgreSQL (via TypeORM)
+- **Testing**: Jest (integration and unit tests)
+- **Environment**: dotenv + Joi schema validation
+- **Docker**: Compose setup for DB and app
 
-## Resources
+---
 
-Check out a few resources that may come in handy when working with NestJS:
+## Running Tests
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+# Run all unit tests
+npm run test
 
-## Support
+# Run a specific test file
+npm run test -- path/to/test-file
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+# Run all E2E tests
+npm run test:e2e
 
-## Stay in touch
+# Run a specific E2E test file
+npm run test:e2e -- path/to/e2e-test-file
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Note: Please setup these environment variables with an own db setup. Mirgration files will be included soon!
+
+
+## Installation
+
+Install dependencies
+npm install
+
+Start PostgreSQL using Docker
+docker-compose up -d
+
+Run the app in development mode
+npm run start:dev
+
+## Environment Variables
+
+APP_MESSAGE_PREFIX=Hello           # Optional greeting prefix
+DB_HOST=localhost                  # Database host
+DB_PORT=5432                       # Database port
+DB_USER=your_db_user               # Database username (required)
+DB_PASSWORD=your_db_password       # Database password (required)
+DB_NAME=your_db_name               # Database name (required)
+DB_SYNC=0                          # Set to 1 to auto-sync schema (not recommended in prod)
+JWT_SECRET=your_jwt_secret         # Secret key for JWT (required)
+JWT_EXPIRES_IN=3600s               # Token expiration time (e.g., 3600s)
+
+Check src/config/config.types.ts joi object for current .env setup if db connection fails
+
+## Demo
+🔗 Link to live API/demo frontend — coming soon!
+
+If you'd like to preview the app live, a frontend demo or API documentation will be provided soon.
+
+## Folder Structure
+
+You can view the current folder structure with:
+bash:
+cat folder-structure.txt
+Or simply open the folder-structure.txt file in the root directory.
+I’ll try to keep it updated as the project evolves.
+
+## Author
+Adonis Smlatic
+Junior Full-Stack Developer
+https://www.linkedin.com/in/adonis-smlatic-3b072a2b8/
 
 ## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+To be added!
