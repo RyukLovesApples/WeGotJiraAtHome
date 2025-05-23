@@ -25,6 +25,7 @@ import { PaginationParams } from './params/task-pagination.params';
 import { PaginationResponse } from './responses/pagination.response';
 import { CurrentUserId } from './../users/decorators/current-user-id.decorator';
 import { TaskDto } from './dtos/task.dto';
+import { transformToDto } from 'src/utils/transform';
 
 @Controller('tasks')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -57,10 +58,10 @@ export class TasksController {
   public async findOne(
     @Param() params: FindOneParams,
     @CurrentUserId() userId: string,
-  ): Promise<Task> {
+  ): Promise<TaskDto> {
     const task = await this.findOneOrFail(params.id);
     this.checkOwnership(task, userId);
-    return task;
+    return transformToDto(TaskDto, task);
   }
 
   @Post()
@@ -68,7 +69,8 @@ export class TasksController {
     @Body() createTaskDto: CreateTaskDto,
     @CurrentUserId() userId: string,
   ): Promise<TaskDto> {
-    return await this.tasksService.create(createTaskDto, userId);
+    const task = await this.tasksService.create(createTaskDto, userId);
+    return transformToDto(TaskDto, task);
   }
 
   @Patch('/:id')
@@ -76,10 +78,11 @@ export class TasksController {
     @Param() params: FindOneParams,
     @Body() updateTaskDto: UpdateTaskDto,
     @CurrentUserId() userId: string,
-  ): Promise<Task> {
+  ): Promise<TaskDto> {
     const task: Task = await this.findOneOrFail(params.id);
     this.checkOwnership(task, userId);
-    return await this.tasksService.updateTask(task, updateTaskDto);
+    const updatedTask = await this.tasksService.updateTask(task, updateTaskDto);
+    return transformToDto(TaskDto, updatedTask);
   }
 
   @Delete('/:id')
@@ -98,10 +101,11 @@ export class TasksController {
     @Param() param: FindOneParams,
     @Body() labels: CreateTaskLabelDto[],
     @CurrentUserId() userId: string,
-  ): Promise<Task> {
+  ): Promise<TaskDto> {
     const task = await this.findOneOrFail(param.id);
     this.checkOwnership(task, userId);
-    return await this.tasksService.addLabels(param.id, labels);
+    const updatedTask = await this.tasksService.addLabels(param.id, labels);
+    return transformToDto(TaskDto, updatedTask);
   }
 
   @Delete('/:id/labels')

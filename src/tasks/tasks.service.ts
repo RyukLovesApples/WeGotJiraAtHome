@@ -11,8 +11,6 @@ import { TaskLabel } from './task-label.entity';
 import { CreateTaskLabelDto } from './dtos/create-task-label.dto';
 import { FindTaskParams } from './params/find-task.params';
 import { PaginationParams } from './params/task-pagination.params';
-import { plainToInstance } from 'class-transformer';
-import { TaskDto } from './dtos/task.dto';
 
 @Injectable()
 export class TasksService {
@@ -79,7 +77,7 @@ export class TasksService {
   public async create(
     createTaskDto: CreateTaskDto,
     userId: string,
-  ): Promise<TaskDto> {
+  ): Promise<Task> {
     const user = await this.userRepository.findOneBy({
       id: userId,
     });
@@ -101,10 +99,7 @@ export class TasksService {
     });
 
     const task: Task = await this.taskRepository.save(newTask);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    return plainToInstance(TaskDto, task, {
-      excludeExtraneousValues: true,
-    });
+    return task;
   }
 
   public async updateTask(

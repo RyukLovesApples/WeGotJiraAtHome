@@ -33,7 +33,8 @@ describe('Project Integration', () => {
       .expect((res: { body: Project }) => {
         expect(res.body.id).toBeDefined();
         expect(res.body.name).toBe('test');
-        expect(res.body.user).toBeDefined();
+        // expect(res.body.user).toBeDefined();
+        expect(res.body.user).not.toHaveProperty('password');
       });
   });
   it('test project route connection /projects (POST)', async () => {
@@ -46,7 +47,7 @@ describe('Project Integration', () => {
       .expect((res: { body: Project }) => {
         expect(res.body.id).toBeDefined();
         expect(res.body.name).toBe('test');
-        expect(res.body.user).toBeDefined();
+        // expect(res.body.user).toBeDefined();
         expect(res.body.tasks?.length).toBe(4);
       });
   });

@@ -11,11 +11,13 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { UserDto } from 'src/users/dtos/user.dto';
 
-@Entity()
 @Exclude()
+@Entity()
 export class Project {
   @PrimaryGeneratedColumn('uuid')
+  @Expose()
   id!: string;
   @Column()
   @Expose()
@@ -23,10 +25,11 @@ export class Project {
   @Column()
   @Expose()
   description?: string;
+  @Expose()
   @ManyToOne(() => User, (user) => user.projects, {
     nullable: false,
   })
-  user!: User;
+  user!: UserDto;
   @Expose()
   @OneToMany(() => ProjectUser, (projectUsers) => projectUsers.project, {
     nullable: false,
