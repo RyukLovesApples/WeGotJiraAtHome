@@ -1,12 +1,32 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  ClassSerializerInterceptor,
+  Controller,
+  Delete,
+  ForbiddenException,
+  Get,
+  HttpCode,
+  HttpStatus,
+  NotFoundException,
+  Param,
+  Patch,
+  Post,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dtos/create-project.dto';
 import { Public } from 'src/users/decorators/public.decorator';
 import { CurrentUserId } from 'src/users/decorators/current-user-id.decorator';
 import { ProjectCreationService } from './projects-creation.service';
+import { plainToInstance } from 'class-transformer';
+import { ProjectDto } from './dtos/project.dto';
+import { transformToDto } from 'src/utils/transform';
 import { Project } from './project.entity';
+import { FindOneParams } from 'src/tasks/params/find-one.params';
+import { UpdateProjectWithTasks } from './dtos/update-project.dto';
 
 @Controller('projects')
+@UseInterceptors(ClassSerializerInterceptor)
 export class ProjectsController {
   constructor(
     private readonly projectService: ProjectsService,
@@ -17,16 +37,78 @@ export class ProjectsController {
   async create(
     @CurrentUserId() userId: string,
     @Body() createProjectDto: CreateProjectDto,
-  ): Promise<Project | null> {
-    if (createProjectDto.tasks)
-      return await this.projectCreationService.createProjectWithTasks(
-        createProjectDto,
-        userId,
-      );
-    return await this.projectService.create(createProjectDto, userId);
+  ): Promise<ProjectDto | null> {
+    if (createProjectDto.tasks) {
+      const projectWithTasks =
+        await this.projectCreationService.createProjectWithTasks(
+          createProjectDto,
+          userId,
+        );
+      return transformToDto(ProjectDto, projectWithTasks);
+    }
+    const project = await this.projectService.create(createProjectDto, userId);
+    return transformToDto(ProjectDto, project);
   }
   @Get()
-  async getAll(@CurrentUserId() userId: string): Promise<Project[]> {
-    return await this.projectService.getAllUserProjects(userId);
+  async getAll(@CurrentUserId() userId: string): Promise<ProjectDto[]> {
+    const projects = await this.projectService.getAllUserProjects(userId);
+    return plainToInstance(ProjectDto, projects, {
+      excludeExtraneousValues: true,
+    });
+  }
+  @Get('/:id')
+  async getOne(
+    @CurrentUserId() userId: string,
+    @Param() params: FindOneParams,
+  ): Promise<ProjectDto | null> {
+    const project = await this.findOneOrFail(params.id);
+    this.checkOwnership(project, userId);
+    return transformToDto(ProjectDto, project);
+  }
+  @Patch('/:id')
+  async update(
+    @CurrentUserId() userId: string,
+    @Param() params: FindOneParams,
+    @Body() updateProjectDto: UpdateProjectWithTasks,
+  ) {
+    const project = await this.findOneOrFail(params.id);
+    this.checkOwnership(project, userId);
+    if (updateProjectDto.tasks) {
+      const updateProjectTasks =
+        await this.projectCreationService.updateProjectWithTasks(
+          project,
+          updateProjectDto,
+        );
+      return transformToDto(ProjectDto, updateProjectTasks);
+    }
+    const updatedProject = await this.projectService.update(
+      project,
+      updateProjectDto,
+    );
+    return transformToDto(ProjectDto, updatedProject);
+  }
+  @Delete('/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async delete(
+    @CurrentUserId() userId: string,
+    @Param() { id }: FindOneParams,
+  ) {
+    const project = await this.findOneOrFail(id);
+    this.checkOwnership(project, userId);
+    await this.projectService.delete(project);
+  }
+  private async findOneOrFail(id: string): Promise<Project> {
+    const project = await this.projectService.getOneById(id);
+    if (!project) {
+      throw new NotFoundException('Project not found');
+    }
+    return project;
+  }
+  private checkOwnership(project: Project, userId: string) {
+    if (project.user.id !== userId) {
+      throw new ForbiddenException(
+        'Access to project denied. You are not the owner or a user of this project!',
+      );
+    }
   }
 }

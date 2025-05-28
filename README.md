@@ -67,16 +67,16 @@ A full-featured, test-driven project and task management API inspired by Jira â€
 
 ## Running Tests
 
-# Run all unit tests
+### Run all unit tests
 npm run test
 
-# Run a specific test file
+### Run a specific test file
 npm run test -- path/to/test-file
 
-# Run all E2E tests
+### Run all E2E tests
 npm run test:e2e
 
-# Run a specific E2E test file
+### Run a specific E2E test file
 npm run test:e2e -- path/to/e2e-test-file
 
 Note: Please setup these environment variables with an own db setup. Mirgration files will be included soon!
@@ -94,16 +94,24 @@ Run the app in development mode
 npm run start:dev
 
 ## Environment Variables
-
-APP_MESSAGE_PREFIX=Hello           # Optional greeting prefix
-DB_HOST=localhost                  # Database host
-DB_PORT=5432                       # Database port
-DB_USER=your_db_user               # Database username (required)
-DB_PASSWORD=your_db_password       # Database password (required)
-DB_NAME=your_db_name               # Database name (required)
-DB_SYNC=0                          # Set to 1 to auto-sync schema (not recommended in prod)
-JWT_SECRET=your_jwt_secret         # Secret key for JWT (required)
-JWT_EXPIRES_IN=3600s               # Token expiration time (e.g., 3600s)
+### Optional greeting prefix
+APP_MESSAGE_PREFIX=Hello
+### Database host
+DB_HOST=localhost
+### Database port
+DB_PORT=5432
+### Database username (required)
+DB_USER=your_db_user
+### Database password (required)
+DB_PASSWORD=your_db_password
+### Database name (required)
+DB_NAME=your_db_name
+### Set to 1 to auto-sync schema (not recommended in prod)
+DB_SYNC=0
+### Secret key for JWT (required)
+JWT_SECRET=your_jwt_secret
+### Token expiration time (e.g., 3600s)
+JWT_EXPIRES_IN=3600s
 
 Check src/config/config.types.ts joi object for current .env setup if db connection fails
 

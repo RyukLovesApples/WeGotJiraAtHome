@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { TasksService } from 'src/tasks/tasks.service';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dtos/create-project.dto';
+import { UpdateProjectWithTasks } from './dtos/update-project.dto';
+import { Project } from './project.entity';
 
 @Injectable()
 export class ProjectCreationService {
@@ -21,5 +23,17 @@ export class ProjectCreationService {
       ),
     );
     return await this.projectsService.getOneById(project.id);
+  }
+
+  async updateProjectWithTasks(
+    project: Project,
+    updateProject: UpdateProjectWithTasks,
+  ): Promise<Project> {
+    const tasksToUpdate = updateProject.tasks!;
+    console.log(tasksToUpdate);
+    for (const taskToUpdate of tasksToUpdate) {
+      await this.tasksService.updateTaskById(taskToUpdate);
+    }
+    return this.projectsService.update(project, updateProject);
   }
 }

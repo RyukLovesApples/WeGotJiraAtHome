@@ -11,8 +11,7 @@ import { TaskLabel } from './task-label.entity';
 import { CreateTaskLabelDto } from './dtos/create-task-label.dto';
 import { FindTaskParams } from './params/find-task.params';
 import { PaginationParams } from './params/task-pagination.params';
-import { plainToInstance } from 'class-transformer';
-import { TaskDto } from './dtos/task.dto';
+import { UpdateEmbeddedTaskDto } from './dtos/update-embedded-task.dto';
 
 @Injectable()
 export class TasksService {
@@ -79,7 +78,7 @@ export class TasksService {
   public async create(
     createTaskDto: CreateTaskDto,
     userId: string,
-  ): Promise<TaskDto> {
+  ): Promise<Task> {
     const user = await this.userRepository.findOneBy({
       id: userId,
     });
@@ -101,10 +100,7 @@ export class TasksService {
     });
 
     const task: Task = await this.taskRepository.save(newTask);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    return plainToInstance(TaskDto, task, {
-      excludeExtraneousValues: true,
-    });
+    return task;
   }
 
   public async updateTask(
@@ -121,6 +117,24 @@ export class TasksService {
       updateTaskDto.labels = this.uniqueLabels(updateTaskDto.labels);
     }
     Object.assign(task, updateTaskDto);
+    return await this.taskRepository.save(task);
+  }
+
+  public async updateTaskById(updateDto: UpdateEmbeddedTaskDto): Promise<Task> {
+    const task = await this.getOneTask(updateDto.id);
+    if (!task) throw new NotFoundException('Task not found!');
+    if (
+      updateDto.status &&
+      !this.isValidStatusTransition(task.status, updateDto.status)
+    ) {
+      throw new WrongTaskStatusException(task.status, updateDto.status);
+    }
+
+    if (updateDto.labels) {
+      updateDto.labels = this.uniqueLabels(updateDto.labels);
+    }
+
+    Object.assign(task, updateDto);
     return await this.taskRepository.save(task);
   }
 

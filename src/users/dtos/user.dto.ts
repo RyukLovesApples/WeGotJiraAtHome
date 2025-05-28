@@ -1,4 +1,5 @@
 import { Expose } from 'class-transformer';
+import { Role } from '../role.enum';
 
 export class UserDto {
   @Expose()
@@ -9,6 +10,9 @@ export class UserDto {
 
   @Expose()
   email!: string;
+
+  @Expose()
+  roles?: Role[];
 
   @Expose()
   createdAt!: Date;

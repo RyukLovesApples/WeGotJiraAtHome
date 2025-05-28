@@ -54,6 +54,8 @@ export class Task {
   @Expose()
   @ManyToOne(() => Project, (project) => project.tasks, {
     nullable: true,
+    onDelete: 'CASCADE',
+    orphanedRowAction: 'delete',
   })
   project?: Project;
 

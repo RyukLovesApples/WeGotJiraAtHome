@@ -16,6 +16,7 @@ import { Expose } from 'class-transformer';
 @Unique(['name', 'taskId'])
 export class TaskLabel {
   @PrimaryGeneratedColumn('uuid')
+  @Expose()
   id!: string;
   @Column({
     type: 'varchar',

@@ -1,5 +1,5 @@
 import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { Task } from 'src/tasks/task.entity';
+import { CreateTaskDto } from 'src/tasks/dtos/create-task.dto';
 
 export class CreateProjectDto {
   @IsString()
@@ -12,5 +12,5 @@ export class CreateProjectDto {
 
   @IsArray()
   @IsOptional()
-  tasks?: Task[];
+  tasks?: CreateTaskDto[];
 }
