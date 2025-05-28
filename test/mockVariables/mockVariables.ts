@@ -36,3 +36,18 @@ export const mockTasks: CreateTaskDto[] = [
     status: TaskStatus.IN_PROGRESS,
   },
 ];
+
+export const mockProjects = [
+  {
+    name: 'test1',
+    description: 'test description1',
+  },
+  {
+    name: 'test2',
+    description: 'test description2',
+  },
+  {
+    name: 'test3',
+    description: 'test description3',
+  },
+];

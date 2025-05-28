@@ -11,6 +11,7 @@ import { TaskLabel } from './task-label.entity';
 import { CreateTaskLabelDto } from './dtos/create-task-label.dto';
 import { FindTaskParams } from './params/find-task.params';
 import { PaginationParams } from './params/task-pagination.params';
+import { UpdateEmbeddedTaskDto } from './dtos/update-embedded-task.dto';
 
 @Injectable()
 export class TasksService {
@@ -116,6 +117,24 @@ export class TasksService {
       updateTaskDto.labels = this.uniqueLabels(updateTaskDto.labels);
     }
     Object.assign(task, updateTaskDto);
+    return await this.taskRepository.save(task);
+  }
+
+  public async updateTaskById(updateDto: UpdateEmbeddedTaskDto): Promise<Task> {
+    const task = await this.getOneTask(updateDto.id);
+    if (!task) throw new NotFoundException('Task not found!');
+    if (
+      updateDto.status &&
+      !this.isValidStatusTransition(task.status, updateDto.status)
+    ) {
+      throw new WrongTaskStatusException(task.status, updateDto.status);
+    }
+
+    if (updateDto.labels) {
+      updateDto.labels = this.uniqueLabels(updateDto.labels);
+    }
+
+    Object.assign(task, updateDto);
     return await this.taskRepository.save(task);
   }
 

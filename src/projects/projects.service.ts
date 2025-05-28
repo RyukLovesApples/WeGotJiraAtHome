@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { Project } from './project.entity';
 import { CreateProjectDto } from './dtos/create-project.dto';
 import { User } from 'src/users/users.entity';
+import { UpdateProjectDto } from './dtos/update-project.dto';
 
 @Injectable()
 export class ProjectsService {
@@ -39,7 +40,19 @@ export class ProjectsService {
   async getAllUserProjects(userId: string): Promise<Project[]> {
     const user = await this.userRepo.findOneBy({ id: userId });
     if (!user) throw new NotFoundException(`User with id ${userId} not found!`);
-    const projects = await this.projectRepo.findBy({ user: user });
+    const projects = await this.projectRepo.findBy({ user: { id: userId } });
     return projects;
+  }
+
+  async update(
+    project: Project,
+    updateProject: UpdateProjectDto,
+  ): Promise<Project> {
+    Object.assign(project, updateProject);
+    return await this.projectRepo.save(project);
+  }
+
+  async delete(project: Project): Promise<void> {
+    await this.projectRepo.delete(project.id);
   }
 }

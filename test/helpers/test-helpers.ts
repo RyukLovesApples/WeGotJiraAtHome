@@ -15,6 +15,7 @@ import {
 } from 'test/types/test.types';
 import { CreateTaskDto } from 'src/tasks/dtos/create-task.dto';
 import { Task } from 'src/tasks/task.entity';
+import { CreateProjectDto } from 'src/projects/dtos/create-project.dto';
 
 export const registerUser = (
   server: Http2Server,
@@ -77,4 +78,15 @@ export const parseErrorText = (
     const errorBody = JSON.parse(res.error.text) as HttpErrorResponse;
     return errorBody;
   }
+};
+
+export const createProject = (
+  server: Http2Server,
+  token: string,
+  project: CreateProjectDto,
+): Test => {
+  return request(server)
+    .post('/projects')
+    .set('Authorization', `Bearer ${token}`)
+    .send(project);
 };
