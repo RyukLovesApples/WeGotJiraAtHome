@@ -27,7 +27,7 @@ import { CurrentUserId } from './../users/decorators/current-user-id.decorator';
 import { TaskDto } from './dtos/task.dto';
 import { transformToDto } from 'src/utils/transform';
 
-@Controller('tasks')
+@Controller()
 @UseInterceptors(ClassSerializerInterceptor)
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
@@ -36,12 +36,14 @@ export class TasksController {
   public async findAll(
     @Query() filters: FindTaskParams,
     @Query() pagination: PaginationParams,
+    @Param('projectId') projectId: string,
     @CurrentUserId() userId: string,
   ): Promise<PaginationResponse<Task>> {
     const [items, total] = await this.tasksService.getAll(
       filters,
       pagination,
       userId,
+      projectId,
     );
 
     return {

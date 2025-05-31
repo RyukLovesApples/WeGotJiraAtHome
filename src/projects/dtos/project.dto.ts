@@ -13,6 +13,10 @@ export class ProjectDto {
   @Expose()
   description?: string;
   @Expose()
+  createdAt!: Date;
+  @Expose()
+  updatedAt!: Date;
+  @Expose()
   @Type(() => TaskDto)
   tasks?: TaskDto[];
   @Expose()

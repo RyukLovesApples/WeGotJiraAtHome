@@ -8,29 +8,44 @@ import {
   testUser,
   unauthorizedUser,
   mockTasks,
+  mockProjects,
 } from './mockVariables/mockVariables';
 import {
   registerAndLogin,
   createTask,
   parseErrorText,
+  createProject,
 } from './helpers/test-helpers';
 import { randomUUID } from 'crypto';
 import { TaskStatus } from 'src/tasks/task-status.enum';
 import { WrongTaskStatusException } from 'src/tasks/exceptions/wrong-task-status.exeption';
 import { TaskLabel } from 'src/tasks/task-label.entity';
+import { ProjectDto } from 'src/projects/dtos/project.dto';
 
 describe('Tasks Integration(e2e)', () => {
   let testSetup: TestSetup;
   let accessToken: string | undefined;
   let taskId: string | undefined;
   let server: Http2Server;
+  let baseUrl: string;
 
   beforeEach(async () => {
     testSetup = await TestSetup.create(AppModule);
     server = testSetup.app.getHttpServer() as Http2Server;
-    const response = await createTask(server, testUser, mockTasks[0]);
-    taskId = response?.data.id;
-    accessToken = response?.token;
+    const token = await registerAndLogin(server, testUser);
+    const project = await createProject(server, token, {
+      ...mockProjects[0],
+      tasks: [mockTasks[0]],
+    });
+    const projectBody = project.body as ProjectDto;
+    console.log(projectBody.tasks);
+    baseUrl = `/projects/${projectBody.id}`;
+    // const response = await createTask(server, testUser, {
+    //   ...mockTasks[0],
+    //   project: projectBody,
+    // });
+    taskId = projectBody.tasks![0].id;
+    accessToken = token;
   });
 
   afterEach(async () => {
@@ -42,7 +57,7 @@ describe('Tasks Integration(e2e)', () => {
   });
   it('/tasks/id (GET), should return task', async () => {
     return request(server)
-      .get(`/tasks/${taskId}`)
+      .get(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200)
       .expect((res: { body: Task }) => {
