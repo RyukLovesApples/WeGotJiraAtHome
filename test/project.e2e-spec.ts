@@ -84,6 +84,7 @@ describe('Project Integration', () => {
       });
   });
   it('/projects/id (GET), should return one task without password exposure', async () => {
+    console.log(projectId);
     return request(server)
       .get(`/projects/${projectId}`)
       .set('Authorization', `Bearer ${accessToken}`)

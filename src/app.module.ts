@@ -17,6 +17,8 @@ import { authConfig } from './config/auth.config';
 import { ProjectsModule } from './projects/projects.module';
 import { Project } from './projects/project.entity';
 import { ProjectUser } from './projects/project-user.entity';
+import { ProjectUsersModule } from './project-users/project-users.module';
+import { RouterModule } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -44,6 +46,19 @@ import { ProjectUser } from './projects/project-user.entity';
     TasksModule,
     UsersModule,
     ProjectsModule,
+    ProjectUsersModule,
+    RouterModule.register([
+      {
+        path: 'projects',
+        module: ProjectsModule,
+        children: [
+          {
+            path: ':projectId/tasks',
+            module: TasksModule,
+          },
+        ],
+      },
+    ]),
   ],
   controllers: [AppController],
   providers: [

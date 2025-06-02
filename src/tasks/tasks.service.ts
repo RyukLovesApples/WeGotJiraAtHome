@@ -28,12 +28,14 @@ export class TasksService {
     filters: FindTaskParams,
     pagination: PaginationParams,
     userId: string,
+    projectId: string,
   ): Promise<[Task[], number]> {
     const queryBuilder = this.taskRepository
       .createQueryBuilder('task')
       .leftJoinAndSelect('task.user', 'user')
       .leftJoinAndSelect('task.labels', 'labels')
-      .where(`task.userId = :userId`, { userId });
+      .where(`task.project.id = :projectId`, { projectId })
+      .andWhere(`task.userId = :userId`, { userId });
     if (filters.status) {
       queryBuilder.andWhere('task.status = :status', {
         status: filters.status,
@@ -78,6 +80,7 @@ export class TasksService {
   public async create(
     createTaskDto: CreateTaskDto,
     userId: string,
+    projectId: string,
   ): Promise<Task> {
     const user = await this.userRepository.findOneBy({
       id: userId,
@@ -96,7 +99,7 @@ export class TasksService {
       status: createTaskDto.status,
       user: user,
       labels: labels,
-      project: createTaskDto.project,
+      projectId: projectId,
     });
 
     const task: Task = await this.taskRepository.save(newTask);

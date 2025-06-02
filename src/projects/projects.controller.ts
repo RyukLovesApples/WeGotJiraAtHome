@@ -22,10 +22,9 @@ import { plainToInstance } from 'class-transformer';
 import { ProjectDto } from './dtos/project.dto';
 import { transformToDto } from 'src/utils/transform';
 import { Project } from './project.entity';
-import { FindOneParams } from 'src/tasks/params/find-one.params';
 import { UpdateProjectWithTasks } from './dtos/update-project.dto';
 
-@Controller('projects')
+@Controller()
 @UseInterceptors(ClassSerializerInterceptor)
 export class ProjectsController {
   constructor(
@@ -56,22 +55,22 @@ export class ProjectsController {
       excludeExtraneousValues: true,
     });
   }
-  @Get('/:id')
+  @Get('/:projectId')
   async getOne(
     @CurrentUserId() userId: string,
-    @Param() params: FindOneParams,
+    @Param('projectId') projectId: string,
   ): Promise<ProjectDto | null> {
-    const project = await this.findOneOrFail(params.id);
+    const project = await this.findOneOrFail(projectId);
     this.checkOwnership(project, userId);
     return transformToDto(ProjectDto, project);
   }
-  @Patch('/:id')
+  @Patch('/:projectId')
   async update(
     @CurrentUserId() userId: string,
-    @Param() params: FindOneParams,
+    @Param('projectId') projectId: string,
     @Body() updateProjectDto: UpdateProjectWithTasks,
   ) {
-    const project = await this.findOneOrFail(params.id);
+    const project = await this.findOneOrFail(projectId);
     this.checkOwnership(project, userId);
     if (updateProjectDto.tasks) {
       const updateProjectTasks =
@@ -87,13 +86,13 @@ export class ProjectsController {
     );
     return transformToDto(ProjectDto, updatedProject);
   }
-  @Delete('/:id')
+  @Delete('/:projectId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(
     @CurrentUserId() userId: string,
-    @Param() { id }: FindOneParams,
+    @Param('projectId') projectId: string,
   ) {
-    const project = await this.findOneOrFail(id);
+    const project = await this.findOneOrFail(projectId);
     this.checkOwnership(project, userId);
     await this.projectService.delete(project);
   }

@@ -8,29 +8,43 @@ import {
   testUser,
   unauthorizedUser,
   mockTasks,
+  mockProjects,
 } from './mockVariables/mockVariables';
 import {
   registerAndLogin,
   createTask,
   parseErrorText,
+  createProject,
 } from './helpers/test-helpers';
 import { randomUUID } from 'crypto';
 import { TaskStatus } from 'src/tasks/task-status.enum';
 import { WrongTaskStatusException } from 'src/tasks/exceptions/wrong-task-status.exeption';
 import { TaskLabel } from 'src/tasks/task-label.entity';
+import { ProjectDto } from 'src/projects/dtos/project.dto';
 
 describe('Tasks Integration(e2e)', () => {
   let testSetup: TestSetup;
   let accessToken: string | undefined;
   let taskId: string | undefined;
   let server: Http2Server;
+  let baseUrl: string;
 
   beforeEach(async () => {
     testSetup = await TestSetup.create(AppModule);
     server = testSetup.app.getHttpServer() as Http2Server;
-    const response = await createTask(server, testUser, mockTasks[0]);
-    taskId = response?.data.id;
-    accessToken = response?.token;
+    const token = await registerAndLogin(server, testUser);
+    const project = await createProject(server, token, {
+      ...mockProjects[0],
+      tasks: [mockTasks[0]],
+    });
+    const projectBody = project.body as ProjectDto;
+    baseUrl = `/projects/${projectBody.id}`;
+    // const response = await createTask(server, testUser, {
+    //   ...mockTasks[0],
+    //   project: projectBody,
+    // });
+    taskId = projectBody.tasks![0].id;
+    accessToken = token;
   });
 
   afterEach(async () => {
@@ -42,7 +56,7 @@ describe('Tasks Integration(e2e)', () => {
   });
   it('/tasks/id (GET), should return task', async () => {
     return request(server)
-      .get(`/tasks/${taskId}`)
+      .get(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200)
       .expect((res: { body: Task }) => {
@@ -58,7 +72,7 @@ describe('Tasks Integration(e2e)', () => {
   it('/tasks/id (GET), denies access to non-user', async () => {
     const token = await registerAndLogin(server, unauthorizedUser);
     return await request(server)
-      .get(`/tasks/${taskId}`)
+      .get(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${token}`)
       .expect(403)
       .expect((res: { body: Error }) => {
@@ -71,7 +85,7 @@ describe('Tasks Integration(e2e)', () => {
     const wrongId = randomUUID();
     const token = await registerAndLogin(server, testUser);
     return await request(server)
-      .get(`/tasks/${wrongId}`)
+      .get(`${baseUrl}/tasks/${wrongId}`)
       .set('Authorization', `Bearer ${token}`)
       .expect(404)
       .expect((res) => {
@@ -81,7 +95,7 @@ describe('Tasks Integration(e2e)', () => {
   });
   it('/tasks/id (GET), should throw 400 for invalid UUID', async () => {
     return await request(server)
-      .get('/tasks/invalid-id')
+      .get(`${baseUrl}/tasks/invalid_id`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(400)
       .expect((res) => {
@@ -89,10 +103,10 @@ describe('Tasks Integration(e2e)', () => {
         expect(errorBody?.message).toContain('id must be a UUID');
       });
   });
-  it('/tasks/id (POST), should validate the input, empty title', async () => {
+  it('/tasks (POST), should validate the input, empty title', async () => {
     await registerAndLogin(server, testUser);
     return request(server)
-      .post('/tasks')
+      .post(`${baseUrl}/tasks`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ ...mockTasks[0], title: '' })
       .expect(400);
@@ -100,14 +114,14 @@ describe('Tasks Integration(e2e)', () => {
   it('/tasks/id (POST), should validate the input, invalid input type', async () => {
     await registerAndLogin(server, testUser);
     return request(server)
-      .post('/tasks')
+      .post(`${baseUrl}/tasks`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ ...mockTasks[0], title: 2 })
       .expect(400);
   });
   it('/tasks/id (PATCH), sould return changed task', async () => {
     return request(server)
-      .patch(`/tasks/${taskId}`)
+      .patch(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send(mockTasks[1])
       .expect(200)
@@ -119,7 +133,7 @@ describe('Tasks Integration(e2e)', () => {
   });
   it('/tasks/id (PATCH), should throw custom WrongTaskStatusException', async () => {
     return request(server)
-      .patch(`/tasks/${taskId}`)
+      .patch(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send(mockTasks[2])
       .expect(409)
@@ -129,21 +143,27 @@ describe('Tasks Integration(e2e)', () => {
   });
   it('/tasks/id (DELETE), should delete task', async () => {
     return request(server)
-      .delete(`/tasks/${taskId}`)
+      .delete(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(204);
   });
   it('/tasks/id (DELETE), should throw not found exceptoin', async () => {
     return request(server)
-      .delete(`/tasks/${randomUUID()}`)
+      .delete(`${baseUrl}/tasks/${randomUUID()}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(404);
   });
   it('/tasks (GET), should only show list of user tasks', async () => {
-    await createTask(server, unauthorizedUser, mockTasks[0], 'noRetrun');
-    await createTask(server, testUser, mockTasks[1]);
+    await createTask(
+      server,
+      unauthorizedUser,
+      mockTasks[0],
+      baseUrl,
+      'noRetrun',
+    );
+    await createTask(server, testUser, mockTasks[1], baseUrl);
     const res: { body: PaginationResponse<Task> } = await request(server)
-      .get('/tasks')
+      .get(`${baseUrl}/tasks`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200);
     expect(Array.isArray(res.body.data)).toBe(true);
@@ -151,10 +171,10 @@ describe('Tasks Integration(e2e)', () => {
   });
   it('/tasks (GET), should return user tasks with pagination limit', async () => {
     await Promise.all(
-      mockTasks.map((task) => createTask(server, testUser, task)),
+      mockTasks.map((task) => createTask(server, testUser, task, baseUrl)),
     );
     return request(server)
-      .get('/tasks?limit=3')
+      .get(`${baseUrl}/tasks?limit=3`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200)
       .expect((res: { body: PaginationResponse<Task> }) => {
@@ -164,14 +184,14 @@ describe('Tasks Integration(e2e)', () => {
   });
   it('/tasks (GET), should return user tasks and skip offset, orderBy: createdAt "DESC"', async () => {
     await request(server)
-      .delete(`/tasks/${taskId}`)
+      .delete(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(204);
     for (const task of mockTasks) {
-      await createTask(server, testUser, task);
+      await createTask(server, testUser, task, baseUrl);
     }
     return request(server)
-      .get('/tasks?limit=3&offset=2')
+      .get(`${baseUrl}/tasks?limit=3&offset=2`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200)
       .expect((res: { body: PaginationResponse<Task> }) => {
@@ -183,14 +203,14 @@ describe('Tasks Integration(e2e)', () => {
   });
   it('/tasks (GET), should return user tasks orderBy: title "ASC"', async () => {
     await request(server)
-      .delete(`/tasks/${taskId}`)
+      .delete(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(204);
     for (const task of mockTasks) {
-      await createTask(server, testUser, task);
+      await createTask(server, testUser, task, baseUrl);
     }
     return request(server)
-      .get('/tasks?orderBy=title&sortingOrder=ASC')
+      .get(`${baseUrl}/tasks?orderBy=title&sortingOrder=ASC`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200)
       .expect((res: { body: PaginationResponse<Task> }) => {
@@ -202,14 +222,14 @@ describe('Tasks Integration(e2e)', () => {
   });
   it('/tasks (GET), should not allow to order by description', async () => {
     await request(server)
-      .delete(`/tasks/${taskId}`)
+      .delete(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(204);
     for (const task of mockTasks) {
-      await createTask(server, testUser, task);
+      await createTask(server, testUser, task, baseUrl);
     }
     return request(server)
-      .get('/tasks?orderBy=description&sortingOrder=ASC')
+      .get(`${baseUrl}/tasks?orderBy=description&sortingOrder=ASC`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200)
       .expect((res: { body: PaginationResponse<Task> }) => {
@@ -221,10 +241,10 @@ describe('Tasks Integration(e2e)', () => {
   });
   it('/tasks (GET), should return user tasks with searched word', async () => {
     await Promise.all(
-      mockTasks.map((task) => createTask(server, testUser, task)),
+      mockTasks.map((task) => createTask(server, testUser, task, baseUrl)),
     );
     return request(server)
-      .get('/tasks?search=keyword')
+      .get(`${baseUrl}/tasks?search=keyword`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200)
       .expect((res: { body: PaginationResponse<Task> }) => {
@@ -233,10 +253,10 @@ describe('Tasks Integration(e2e)', () => {
   });
   it('/tasks (GET), should return empty array, searched word not found', async () => {
     await Promise.all(
-      mockTasks.map((task) => createTask(server, testUser, task)),
+      mockTasks.map((task) => createTask(server, testUser, task, baseUrl)),
     );
     return request(server)
-      .get('/tasks?search=notIncluded')
+      .get(`${baseUrl}/tasks?search=notIncluded`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200)
       .expect((res: { body: PaginationResponse<Task> }) => {
@@ -245,10 +265,10 @@ describe('Tasks Integration(e2e)', () => {
   });
   it('/tasks (GET), should return user tasks with searched word UPPERCASE', async () => {
     await Promise.all(
-      mockTasks.map((task) => createTask(server, testUser, task)),
+      mockTasks.map((task) => createTask(server, testUser, task, baseUrl)),
     );
     return request(server)
-      .get('/tasks?search=KEYWORD')
+      .get(`${baseUrl}/tasks?search=KEYWORD`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200)
       .expect((res: { body: PaginationResponse<Task> }) => {
@@ -257,14 +277,16 @@ describe('Tasks Integration(e2e)', () => {
   });
   it('/tasks (GET), should return user tasks with searched word, orderBy title, limit 3, ASC order', async () => {
     await request(server)
-      .delete(`/tasks/${taskId}`)
+      .delete(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(204);
     for (const task of mockTasks) {
-      await createTask(server, testUser, task);
+      await createTask(server, testUser, task, baseUrl);
     }
     return request(server)
-      .get('/tasks?search=KEYWORD&orderBy=title&sortingOrder=ASC&limit=3')
+      .get(
+        `${baseUrl}/tasks?search=KEYWORD&orderBy=title&sortingOrder=ASC&limit=3`,
+      )
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200)
       .expect((res: { body: PaginationResponse<Task> }) => {
@@ -275,7 +297,7 @@ describe('Tasks Integration(e2e)', () => {
   });
   it('/tasks/id/labels (POST), should create label', async () => {
     return request(server)
-      .post(`/tasks/${taskId}/labels`)
+      .post(`${baseUrl}/tasks/${taskId}/labels`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send([{ name: 'label1' }, { name: 'label2' }])
       .expect(201)
@@ -287,7 +309,7 @@ describe('Tasks Integration(e2e)', () => {
   it('/tasks/id (DELETE), should delete labels with task', async () => {
     let labelId;
     await request(server)
-      .post(`/tasks/${taskId}/labels`)
+      .post(`${baseUrl}/tasks/${taskId}/labels`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send([{ name: 'label1' }, { name: 'label2' }])
       .expect(201)
@@ -295,7 +317,7 @@ describe('Tasks Integration(e2e)', () => {
         labelId = res.body.labels![0].id;
       });
     await request(server)
-      .delete(`/tasks/${taskId}`)
+      .delete(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${accessToken}`);
     const { dataSource } = testSetup;
     const labels = (await dataSource
@@ -306,12 +328,12 @@ describe('Tasks Integration(e2e)', () => {
   it('/tasks/id/labels (DELETE), should delete label from task', async () => {
     const labelId: string[] = [];
     await request(server)
-      .post(`/tasks/${taskId}/labels`)
+      .post(`${baseUrl}/tasks/${taskId}/labels`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send([{ name: 'label1' }, { name: 'label2' }])
       .expect(201);
     await request(server)
-      .get(`/tasks/${taskId}`)
+      .get(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect((res: { body: Task }) => {
         expect(res.body.labels?.length).toEqual(2);
@@ -319,12 +341,12 @@ describe('Tasks Integration(e2e)', () => {
         labelId.push(res.body.labels![0].id);
       });
     await request(server)
-      .delete(`/tasks/${taskId}/labels`)
+      .delete(`${baseUrl}/tasks/${taskId}/labels`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send(labelId)
       .expect(204);
     return request(server)
-      .get(`/tasks/${taskId}`)
+      .get(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200)
       .expect((res: { body: Task }) => {

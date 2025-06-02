@@ -60,11 +60,12 @@ export const createTask = async (
   server: Http2Server,
   user: CreateUserDto,
   task: CreateTaskDto,
+  baseUrl: string,
   noReturn?: string,
 ): Promise<CreateTaskResponse | void> => {
   const token = await registerAndLogin(server, user);
   const response: { body: Task } = await request(server)
-    .post('/tasks')
+    .post(`${baseUrl}/tasks`)
     .set('Authorization', `Bearer ${token}`)
     .send(task)
     .expect(201);
