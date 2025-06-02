@@ -69,9 +69,14 @@ export class TasksController {
   @Post()
   public async create(
     @Body() createTaskDto: CreateTaskDto,
+    @Param('projectId') projectId: string,
     @CurrentUserId() userId: string,
   ): Promise<TaskDto> {
-    const task = await this.tasksService.create(createTaskDto, userId);
+    const task = await this.tasksService.create(
+      createTaskDto,
+      userId,
+      projectId,
+    );
     return transformToDto(TaskDto, task);
   }
 

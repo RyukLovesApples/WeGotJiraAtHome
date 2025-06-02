@@ -2,6 +2,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -57,7 +59,12 @@ export class Task {
     onDelete: 'CASCADE',
     orphanedRowAction: 'delete',
   })
+  @JoinColumn({ name: 'projectId' })
   project?: Project;
+
+  @Index('IDX_TASK_PROJECT', ['projectId'])
+  @Column()
+  projectId!: string;
 
   @CreateDateColumn()
   @Expose()

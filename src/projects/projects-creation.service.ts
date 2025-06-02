@@ -19,7 +19,7 @@ export class ProjectCreationService {
     const project = await this.projectsService.create(createProjectDto, userId);
     await Promise.all(
       createProjectDto.tasks!.map((task) =>
-        this.tasksService.create({ ...task, project }, userId),
+        this.tasksService.create({ ...task }, userId, project.id),
       ),
     );
     return await this.projectsService.getOneById(project.id);

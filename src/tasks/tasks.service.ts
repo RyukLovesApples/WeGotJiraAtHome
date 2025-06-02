@@ -35,7 +35,7 @@ export class TasksService {
       .leftJoinAndSelect('task.user', 'user')
       .leftJoinAndSelect('task.labels', 'labels')
       .where(`task.project.id = :projectId`, { projectId })
-      .where(`task.userId = :userId`, { userId });
+      .andWhere(`task.userId = :userId`, { userId });
     if (filters.status) {
       queryBuilder.andWhere('task.status = :status', {
         status: filters.status,
@@ -80,6 +80,7 @@ export class TasksService {
   public async create(
     createTaskDto: CreateTaskDto,
     userId: string,
+    projectId: string,
   ): Promise<Task> {
     const user = await this.userRepository.findOneBy({
       id: userId,
@@ -98,7 +99,7 @@ export class TasksService {
       status: createTaskDto.status,
       user: user,
       labels: labels,
-      project: createTaskDto.project,
+      projectId: projectId,
     });
 
     const task: Task = await this.taskRepository.save(newTask);
