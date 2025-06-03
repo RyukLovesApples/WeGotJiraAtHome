@@ -5,13 +5,13 @@ services:
      environment:
        POSTGRES_USER: postgres
        POSTGRES_PASSWORD: postgres
-       POSTGRES_DB: tasks
+       POSTGRES_DB: we_got_jira_at_home
      ports:
        - '5432:5432'
      volumes:
        - postgres_data:/var/lib/postgresql/data
      healthcheck:
-       test: ['CMD-SHELL', 'pg_isready -U postgres -d tasks']
+       test: ['CMD-SHELL', 'pg_isready -U postgres -d we_got_jira_at_home']
        interval: 10s
        timeout: 5s
        retries: 5

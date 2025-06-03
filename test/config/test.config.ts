@@ -5,7 +5,7 @@ export const testConfig = {
     port: 5432,
     username: 'postgres',
     password: 'postgres',
-    database: 'tasks_e2e',
+    database: 'we_got_jira_at_home_e2e',
     synchronize: true,
   },
   app: {
