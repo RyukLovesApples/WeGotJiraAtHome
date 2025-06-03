@@ -34,6 +34,7 @@ export class TestSetup {
     this.app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
     this.dataSource = moduleFixture.get(DataSource);
     await this.app.init();
+    await this.dataSource.runMigrations();
   }
   async cleanup() {
     const entities = this.dataSource.entityMetadatas;
