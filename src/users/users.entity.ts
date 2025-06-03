@@ -1,5 +1,5 @@
 import { Expose } from 'class-transformer';
-import { Task } from 'src/tasks/task.entity';
+import { Task } from '../tasks/task.entity';
 import {
   Column,
   CreateDateColumn,
@@ -9,8 +9,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Role } from './role.enum';
-import { Project } from 'src/projects/project.entity';
-import { ProjectUser } from 'src/projects/project-user.entity';
+import { Project } from '../projects/project.entity';
+import { ProjectUser } from '../projects/project-user.entity';
 
 @Entity()
 export class User {

@@ -10,10 +10,10 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { TaskStatus } from './task-status.enum';
-import { User } from 'src/users/users.entity';
+import { User } from '../users/users.entity';
 import { TaskLabel } from './task-label.entity';
 import { Exclude, Expose } from 'class-transformer';
-import { Project } from 'src/projects/project.entity';
+import { Project } from '../projects/project.entity';
 
 @Entity()
 @Exclude()

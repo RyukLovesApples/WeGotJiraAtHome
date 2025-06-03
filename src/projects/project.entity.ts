@@ -1,6 +1,6 @@
 import { Exclude, Expose } from 'class-transformer';
-import { Task } from 'src/tasks/task.entity';
-import { User } from 'src/users/users.entity';
+import { Task } from '../tasks/task.entity';
+import { User } from '../users/users.entity';
 import { ProjectUser } from './project-user.entity';
 import {
   Column,
@@ -11,7 +11,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { UserDto } from 'src/users/dtos/user.dto';
+import { UserDto } from '../users/dtos/user.dto';
 
 @Exclude()
 @Entity()

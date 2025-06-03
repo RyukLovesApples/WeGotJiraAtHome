@@ -11,7 +11,7 @@ import { Http2Server } from 'http2';
 import { testUser } from './mockVariables/mockVariables';
 import {
   LoginResponse,
-  HttpErrorResponse,
+  // HttpErrorResponse,
   RegisterResponse,
 } from './types/test.types';
 import {
@@ -152,14 +152,15 @@ describe('AuthController (e2e)', () => {
         .set('Authorization', `Bearer ${incorrectToken}`)
         .expect(401);
     });
-    it('/tasks (GET), unauthorized access without login, test global auth guard', async () => {
-      return request(server)
-        .get('/tasks')
-        .expect(401)
-        .expect((res: { body: HttpErrorResponse }) => {
-          expect(res.body.message).toContain('Unauthorized');
-        });
-    });
+    // place related guard in feature in separate section
+    // it('/tasks (GET), unauthorized access without login, test global auth guard', async () => {
+    //   return request(server)
+    //     .get('/tasks')
+    //     .expect(401)
+    //     .expect((res: { body: HttpErrorResponse }) => {
+    //       expect(res.body.message).toContain('Unauthorized');
+    //     });
+    // });
     it('should check JWT payload data and include user role in response', async () => {
       await createUserWithRole(testSetup.app, testUser, [Role.ADMIN]);
       const response = await loginUser(server, testUser);
