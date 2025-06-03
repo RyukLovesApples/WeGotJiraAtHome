@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { Role } from './role.enum';
 import { Project } from '../projects/project.entity';
-import { ProjectUser } from '../projects/project-user.entity';
+import { ProjectUser } from '../project-users/project-user.entity';
 
 @Entity()
 export class User {

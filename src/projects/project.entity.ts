@@ -1,7 +1,7 @@
 import { Exclude, Expose } from 'class-transformer';
 import { Task } from '../tasks/task.entity';
 import { User } from '../users/users.entity';
-import { ProjectUser } from './project-user.entity';
+import { ProjectUser } from '../project-users/project-user.entity';
 import {
   Column,
   CreateDateColumn,
