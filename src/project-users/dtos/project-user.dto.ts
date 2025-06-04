@@ -17,14 +17,6 @@ export class ProjectUserDto {
   @Expose()
   projectId!: string;
 
-  @Field()
-  @Expose()
-  createdAt!: string;
-
-  @Field()
-  @Expose()
-  updatedAt!: string;
-
   @Field(() => ProjectRole)
   @Expose()
   role!: ProjectRole;

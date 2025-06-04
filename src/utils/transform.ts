@@ -1,9 +1,10 @@
-import { plainToInstance } from 'class-transformer';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
 
 export function transformToDto<T>(
   classToTransform: new (...args: any[]) => T,
-  plain: any,
+  entity: any,
 ): T {
+  const plain = instanceToPlain(entity);
   return plainToInstance(classToTransform, plain, {
     excludeExtraneousValues: true,
   });
