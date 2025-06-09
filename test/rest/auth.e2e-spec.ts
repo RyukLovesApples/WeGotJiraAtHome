@@ -1,25 +1,25 @@
 import * as request from 'supertest';
-import { AppModule } from './../src/app.module';
-import { TestSetup } from './test.setup';
+import { AppModule } from '../../src/app.module';
+import { TestSetup } from '../test.setup';
 import { User } from 'src/users/users.entity';
 import * as bcrypt from 'bcrypt';
 import { Role } from 'src/users/role.enum';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from 'jsonwebtoken';
-import { AdminResponse } from '../src/users/responses/Admin.response';
+import { AdminResponse } from '../../src/users/responses/Admin.response';
 import { Http2Server } from 'http2';
-import { testUser } from './mockVariables/mockVariables';
+import { testUser } from '../mockVariables/mockVariables';
 import {
   LoginResponse,
   // HttpErrorResponse,
   RegisterResponse,
-} from './types/test.types';
+} from '../types/test.types';
 import {
   createUserWithRole,
   loginUser,
   parseErrorText,
   registerUser,
-} from './helpers/test-helpers';
+} from '../helpers/test-helpers';
 
 describe('AuthController (e2e)', () => {
   let testSetup: TestSetup;
@@ -152,7 +152,6 @@ describe('AuthController (e2e)', () => {
         .set('Authorization', `Bearer ${incorrectToken}`)
         .expect(401);
     });
-    // place related guard in feature in separate section
     // it('/tasks (GET), unauthorized access without login, test global auth guard', async () => {
     //   return request(server)
     //     .get('/tasks')

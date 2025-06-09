@@ -2,7 +2,7 @@
 
 ## Project Goal
 
-A full-featured, test-driven project and task management API inspired by Jira â€” because sometimes, you want **Jira at home**. The goal is to deepen my understanding of maintainable and scalable backend architecture through real-world development practices.
+A full-featured, test-driven project and task management API inspired by Jira. The goal is to deepen my understanding of maintainable and scalable backend architecture through real-world development practices.
 
 ---
 
@@ -33,9 +33,8 @@ A full-featured, test-driven project and task management API inspired by Jira â€
 ### Projects
 
 - Create projects (with optional tasks)
-- Automatically assign project creator as `OWNER`
+- Automatically assign project to Project User
 - Designed for full CRUD of project users
-- Planned: job title support (e.g. *Project Manager*, *Developer*)
 
 ### Tasks
 
@@ -47,7 +46,7 @@ A full-featured, test-driven project and task management API inspired by Jira â€
 
 ### Testing
 
-- E2E tests with Jest
+- Integration tests with Jest
 - Modular test setup (`test-setup.ts`)
 - Test helpers and mock data organized by concern
 - Isolated test environment and dedicated test DB

@@ -1,5 +1,5 @@
 import { AppModule } from 'src/app.module';
-import { TestSetup } from './test.setup';
+import { TestSetup } from '../test.setup';
 import * as request from 'supertest';
 import { Task } from 'src/tasks/task.entity';
 import { PaginationResponse } from 'src/tasks/responses/pagination.response';
@@ -9,13 +9,13 @@ import {
   unauthorizedUser,
   mockTasks,
   mockProjects,
-} from './mockVariables/mockVariables';
+} from '../mockVariables/mockVariables';
 import {
   registerAndLogin,
   createTask,
   parseErrorText,
   createProject,
-} from './helpers/test-helpers';
+} from '../helpers/test-helpers';
 import { randomUUID } from 'crypto';
 import { TaskStatus } from 'src/tasks/task-status.enum';
 import { WrongTaskStatusException } from 'src/tasks/exceptions/wrong-task-status.exeption';

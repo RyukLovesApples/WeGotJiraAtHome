@@ -1,13 +1,13 @@
 import * as request from 'supertest';
 import { Http2Server } from 'http2';
-import { TestSetup } from './test.setup';
+import { TestSetup } from '../test.setup';
 import { AppModule } from 'src/app.module';
-import { createProject, registerAndLogin } from './helpers/test-helpers';
+import { createProject, registerAndLogin } from '../helpers/test-helpers';
 import {
   mockTasks,
   mockProjects,
   testUser,
-} from './mockVariables/mockVariables';
+} from '../mockVariables/mockVariables';
 import { ProjectDto } from 'src/projects/dtos/project.dto';
 import { TaskDto } from 'src/tasks/dtos/task.dto';
 import { TaskStatus } from 'src/tasks/task-status.enum';
@@ -84,7 +84,6 @@ describe('Project Integration', () => {
       });
   });
   it('/projects/id (GET), should return one task without password exposure', async () => {
-    console.log(projectId);
     return request(server)
       .get(`/projects/${projectId}`)
       .set('Authorization', `Bearer ${accessToken}`)

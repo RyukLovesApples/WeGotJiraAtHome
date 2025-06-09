@@ -21,6 +21,7 @@ import { ProjectUsersModule } from './project-users/project-users.module';
 import { RouterModule } from '@nestjs/core';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -46,7 +47,10 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      autoSchemaFile: true,
+      autoSchemaFile: join(
+        process.cwd(),
+        'src/project-users/schemas/project-user.graphql',
+      ),
       debug: true,
       playground: true,
     }),

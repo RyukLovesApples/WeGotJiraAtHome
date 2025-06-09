@@ -1,19 +1,25 @@
 import { ObjectType, Field } from '@nestjs/graphql';
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 import { ProjectRole } from '../project-role.enum';
+import { UserGraphOutput } from './user-graph.dto';
 
 @ObjectType()
 @Exclude()
 export class ProjectUserDto {
-  @Field()
+  @Field(() => String)
   @Expose()
   id!: string;
 
-  @Field()
+  @Field(() => String)
   @Expose()
   userId!: string;
 
-  @Field()
+  @Field(() => UserGraphOutput, { nullable: true })
+  @Expose()
+  @Type(() => UserGraphOutput)
+  user?: UserGraphOutput;
+
+  @Field(() => String)
   @Expose()
   projectId!: string;
 

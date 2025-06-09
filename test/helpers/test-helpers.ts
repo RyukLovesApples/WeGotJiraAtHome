@@ -10,12 +10,16 @@ import { User } from 'src/users/users.entity';
 import { INestApplication } from '@nestjs/common';
 import {
   CreateTaskResponse,
+  GraphQLErrorResponse,
+  GraphQLResponse,
   HttpErrorResponse,
   LoginResponse,
 } from 'test/types/test.types';
 import { CreateTaskDto } from 'src/tasks/dtos/create-task.dto';
 import { Task } from 'src/tasks/task.entity';
 import { CreateProjectDto } from 'src/projects/dtos/create-project.dto';
+import { CreateProjectUserInput } from 'src/project-users/dtos/create-project-user.dto';
+import { ProjectUserDto } from 'src/project-users/dtos/project-user.dto';
 
 export const registerUser = (
   server: Http2Server,
@@ -90,4 +94,43 @@ export const createProject = (
     .post('/projects')
     .set('Authorization', `Bearer ${token}`)
     .send(project);
+};
+
+export const logErrorAndFail = (response: {
+  body: { errors?: GraphQLErrorResponse[] };
+}) => {
+  if (response.body?.errors?.length) {
+    const message = response.body.errors[0].message;
+    console.error(message);
+    throw new Error(message);
+  }
+};
+
+// GraphQL
+
+export const createProjectUser = async (
+  server: Http2Server,
+  variables: { input: CreateProjectUserInput },
+  accessToken: string,
+): Promise<
+  GraphQLResponse<{
+    createProjectUser: ProjectUserDto;
+  }>
+> => {
+  const mutation = `
+  mutation CreateProjectUser($input: CreateProjectUserInput!) {
+    createProjectUser(input: $input) {
+      id
+      userId
+      projectId
+      role
+    }
+  }`;
+  return await request(server)
+    .post('/graphql')
+    .set('Authorization', `Bearer ${accessToken}`)
+    .send({
+      query: mutation,
+      variables,
+    });
 };
