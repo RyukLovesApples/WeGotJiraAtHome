@@ -22,6 +22,7 @@ import { RouterModule } from '@nestjs/core';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
+import { ProjectUserInvite } from './project-users/project-users-invite/project-user-invite.entity';
 
 @Module({
   imports: [
@@ -42,7 +43,14 @@ import { join } from 'path';
       useFactory: (configService: TypedConfigService) => ({
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         ...configService.get('database'),
-        entities: [Task, User, TaskLabel, Project, ProjectUser],
+        entities: [
+          Task,
+          User,
+          TaskLabel,
+          Project,
+          ProjectUser,
+          ProjectUserInvite,
+        ],
       }),
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
