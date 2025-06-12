@@ -1,7 +1,9 @@
-import { Controller, Get, Query, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Res } from '@nestjs/common';
 import { ProjectUserInviteService } from './project-user-invite.service';
 import { UsersService } from 'src/users/users.service';
 import { Response } from 'express';
+import { CreateProjectInvitaionDto } from './dtos/create-project-user-invite.dto';
+import { CurrentUserId } from 'src/users/decorators/current-user-id.decorator';
 
 @Controller('invite')
 export class InviteController {
@@ -22,5 +24,12 @@ export class InviteController {
     } else {
       return res.redirect(`/register?email=${invite.email}&token=${token}`);
     }
+  }
+  @Post()
+  async createInvite(
+    @CurrentUserId() invitedById: string,
+    @Body() userInvitation: CreateProjectInvitaionDto,
+  ): Promise<void> {
+    await this.inviteService.createInvite(userInvitation, invitedById);
   }
 }

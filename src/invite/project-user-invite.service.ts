@@ -5,12 +5,15 @@ import { ProjectUserInvite } from './project-user-invite.entity';
 import { Repository } from 'typeorm';
 import { randomUUID } from 'crypto';
 import { MailerService } from 'src/mailer/mailer.service';
+import { inviteEmailTemplate } from 'src/mailer/templates/invitation.template';
+import { ProjectsService } from 'src/projects/projects.service';
 
 @Injectable()
 export class ProjectUserInviteService implements OnModuleInit {
   constructor(
     @InjectRepository(ProjectUserInvite)
     private readonly mailerService: MailerService,
+    private readonly projectService: ProjectsService,
     private readonly projectUserInviteRepo: Repository<ProjectUserInvite>,
   ) {}
   async createInvite(
@@ -18,13 +21,28 @@ export class ProjectUserInviteService implements OnModuleInit {
     invitedById: string,
   ): Promise<void> {
     const expiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000);
+    const token = randomUUID();
     const projectUserInvite = this.projectUserInviteRepo.create({
       ...userInvitaion,
       invitedById,
-      token: randomUUID(),
+      token,
       expiresAt,
     });
     await this.projectUserInviteRepo.save(projectUserInvite);
+    const project = await this.projectService.getOneById(
+      userInvitaion.projectId,
+    );
+    if (!project) {
+      throw new NotFoundException(
+        `Could not find project with id: ${userInvitaion.projectId}`,
+      );
+    }
+    const inviteLink = `https://WeGotJiraAtHome.com/invite?token=${token}`;
+    await this.mailerService.sendEmail({
+      to: userInvitaion.email,
+      subject: 'You’ve been invited to join a project',
+      html: inviteEmailTemplate(inviteLink, project.name),
+    });
   }
   isExpired(expiredAt: Date): boolean {
     const currentDate = new Date(Date.now());
