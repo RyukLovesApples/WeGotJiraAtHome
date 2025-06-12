@@ -22,7 +22,9 @@ import { RouterModule } from '@nestjs/core';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
-import { ProjectUserInvite } from './project-users/project-users-invite/project-user-invite.entity';
+import { ProjectUserInvite } from './invite/project-user-invite.entity';
+import { MailerModule } from './mailer/mailer.module';
+import { InviteModule } from './invite/invite.module';
 
 @Module({
   imports: [
@@ -79,6 +81,8 @@ import { ProjectUserInvite } from './project-users/project-users-invite/project-
         ],
       },
     ]),
+    MailerModule,
+    InviteModule,
   ],
   controllers: [AppController],
   providers: [

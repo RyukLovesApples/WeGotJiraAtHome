@@ -1,14 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { CreateProjectInvitaionDto } from './dtos/create-project-user-invite.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProjectUserInvite } from './project-user-invite.entity';
 import { Repository } from 'typeorm';
 import { randomUUID } from 'crypto';
+import { MailerService } from 'src/mailer/mailer.service';
 
 @Injectable()
-export class ProjectUserInviteService {
+export class ProjectUserInviteService implements OnModuleInit {
   constructor(
     @InjectRepository(ProjectUserInvite)
+    private readonly mailerService: MailerService,
     private readonly projectUserInviteRepo: Repository<ProjectUserInvite>,
   ) {}
   async createInvite(
@@ -31,13 +33,31 @@ export class ProjectUserInviteService {
     }
     return false;
   }
-  // for intervall deletion of expired invites
-  async deleteExpiredInvites() {
+  async deleteExpiredInvites(): Promise<void> {
     await this.projectUserInviteRepo
       .createQueryBuilder()
       .delete()
       .from(ProjectUserInvite)
       .where('expiresAt < :now', { now: new Date() })
       .execute();
+  }
+  async getInviteByToken(token: string): Promise<ProjectUserInvite> {
+    const invite = await this.projectUserInviteRepo.findOne({
+      where: { token },
+    });
+    if (!invite) {
+      throw new NotFoundException('Could not find the invitation');
+    }
+    return invite;
+  }
+  onModuleInit() {
+    setInterval(
+      () => {
+        this.deleteExpiredInvites().catch((err) =>
+          console.error('Failed to delete expired invites:', err),
+        );
+      },
+      1000 * 60 * 60 * 24,
+    );
   }
 }

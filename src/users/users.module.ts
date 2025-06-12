@@ -43,5 +43,6 @@ import { RolesGuard } from './auth/guards/roles.guard';
       useClass: RolesGuard,
     },
   ],
+  exports: [UsersService],
 })
 export class UsersModule {}
