@@ -36,6 +36,7 @@
 ./eslint.config.mjs
 ./src
 ./src/migrations
+./src/migrations/1749463018783-AddProjectUserInviteTable.ts
 ./src/migrations/1749038791787-AddProjectUserRoleColumn.ts
 ./src/tasks
 ./src/tasks/task-label.entity.ts
@@ -83,6 +84,14 @@
 ./src/app.service.ts
 ./src/utils
 ./src/utils/transform.ts
+./src/mailer
+./src/mailer/mailer.service.ts
+./src/mailer/types
+./src/mailer/types/send-mail-options.type.ts
+./src/mailer/mailer.module.ts
+./src/mailer/templates
+./src/mailer/templates/invitation.template.ts
+./src/mailer/mailer.service.spec.ts
 ./src/app.module.ts
 ./src/project-users
 ./src/project-users/project-users.service.ts
@@ -98,6 +107,14 @@
 ./src/project-users/dtos/project-user.dto.ts
 ./src/project-users/project-users.resolver.ts
 ./src/project-users/project-user.entity.ts
+./src/invite
+./src/invite/project-user-invite.service.ts
+./src/invite/project-user-invite.entity.ts
+./src/invite/dtos
+./src/invite/dtos/create-project-user-invite.dto.ts
+./src/invite/invite.controller.ts
+./src/invite/invite.module.ts
+./src/invite/invite.controller.spec.ts
 ./src/users
 ./src/users/users.entity.ts
 ./src/users/password

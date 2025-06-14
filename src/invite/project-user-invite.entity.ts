@@ -1,4 +1,5 @@
 import { Exclude, Expose } from 'class-transformer';
+import { ProjectRole } from '../project-users/project-role.enum';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
@@ -10,6 +11,12 @@ export class ProjectUserInvite {
   @Column()
   @Expose()
   email!: string;
+  @Column({
+    type: 'enum',
+    enum: ProjectRole,
+  })
+  @Expose()
+  role!: ProjectRole;
   @Column()
   @Expose()
   projectId!: string;

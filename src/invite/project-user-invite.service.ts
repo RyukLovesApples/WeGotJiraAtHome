@@ -11,9 +11,9 @@ import { ProjectsService } from 'src/projects/projects.service';
 @Injectable()
 export class ProjectUserInviteService implements OnModuleInit {
   constructor(
-    @InjectRepository(ProjectUserInvite)
     private readonly mailerService: MailerService,
     private readonly projectService: ProjectsService,
+    @InjectRepository(ProjectUserInvite)
     private readonly projectUserInviteRepo: Repository<ProjectUserInvite>,
   ) {}
   async createInvite(

@@ -5,14 +5,24 @@ import { Public } from 'src/users/decorators/public.decorator';
 import { CreateProjectUserInput } from './dtos/create-project-user.dto';
 import { ProjectUsersService } from './project-users.service';
 import { transformToDto } from 'src/utils/transform';
-import { UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
+import {
+  UseInterceptors,
+  ClassSerializerInterceptor,
+  BadRequestException,
+} from '@nestjs/common';
 import { UpdateProjectUserRoleInput } from './dtos/update-project-user.input';
 import { plainToInstance } from 'class-transformer';
+import { ProjectUserInviteService } from 'src/invite/project-user-invite.service';
+import { CurrentUserId } from 'src/users/decorators/current-user-id.decorator';
+import { ProjectUserInvite } from 'src/invite/project-user-invite.entity';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Resolver(() => ProjectUser)
 export class ProjectUsersResolver {
-  constructor(private readonly projectUsersService: ProjectUsersService) {}
+  constructor(
+    private readonly projectUsersService: ProjectUsersService,
+    private readonly inviteService: ProjectUserInviteService,
+  ) {}
   @Query(() => String)
   @Public()
   healthCheck(): string {
@@ -69,5 +79,25 @@ export class ProjectUsersResolver {
     return plainToInstance(ProjectUserDto, projectUsers, {
       excludeExtraneousValues: true,
     });
+  }
+  @Mutation(() => Boolean)
+  @Public()
+  async acceptProjectInvite(
+    @CurrentUserId() userId: string,
+    @Args('token', { type: () => String }) token: string,
+  ): Promise<boolean> {
+    const projectInvite: ProjectUserInvite =
+      await this.inviteService.getInviteByToken(token);
+    const isExpired = this.inviteService.isExpired(projectInvite.expiresAt);
+    if (isExpired) {
+      throw new BadRequestException('Invalid or expired invite token');
+    }
+    const projectUser = {
+      userId,
+      projectId: projectInvite.projectId,
+      role: projectInvite.role,
+    };
+    await this.projectUsersService.create(projectUser);
+    return true;
   }
 }

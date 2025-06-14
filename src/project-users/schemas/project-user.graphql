@@ -33,6 +33,7 @@ type Mutation {
   createProjectUser(input: CreateProjectUserInput!): ProjectUserDto!
   updateProjectUser(input: UpdateProjectUserRoleInput!): ProjectUserDto!
   deleteProjectUser(userId: String!, projectId: String!): Boolean!
+  acceptProjectInvite(token: String!): Boolean!
 }
 
 input CreateProjectUserInput {
