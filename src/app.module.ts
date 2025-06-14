@@ -16,9 +16,15 @@ import { TaskLabel } from './tasks/task-label.entity';
 import { authConfig } from './config/auth.config';
 import { ProjectsModule } from './projects/projects.module';
 import { Project } from './projects/project.entity';
-import { ProjectUser } from './projects/project-user.entity';
+import { ProjectUser } from './project-users/project-user.entity';
 import { ProjectUsersModule } from './project-users/project-users.module';
 import { RouterModule } from '@nestjs/core';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { join } from 'path';
+import { ProjectUserInvite } from './invite/project-user-invite.entity';
+import { MailerModule } from './mailer/mailer.module';
+import { InviteModule } from './invite/invite.module';
 
 @Module({
   imports: [
@@ -39,8 +45,24 @@ import { RouterModule } from '@nestjs/core';
       useFactory: (configService: TypedConfigService) => ({
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         ...configService.get('database'),
-        entities: [Task, User, TaskLabel, Project, ProjectUser],
+        entities: [
+          Task,
+          User,
+          TaskLabel,
+          Project,
+          ProjectUser,
+          ProjectUserInvite,
+        ],
       }),
+    }),
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: join(
+        process.cwd(),
+        'src/project-users/schemas/project-user.graphql',
+      ),
+      debug: true,
+      playground: true,
     }),
     LoggerModule,
     TasksModule,
@@ -59,6 +81,8 @@ import { RouterModule } from '@nestjs/core';
         ],
       },
     ]),
+    MailerModule,
+    InviteModule,
   ],
   controllers: [AppController],
   providers: [

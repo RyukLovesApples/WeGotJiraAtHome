@@ -3,8 +3,6 @@ import { DataSource } from 'typeorm';
 
 config();
 
-const isCompiled = __filename.includes('dist');
-
 export default new DataSource({
   type: 'postgres',
   host: process.env.DB_HOST ?? 'localhost',
@@ -13,7 +11,7 @@ export default new DataSource({
   password: process.env.DB_PASSWORD ?? 'postgres',
   database: process.env.DB_NAME ?? 'we_got_jira_at_home',
   synchronize: false,
-  entities: [isCompiled ? 'dist/**/*.entity.js' : 'src/**/*.entity.ts'],
-  migrations: [isCompiled ? 'dist/migrations/*.js' : 'src/migrations/*.ts'],
+  entities: ['src/**/*.entity.ts', 'dist/**/*.entity.js'],
+  migrations: ['src/migrations/*.ts', 'dist/migrations/*.js'],
   migrationsRun: false,
 });

@@ -1,12 +1,3 @@
-// export interface PaginationResponse<T> {
-//   data: T[];
-//   meta: {
-//     total: number;
-//     offset: number;
-//     limit: number;
-//   };
-// }
-
 import { Expose, Type } from 'class-transformer';
 import { Task } from '../task.entity';
 

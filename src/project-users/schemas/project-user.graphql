@@ -1,0 +1,49 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type UserGraphOutput {
+  id: String!
+  username: String!
+  email: String
+}
+
+type ProjectUserDto {
+  id: String!
+  userId: String!
+  user: UserGraphOutput
+  projectId: String!
+  role: ProjectRole!
+}
+
+enum ProjectRole {
+  OWNER
+  ADMIN
+  USER
+  VISITOR
+}
+
+type Query {
+  healthCheck: String!
+  getOneProjectUser(userId: String!, projectId: String!): ProjectUserDto!
+  getAllProjectUsers(projectId: String!): [ProjectUserDto!]!
+}
+
+type Mutation {
+  createProjectUser(input: CreateProjectUserInput!): ProjectUserDto!
+  updateProjectUser(input: UpdateProjectUserRoleInput!): ProjectUserDto!
+  deleteProjectUser(userId: String!, projectId: String!): Boolean!
+  acceptProjectInvite(token: String!): Boolean!
+}
+
+input CreateProjectUserInput {
+  userId: String!
+  projectId: String!
+  role: ProjectRole!
+}
+
+input UpdateProjectUserRoleInput {
+  userId: String!
+  projectId: String!
+  role: ProjectRole!
+}
