@@ -30,11 +30,13 @@ A full-featured, test-driven project and task management API inspired by Jira. T
 - Custom decorators for cleaner controller logic
 - Admin role support for developer-level access
 
-### Projects
+### Projects & ProjectUsers
 
 - Create projects (with optional tasks)
 - Automatically assign project to Project User
 - Designed for full CRUD of project users
+- ProjectUser module serves as the canonical source for project membership and roles to enable consistent permissions enforcement
+- Invitation module to handle project invites and automated user addition on acceptance
 
 ### Tasks
 
