@@ -6,6 +6,8 @@
 ./test/test.setup.ts
 ./test/config
 ./test/config/test.config.ts
+./test/workflows
+./test/workflows/invitation.e2e-spec.ts
 ./test/graphql
 ./test/graphql/project-users.e2e-spec.ts
 ./test/mockVariables

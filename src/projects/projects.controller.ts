@@ -43,7 +43,10 @@ export class ProjectsController {
         );
       return transformToDto(ProjectDto, projectWithTasks);
     }
-    const project = await this.projectService.create(createProjectDto, userId);
+    const project = await this.projectCreationService.create(
+      createProjectDto,
+      userId,
+    );
     return transformToDto(ProjectDto, project);
   }
   @Get()
