@@ -69,6 +69,7 @@ import { InviteModule } from './invite/invite.module';
     UsersModule,
     ProjectsModule,
     ProjectUsersModule,
+    InviteModule,
     RouterModule.register([
       {
         path: 'projects',
