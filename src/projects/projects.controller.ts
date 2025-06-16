@@ -32,7 +32,6 @@ export class ProjectsController {
     private readonly projectCreationService: ProjectCreationService,
   ) {}
   @Post()
-  @Public()
   async create(
     @CurrentUserId() userId: string,
     @Body() createProjectDto: CreateProjectDto,

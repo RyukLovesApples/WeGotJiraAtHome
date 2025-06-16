@@ -36,8 +36,6 @@
 ./eslint.config.mjs
 ./src
 ./src/migrations
-./src/migrations/1749463018783-AddProjectUserInviteTable.ts
-./src/migrations/1749038791787-AddProjectUserRoleColumn.ts
 ./src/tasks
 ./src/tasks/task-label.entity.ts
 ./src/tasks/responses

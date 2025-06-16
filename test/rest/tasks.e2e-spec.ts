@@ -39,10 +39,6 @@ describe('Tasks Integration(e2e)', () => {
     });
     const projectBody = project.body as ProjectDto;
     baseUrl = `/projects/${projectBody.id}`;
-    // const response = await createTask(server, testUser, {
-    //   ...mockTasks[0],
-    //   project: projectBody,
-    // });
     taskId = projectBody.tasks![0].id;
     accessToken = token;
   });
