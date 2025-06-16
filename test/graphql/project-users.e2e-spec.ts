@@ -274,6 +274,6 @@ describe('ProjectUser Integration (GraphQL)', () => {
         .send({ query, variables: { projectId } })
         .expect(200);
     logErrorAndFail(response);
-    expect(response.body.data!.getAllProjectUsers.length).toBe(2);
+    expect(response.body.data!.getAllProjectUsers.length).toBe(3);
   });
 });

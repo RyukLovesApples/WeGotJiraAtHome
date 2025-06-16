@@ -4,12 +4,15 @@ import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dtos/create-project.dto';
 import { UpdateProjectWithTasks } from './dtos/update-project.dto';
 import { Project } from './project.entity';
+import { ProjectUsersService } from 'src/project-users/project-users.service';
+import { ProjectRole } from 'src/project-users/project-role.enum';
 
 @Injectable()
 export class ProjectCreationService {
   constructor(
     private readonly projectsService: ProjectsService,
     private readonly tasksService: TasksService,
+    private readonly projectUserService: ProjectUsersService,
   ) {}
 
   async createProjectWithTasks(
@@ -22,6 +25,11 @@ export class ProjectCreationService {
         this.tasksService.create({ ...task }, userId, project.id),
       ),
     );
+    await this.projectUserService.create({
+      projectId: project.id,
+      userId,
+      role: ProjectRole.OWNER,
+    });
     return await this.projectsService.getOneById(project.id);
   }
 
