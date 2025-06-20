@@ -56,6 +56,7 @@ import { InviteModule } from './invite/invite.module';
       }),
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
+      context: ({ req }: { req: Request }) => ({ req }),
       driver: ApolloDriver,
       autoSchemaFile: join(
         process.cwd(),

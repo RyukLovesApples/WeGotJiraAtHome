@@ -244,7 +244,6 @@ describe('ProjectUser Integration (GraphQL)', () => {
     const jwtData: JwtPayload = testSetup.app
       .get(JwtService)
       .verify(newUserToken);
-    console.log(jwtData);
     const secondUserVariables = {
       input: {
         userId: jwtData.sub!,

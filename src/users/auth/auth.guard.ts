@@ -10,6 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { AuthConfig } from 'src/config/auth.config';
 import { IS_PUBLIC } from '../decorators/public.decorator';
+import { GqlExecutionContext } from '@nestjs/graphql';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -27,11 +28,16 @@ export class AuthGuard implements CanActivate {
     if (isPublic) {
       return true;
     }
-    const request: Request = context.switchToHttp().getRequest();
+    const gqlCtx = GqlExecutionContext.create(context).getContext<{
+      req: Request;
+    }>();
+    const request = gqlCtx?.req ?? context.switchToHttp().getRequest();
+
     const token = this.extractTokenFromHeader(request);
     if (!token) {
       throw new UnauthorizedException();
     }
+
     try {
       const payload: AuthConfig = await this.jwtService.verifyAsync(token, {
         secret: this.configService.get<AuthConfig>('auth')?.jwt.secret,

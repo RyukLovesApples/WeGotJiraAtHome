@@ -59,7 +59,6 @@ export class ProjectCreationService {
     updateProject: UpdateProjectWithTasks,
   ): Promise<Project> {
     const tasksToUpdate = updateProject.tasks!;
-    console.log(tasksToUpdate);
     for (const taskToUpdate of tasksToUpdate) {
       await this.tasksService.updateTaskById(taskToUpdate);
     }

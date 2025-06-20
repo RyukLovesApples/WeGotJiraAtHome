@@ -81,7 +81,6 @@ export class ProjectUsersResolver {
     });
   }
   @Mutation(() => Boolean)
-  @Public()
   async acceptProjectInvite(
     @CurrentUserId() userId: string,
     @Args('token', { type: () => String }) token: string,
