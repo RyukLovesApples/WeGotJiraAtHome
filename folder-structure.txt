@@ -25,6 +25,8 @@
 ./nest-cli.json
 ./node_modules
 ./README.md
+./logs
+./logs/error.log
 ./.gitignore
 ./package-lock.json
 ./package.json
@@ -68,6 +70,7 @@
 ./src/config/config.types.ts
 ./src/config/auth.config.ts
 ./src/config/typeorm.config.ts
+./src/config/logger.config.ts
 ./src/config/typed-config.service.ts
 ./src/config/app.config.ts
 ./src/config/db.config.ts
@@ -92,6 +95,8 @@
 ./src/mailer/templates
 ./src/mailer/templates/invitation.template.ts
 ./src/mailer/mailer.service.spec.ts
+./src/exception-filters
+./src/exception-filters/catch-all.exception-filter.ts
 ./src/app.module.ts
 ./src/project-users
 ./src/project-users/project-users.service.ts

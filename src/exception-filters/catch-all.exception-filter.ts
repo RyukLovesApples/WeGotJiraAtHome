@@ -23,9 +23,8 @@ export class CatchEverythingFilter implements ExceptionFilter {
     private readonly logger: WinstonLogger,
   ) {}
 
-  catch(exception: unknown, host: ArgumentsHost): void {
+  async catch(exception: unknown, host: ArgumentsHost): Promise<void> {
     const { httpAdapter } = this.httpAdapterHost;
-
     interface ApolloContext {
       req: Request & {
         body?: {
@@ -92,11 +91,12 @@ export class CatchEverythingFilter implements ExceptionFilter {
       message: extractMessage,
     };
 
-    this.logger.error('Exception caught', {
+    this.logger.error(errorResponse.message, {
       httpStatus,
-      message: errorResponse,
       stack: exception instanceof Error ? exception.stack : undefined,
     });
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     if (host.getType() === 'http') {
       const ctx = host.switchToHttp();
