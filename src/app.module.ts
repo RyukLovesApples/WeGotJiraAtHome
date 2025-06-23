@@ -29,6 +29,7 @@ import { InviteModule } from './invite/invite.module';
 import { CatchEverythingFilter } from './exception-filters/catch-all.exception-filter';
 import { WinstonModule } from 'nest-winston';
 import { winstonLoggerConfig } from './config/logger.config';
+import { PermissionsModule } from './permissions/permissions.module';
 
 @Module({
   imports: [
@@ -87,6 +88,7 @@ import { winstonLoggerConfig } from './config/logger.config';
     ]),
     MailerModule,
     InviteModule,
+    PermissionsModule,
   ],
   controllers: [AppController],
   providers: [
