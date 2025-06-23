@@ -11,7 +11,7 @@ export class InviteController {
     private readonly inviteService: ProjectUserInviteService,
     private readonly userService: UsersService,
   ) {}
-  // the routes are dummy frontend routes. needs to be replaced later, maybe dynamic
+  // the routes are dummy frontend routes. needs to be replaced later prod url via .env
   @Get('invite/confirm')
   async confirmInvite(@Query('token') token: string, @Res() res: Response) {
     const invite = await this.inviteService.getInviteByToken(token);

@@ -8,6 +8,18 @@ export const testUser: CreateUserDto = {
   password: 'Password123%',
 };
 
+export const anotherUser: CreateUserDto = {
+  username: 'daniel',
+  email: 'daniel@test.com',
+  password: 'Password321%',
+};
+
+export const invitedUser: CreateUserDto = {
+  username: 'john',
+  email: 'john@test.com',
+  password: 'Password321%',
+};
+
 export const unauthorizedUser: CreateUserDto = {
   username: 'adonis1',
   email: 'adonis1@test.com',

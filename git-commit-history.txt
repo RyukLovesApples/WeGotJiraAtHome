@@ -1,0 +1,77 @@
+c835839 Fix circular JSON error during logging by updating Winston config and error metadata handling in CatchEverythingFilter
+406f1a7 Remove loggerService and messageFormatter (replaced by winstonLogger). Add GraphResponse type to invitaion workflow test
+7c2a929 Fix error.log not being populated due to incorrect path/import in winston transport
+b66cb49 Implement global exception filter for REST and GraphQL. Integrate WinstonLogger to log errors to logs/error.log
+88ddbbb Add workflow test for the invitation cycle and refactor CurrentUserId decorator and Auth Guard to handle GraphQL and REST. All existing tests pass
+533e110 Move project creation to ProjectCreationService (orchestrator) and centralize ProjectUser auto-creation
+fd63387 Implement automatic ProjectUser creation for owner. Fix return value of getAllProjectUsers in test suite
+023e016 Fix dependency circle for invite implementation. By using forwardRef for ProjectModule import in the InviteModule to break the circular dependency
+ea061fa Rework ProjectUser test setup to fit ProjectUser creation of project owner by default
+30bc117 Add mutation to create ProjectUser via invitation token
+f48bb86 Rework createInvite method to fit invitation cycle and implement createInvite endpoint
+4127886 Create Mailer module and integrate with ProjectUserInviteService
+8124fda Implement ProjectUserInviteService for project invitaions
+c1e6496 Complete GraphQL CRUD and add integration tests
+25c4094 Add first GraphQL resolver for ProjectUser creation to verify GraphQL setup with service method and integration test
+8c4d71c Fix imports: ProjectUser entity moved to its own folder
+15921bc Rework ProjectUser entity to support access guards. Set up GraphQL and add InputType and ObjectType definitions.
+abc8c4d Merge pull request #3 from RyukLovesApples/db/migration
+f1cd0a6 Add TypeORM config file and integrate migration setup in test environment
+70f9a01 Recreat db with new name (we_got_jira_at_home) and test db name (we_got_jira_at_home_e2e). Change config for db setup, test db setup and docker compose
+07bdb24 Merge pull request #2 from RyukLovesApples/feature/projects
+a92252e Refactor task feature and tests to pass after implementing project URL layer
+8dad0cf Add project url to task url. Start to rework task test suite to fit project layer (/projects/projectId/tasks/taskId).
+72a0a2a Merge pull request #1 from RyukLovesApples/feature/projects
+ae25a02 Change structure in README
+bd4b453 Implement CRUD for Projects / Projects with Tasks. Rework related task files (dto´s). Add happy path tests for routes
+88bc7cc Refactor task controller, service, and DTO to ensure password is not exposed in relational data
+9e45bac Add README for project documentation
+59a2d49 Implement project creation with task and project-user relationships
+20954fc Reorganize project structure and fix minor typos
+57105a3 Add tests covering all core task features; refactor task service, controller, task label entity, and incorrect status exception handling
+5ab8bc2 Move functions from test environments to test-helper file
+50f1517 Move types and interfaces from test environments to testTypes file
+01b9067 Move mock data from test environments to mockVariables file
+382a056 Improve auth test setup using helper functions
+c4797f4 Clean up and improve test setup for Tasks integration tests
+271c193 Fix bug where get all tasks returned no data. Remove 'excludeAll' SerializeOptions and use @Exclude/@Expose decorators directly in the entity.
+fe653e6 Add params decorator for current user id and refactor create method of task service and controller
+d4fa35a Add role based guard and test route protection
+ba12232 Add auth test for JWT payload data check and include user role
+ee5f80d Add Role enum and integrate roles into User entity and JWT generation
+250ffc9 Add auth test to test global AuthGuard (unauthorized access to tasks)
+46ceb45 Apply AuthGuard globally and add @Public() decorator to allow unauthenticated access on select routes
+0828fb2 Add test for failed access through guard
+89913cb Disable type check for plainToInstance in profileAccess method of auth controller (revisit/fix later)
+89d67a8 add test for profile access through guard
+b5c5cc7 add integration tests for failed login (invalid email, non-existing user, wrong password)
+baefad0 Add integration test for failed login, mismatched password
+f18f545 Add integration tests for registration and successful login with JWT response
+992a943 refactor: simplify error handling using NestJS built-in exception filter and remove unneeded try/catch blocks
+21e6bc6 Enable strict mode and refactor DTOs, params, entities, and tests for type safety
+5e5cd21 Add first integration test for user registration
+e5e2b95 Set up a new database for e2e testing and execute first test to verify environment configuration.
+7d19b7e Implement test environment setup for e2e testing
+225c984 Implement test config for e2e testing
+bfcca7a Implement auth controller for login and user login DTO
+b395aaa Implement user authentication with JWT
+3f0ff74 add testing for password hashing and comparison for bycrypt
+d4c67f8 change formatting
+7013fc9 implement password service for hashing and comparing password using bcrypt
+edeb12a add additional tests for password validation
+e85d405 replace @IsStrongPassword with @Matches for custom password validation message
+d294892 add user DTO validation for email and password
+4048ea7 create auth config and implement it in the user module
+6b8481c Removed not needed imports
+037b425 feat(task): added password to the user entity for auth functionality and testing
+3b9171a feat(task): implement sortBy and orderBy
+11f9867 feat(task): implement label-based search functionality
+127f0f4 feat(task): fixed no return for getAllTasks with query search
+1119b15 feat(task): implement search functionality for title and description
+11834e9 Add pagination to GET all tasks and change response object
+ce6daab Implement query filter for task status
+3aa3fb3 Formatting file structure
+e0f283d Implement DELETE /tasks/:id/labels to allow removing multiple labels from a task.
+91ae02d Add unique labels check for UPDATE CREATE task and adding new labels
+753fb33 Implement POST /tasks/:id/labels to allow adding multiple labels to a task.
+44ddbe9 Initial commit

@@ -30,7 +30,6 @@ export class UsersService {
   public async createUser(userDto: CreateUserDto): Promise<User> {
     const { password, ...rest } = userDto;
     const hashedPassword = await this.passwordService.hashPassword(password);
-    // should always create the object with create method for serialization (works only on instance of class not plain js object)
     const user = this.userRepository.create({
       ...rest,
       password: hashedPassword,

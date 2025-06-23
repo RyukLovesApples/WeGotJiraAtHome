@@ -8,5 +8,6 @@ import { InviteModule } from 'src/invite/invite.module';
 @Module({
   imports: [TypeOrmModule.forFeature([ProjectUser]), InviteModule],
   providers: [ProjectUsersService, ProjectUsersResolver],
+  exports: [ProjectUsersService],
 })
 export class ProjectUsersModule {}

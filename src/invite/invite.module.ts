@@ -1,7 +1,6 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { InviteController } from './invite.controller';
 import { ProjectUserInviteService } from './project-user-invite.service';
-import { MailerService } from 'src/mailer/mailer.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProjectUserInvite } from './project-user-invite.entity';
 import { MailerModule } from 'src/mailer/mailer.module';
@@ -12,11 +11,11 @@ import { UsersModule } from 'src/users/users.module';
   imports: [
     TypeOrmModule.forFeature([ProjectUserInvite]),
     MailerModule,
-    ProjectsModule,
+    forwardRef(() => ProjectsModule),
     UsersModule,
   ],
   controllers: [InviteController],
-  providers: [ProjectUserInviteService, MailerService],
+  providers: [ProjectUserInviteService],
   exports: [ProjectUserInviteService],
 })
 export class InviteModule {}

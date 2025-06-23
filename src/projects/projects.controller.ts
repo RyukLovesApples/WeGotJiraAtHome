@@ -15,7 +15,6 @@ import {
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dtos/create-project.dto';
-import { Public } from 'src/users/decorators/public.decorator';
 import { CurrentUserId } from 'src/users/decorators/current-user-id.decorator';
 import { ProjectCreationService } from './projects-creation.service';
 import { plainToInstance } from 'class-transformer';
@@ -32,7 +31,6 @@ export class ProjectsController {
     private readonly projectCreationService: ProjectCreationService,
   ) {}
   @Post()
-  @Public()
   async create(
     @CurrentUserId() userId: string,
     @Body() createProjectDto: CreateProjectDto,
@@ -45,7 +43,10 @@ export class ProjectsController {
         );
       return transformToDto(ProjectDto, projectWithTasks);
     }
-    const project = await this.projectService.create(createProjectDto, userId);
+    const project = await this.projectCreationService.create(
+      createProjectDto,
+      userId,
+    );
     return transformToDto(ProjectDto, project);
   }
   @Get()

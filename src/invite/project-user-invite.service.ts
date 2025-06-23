@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+  OnModuleInit,
+} from '@nestjs/common';
 import { CreateProjectInvitaionDto } from './dtos/create-project-user-invite.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProjectUserInvite } from './project-user-invite.entity';
@@ -12,6 +18,7 @@ import { ProjectsService } from 'src/projects/projects.service';
 export class ProjectUserInviteService implements OnModuleInit {
   constructor(
     private readonly mailerService: MailerService,
+    @Inject(forwardRef(() => ProjectsService))
     private readonly projectService: ProjectsService,
     @InjectRepository(ProjectUserInvite)
     private readonly projectUserInviteRepo: Repository<ProjectUserInvite>,

@@ -21,7 +21,7 @@ import {
   registerUser,
 } from '../helpers/test-helpers';
 
-describe('AuthController (e2e)', () => {
+describe('Auth Integration', () => {
   let testSetup: TestSetup;
   let server: Http2Server;
 

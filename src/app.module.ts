@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { LoggerModule } from './logger/logger.module';
 import { TasksModule } from './tasks/tasks.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { appConfig } from './config/app.config';
@@ -18,13 +19,16 @@ import { ProjectsModule } from './projects/projects.module';
 import { Project } from './projects/project.entity';
 import { ProjectUser } from './project-users/project-user.entity';
 import { ProjectUsersModule } from './project-users/project-users.module';
-import { RouterModule } from '@nestjs/core';
+import { APP_FILTER, RouterModule } from '@nestjs/core';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
 import { ProjectUserInvite } from './invite/project-user-invite.entity';
 import { MailerModule } from './mailer/mailer.module';
 import { InviteModule } from './invite/invite.module';
+import { CatchEverythingFilter } from './exception-filters/catch-all.exception-filter';
+import { WinstonModule } from 'nest-winston';
+import { winstonLoggerConfig } from './config/logger.config';
 
 @Module({
   imports: [
@@ -33,9 +37,7 @@ import { InviteModule } from './invite/invite.module';
       load: [appConfig, typeOrmConfig, authConfig],
       validationSchema: appConfigSchema,
       validationOptions: {
-        // doesnt allow new or unknown env variables. cant add new ones. when set to false
         allowUnknown: true,
-        // shows all the potential errors not one by one
         abortEarly: true,
       },
     }),
@@ -56,6 +58,7 @@ import { InviteModule } from './invite/invite.module';
       }),
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
+      context: ({ req }: { req: Request }) => ({ req }),
       driver: ApolloDriver,
       autoSchemaFile: join(
         process.cwd(),
@@ -64,11 +67,12 @@ import { InviteModule } from './invite/invite.module';
       debug: true,
       playground: true,
     }),
-    LoggerModule,
+    WinstonModule.forRoot(winstonLoggerConfig),
     TasksModule,
     UsersModule,
     ProjectsModule,
     ProjectUsersModule,
+    InviteModule,
     RouterModule.register([
       {
         path: 'projects',
@@ -90,6 +94,10 @@ import { InviteModule } from './invite/invite.module';
     {
       provide: TypedConfigService,
       useExisting: ConfigService,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: CatchEverythingFilter,
     },
   ],
 })

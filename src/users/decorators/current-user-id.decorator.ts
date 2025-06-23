@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { GqlExecutionContext } from '@nestjs/graphql';
 import { JwtPayload } from 'jsonwebtoken';
 
 interface AuthenticatedRequest extends Request {
@@ -7,7 +9,11 @@ interface AuthenticatedRequest extends Request {
 
 export const CurrentUserId = createParamDecorator(
   (data: unknown, context: ExecutionContext) => {
-    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    const gqlCtx = GqlExecutionContext.create(context).getContext<{
+      req: AuthenticatedRequest;
+    }>();
+    const request =
+      gqlCtx?.req ?? context.switchToHttp().getRequest<AuthenticatedRequest>();
     return request.user?.sub;
   },
 );

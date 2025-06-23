@@ -7,7 +7,6 @@ import { ValidationPipe } from '@nestjs/common';
 
 export class TestSetup {
   app!: INestApplication;
-
   dataSource!: DataSource;
 
   static async create(module: any) {

@@ -6,6 +6,8 @@
 ./test/test.setup.ts
 ./test/config
 ./test/config/test.config.ts
+./test/workflows
+./test/workflows/invitation.e2e-spec.ts
 ./test/graphql
 ./test/graphql/project-users.e2e-spec.ts
 ./test/mockVariables
@@ -20,9 +22,12 @@
 ./test/rest/tasks.e2e-spec.ts
 ./dist
 ./folder-structure.txt
+./git-commit-history.txt
 ./nest-cli.json
 ./node_modules
 ./README.md
+./logs
+./logs/error.log
 ./.gitignore
 ./package-lock.json
 ./package.json
@@ -36,8 +41,6 @@
 ./eslint.config.mjs
 ./src
 ./src/migrations
-./src/migrations/1749463018783-AddProjectUserInviteTable.ts
-./src/migrations/1749038791787-AddProjectUserRoleColumn.ts
 ./src/tasks
 ./src/tasks/task-label.entity.ts
 ./src/tasks/responses
@@ -60,14 +63,12 @@
 ./src/tasks/params/find-one.params.ts
 ./src/tasks/task-status.enum.ts
 ./src/tasks/tasks.controller.ts
-./src/logger
-./src/logger/logger.service.ts
-./src/logger/logger.module.ts
 ./src/main.ts
 ./src/config
 ./src/config/config.types.ts
 ./src/config/auth.config.ts
 ./src/config/typeorm.config.ts
+./src/config/logger.config.ts
 ./src/config/typed-config.service.ts
 ./src/config/app.config.ts
 ./src/config/db.config.ts
@@ -92,6 +93,8 @@
 ./src/mailer/templates
 ./src/mailer/templates/invitation.template.ts
 ./src/mailer/mailer.service.spec.ts
+./src/exception-filters
+./src/exception-filters/catch-all.exception-filter.ts
 ./src/app.module.ts
 ./src/project-users
 ./src/project-users/project-users.service.ts
@@ -143,6 +146,4 @@
 ./src/users/dtos/login-user.dto.ts
 ./src/users/dtos/create-user.dto.ts
 ./src/users/role.enum.ts
-./src/message-formatter
-./src/message-formatter/message-formatter.service.ts
 ./src/app.controller.ts

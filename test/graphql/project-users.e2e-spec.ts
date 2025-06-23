@@ -12,6 +12,7 @@ import { CreateProjectUserInput } from 'src/project-users/dtos/create-project-us
 import { ProjectRole } from 'src/project-users/project-role.enum';
 import { ProjectDto } from 'src/projects/dtos/project.dto';
 import {
+  anotherUser,
   mockProjects,
   mockTasks,
   testUser,
@@ -28,7 +29,8 @@ describe('ProjectUser Integration (GraphQL)', () => {
   let server: Http2Server;
   let accessToken: string;
   let projectId: string;
-  let userId: string;
+  let projectOwnerId: string;
+  let anotherUserId: string;
 
   beforeEach(async () => {
     testSetup = await TestSetup.create(AppModule);
@@ -40,7 +42,15 @@ describe('ProjectUser Integration (GraphQL)', () => {
     });
     const projectBody = project.body as ProjectDto;
     projectId = projectBody.id;
-    userId = projectBody.user.id;
+    projectOwnerId = projectBody.user.id;
+    const anotherUserToken = await registerAndLogin(server, anotherUser);
+    const anotherUserJwtData: JwtPayload = testSetup.app
+      .get(JwtService)
+      .verify(anotherUserToken);
+    if (!anotherUserJwtData.sub) {
+      throw new Error('Could not find userId of another user');
+    }
+    anotherUserId = anotherUserJwtData.sub;
   });
 
   afterEach(async () => {
@@ -64,7 +74,7 @@ describe('ProjectUser Integration (GraphQL)', () => {
 
     const variables = {
       input: {
-        userId,
+        userId: anotherUserId,
         projectId,
         role: ProjectRole.USER,
       } satisfies CreateProjectUserInput,
@@ -90,7 +100,7 @@ describe('ProjectUser Integration (GraphQL)', () => {
   it('should throw conflict creating identical project user', async () => {
     const variables = {
       input: {
-        userId,
+        userId: projectOwnerId,
         projectId,
         role: ProjectRole.USER,
       } satisfies CreateProjectUserInput,
@@ -108,7 +118,7 @@ describe('ProjectUser Integration (GraphQL)', () => {
   it('should update a project user role', async () => {
     const variables = {
       input: {
-        userId,
+        userId: anotherUserId,
         projectId,
         role: ProjectRole.USER,
       } satisfies CreateProjectUserInput,
@@ -129,7 +139,7 @@ describe('ProjectUser Integration (GraphQL)', () => {
     }`;
     const updateVariables = {
       input: {
-        userId,
+        userId: anotherUserId,
         projectId,
         role: ProjectRole.ADMIN,
       } satisfies UpdateProjectUserRoleInput,
@@ -155,7 +165,7 @@ describe('ProjectUser Integration (GraphQL)', () => {
   it('should delete a project user', async () => {
     const variables = {
       input: {
-        userId,
+        userId: anotherUserId,
         projectId,
         role: ProjectRole.USER,
       } satisfies CreateProjectUserInput,
@@ -166,7 +176,7 @@ describe('ProjectUser Integration (GraphQL)', () => {
         deleteProjectUser(userId: $userId, projectId: $projectId)
         }`;
     const deleteVaraibles = {
-      userId,
+      userId: anotherUserId,
       projectId,
     };
     const response: GraphQLResponse<{ deleteProjectUser: boolean }> =
@@ -184,7 +194,7 @@ describe('ProjectUser Integration (GraphQL)', () => {
   it('should get one project user', async () => {
     const createVariables = {
       input: {
-        userId,
+        userId: anotherUserId,
         projectId,
         role: ProjectRole.ADMIN,
       } satisfies CreateProjectUserInput,
@@ -203,7 +213,7 @@ describe('ProjectUser Integration (GraphQL)', () => {
       role
       }
     }`;
-    const variables = { userId, projectId };
+    const variables = { userId: anotherUserId, projectId };
     const response: GraphQLResponse<{ getOneProjectUser: ProjectUserDto }> =
       await request(server)
         .post('/graphql')
@@ -216,16 +226,16 @@ describe('ProjectUser Integration (GraphQL)', () => {
     logErrorAndFail(response);
     expect(response.body.data?.getOneProjectUser.role).toBe(ProjectRole.ADMIN);
     expect(response.body.data?.getOneProjectUser.user?.username).toBe(
-      testUser.username,
+      anotherUser.username,
     );
     expect(response.body.data?.getOneProjectUser.user?.email).toBe(
-      testUser.email,
+      anotherUser.email,
     );
   });
   it('should return all project users', async () => {
     const firstUserVariables = {
       input: {
-        userId,
+        userId: anotherUserId,
         projectId,
         role: ProjectRole.USER,
       } satisfies CreateProjectUserInput,
@@ -234,7 +244,6 @@ describe('ProjectUser Integration (GraphQL)', () => {
     const jwtData: JwtPayload = testSetup.app
       .get(JwtService)
       .verify(newUserToken);
-    console.log(jwtData);
     const secondUserVariables = {
       input: {
         userId: jwtData.sub!,
@@ -264,6 +273,6 @@ describe('ProjectUser Integration (GraphQL)', () => {
         .send({ query, variables: { projectId } })
         .expect(200);
     logErrorAndFail(response);
-    expect(response.body.data!.getAllProjectUsers.length).toBe(2);
+    expect(response.body.data!.getAllProjectUsers.length).toBe(3);
   });
 });
