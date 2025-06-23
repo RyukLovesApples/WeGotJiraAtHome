@@ -1,3 +1,5 @@
+c835839 Fix circular JSON error during logging by updating Winston config and error metadata handling in CatchEverythingFilter
+406f1a7 Remove loggerService and messageFormatter (replaced by winstonLogger). Add GraphResponse type to invitaion workflow test
 7c2a929 Fix error.log not being populated due to incorrect path/import in winston transport
 b66cb49 Implement global exception filter for REST and GraphQL. Integrate WinstonLogger to log errors to logs/error.log
 88ddbbb Add workflow test for the invitation cycle and refactor CurrentUserId decorator and Auth Guard to handle GraphQL and REST. All existing tests pass
