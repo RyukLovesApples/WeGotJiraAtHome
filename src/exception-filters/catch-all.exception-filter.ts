@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
@@ -14,6 +15,7 @@ import { GqlArgumentsHost } from '@nestjs/graphql';
 import { Request } from 'express';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Logger as WinstonLogger } from 'winston';
+import safeStringify from 'fast-safe-stringify';
 
 @Catch()
 export class CatchEverythingFilter implements ExceptionFilter {
@@ -65,9 +67,11 @@ export class CatchEverythingFilter implements ExceptionFilter {
     const extractMessage =
       typeof message === 'string'
         ? message
-        : Array.isArray((message as { message?: string | string[] })?.message)
-          ? (message as { message?: string[] }).message!.join(', ')
-          : ((message as { message?: string })?.message ?? 'Unexpected error');
+        : Array.isArray((message as any)?.message)
+          ? (message as any).message.join(', ')
+          : typeof message === 'object'
+            ? safeStringify(message)
+            : 'Unexpected error';
 
     let path: string;
 
@@ -91,10 +95,14 @@ export class CatchEverythingFilter implements ExceptionFilter {
       message: extractMessage,
     };
 
-    this.logger.error(errorResponse.message, {
-      httpStatus,
-      stack: exception instanceof Error ? String(exception.stack) : undefined,
-    });
+    const logMeta =
+      exception instanceof Error
+        ? exception
+        : typeof exception === 'object' && exception !== null
+          ? { httpStatus, ...exception }
+          : { httpStatus };
+
+    this.logger.error(errorResponse.message, logMeta);
 
     if (host.getType() === 'http') {
       const ctx = host.switchToHttp();

@@ -4,17 +4,21 @@
 import { utilities as nestWinstonModuleUtilities } from 'nest-winston';
 import * as path from 'path';
 import * as winston from 'winston';
+import safeStringify from 'fast-safe-stringify';
 
 export const winstonLoggerConfig: winston.LoggerOptions = {
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.ms(),
-    winston.format.printf(({ level, message, timestamp }) => {
+    winston.format.errors({ stack: true }),
+    winston.format.printf(({ level, message, timestamp, stack, ...meta }) => {
       const msg =
-        typeof message === 'string'
-          ? message
-          : JSON.stringify(message, null, 2);
-      return `[${timestamp}] ${level}: ${msg}`;
+        typeof message === 'string' ? message : safeStringify(message);
+      const stackMsg = stack ? `\nStack trace:\n${stack}` : '';
+      const metaMsg = Object.keys(meta).length
+        ? `\nMetadata: ${safeStringify(meta)}`
+        : '';
+      return `[${timestamp}] ${level}: ${msg}${stackMsg}${metaMsg}`;
     }),
   ),
   transports: [

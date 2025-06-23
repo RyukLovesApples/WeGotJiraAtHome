@@ -11,7 +11,7 @@ export class AppService {
   ) {}
   getHello(): string {
     const message = 'Hello World';
-    return this.logger.log(message);
-    // return message;
+    this.logger.log(message);
+    return message;
   }
 }
