@@ -2,7 +2,6 @@ import {
   Controller,
   Post,
   Body,
-  Logger,
   UseInterceptors,
   ClassSerializerInterceptor,
 } from '@nestjs/common';
@@ -15,8 +14,6 @@ import { transformToDto } from 'src/utils/transform';
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('users')
 export class UsersController {
-  private readonly logger = new Logger(UsersController.name);
-
   constructor(private readonly authService: AuthService) {}
   @Post('register')
   @Public()

@@ -23,7 +23,7 @@ export class CatchEverythingFilter implements ExceptionFilter {
     private readonly logger: WinstonLogger,
   ) {}
 
-  async catch(exception: unknown, host: ArgumentsHost): Promise<void> {
+  catch(exception: unknown, host: ArgumentsHost): void {
     const { httpAdapter } = this.httpAdapterHost;
     interface ApolloContext {
       req: Request & {
@@ -93,10 +93,8 @@ export class CatchEverythingFilter implements ExceptionFilter {
 
     this.logger.error(errorResponse.message, {
       httpStatus,
-      stack: exception instanceof Error ? exception.stack : undefined,
+      stack: exception instanceof Error ? String(exception.stack) : undefined,
     });
-
-    await new Promise((resolve) => setTimeout(resolve, 100));
 
     if (host.getType() === 'http') {
       const ctx = host.switchToHttp();

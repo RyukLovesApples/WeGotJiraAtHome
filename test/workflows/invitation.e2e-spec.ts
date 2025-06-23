@@ -15,6 +15,8 @@ import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from 'jsonwebtoken';
 import { MailerService } from 'src/mailer/mailer.service';
 import { SendMailOptions } from 'src/mailer/types/send-mail-options.type';
+import { GraphQLResponse } from 'test/types/test.types';
+import { ProjectUserDto } from 'src/project-users/dtos/project-user.dto';
 
 describe('Project invitation workflow', () => {
   let testSetup: TestSetup;
@@ -93,14 +95,15 @@ describe('Project invitation workflow', () => {
       acceptProjectInvite(token: $token)
     }
   `;
-    const res = await request(server)
-      .post('/graphql')
-      .set('Authorization', `Bearer ${invitedUserToken}`)
-      .send({
-        query: mutation,
-        variables: { token },
-      });
-    expect(res.body.data.acceptProjectInvite).toBe(true);
+    const res: GraphQLResponse<{ acceptProjectInvite: boolean }> =
+      await request(server)
+        .post('/graphql')
+        .set('Authorization', `Bearer ${invitedUserToken}`)
+        .send({
+          query: mutation,
+          variables: { token },
+        });
+    expect(res.body.data?.acceptProjectInvite).toBe(true);
 
     // Verify invited user is now a project user by fetching data
     const query = `
@@ -116,15 +119,16 @@ describe('Project invitation workflow', () => {
       .get(JwtService)
       .verify(invitedUserToken);
     const invitedUserId = JwtData.sub;
-    const verifyRes = await request(server)
-      .post('/graphql')
-      .set('Authorization', `Bearer ${invitedUserToken}`)
-      .send({
-        query,
-        variables: { userId: invitedUserId, projectId: projectBody.id },
-      });
-    expect(verifyRes.body.data.getOneProjectUser.userId).toBe(invitedUserId);
-    expect(verifyRes.body.data.getOneProjectUser.projectId).toBe(
+    const verifyRes: GraphQLResponse<{ getOneProjectUser: ProjectUserDto }> =
+      await request(server)
+        .post('/graphql')
+        .set('Authorization', `Bearer ${invitedUserToken}`)
+        .send({
+          query,
+          variables: { userId: invitedUserId, projectId: projectBody.id },
+        });
+    expect(verifyRes.body.data?.getOneProjectUser.userId).toBe(invitedUserId);
+    expect(verifyRes.body.data?.getOneProjectUser.projectId).toBe(
       projectBody.id,
     );
   });

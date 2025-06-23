@@ -1,16 +1,17 @@
-import { Injectable } from '@nestjs/common';
-import { LoggerService } from './logger/logger.service';
-// import { AppConfig } from './config/app.config';
+import { Inject, Injectable } from '@nestjs/common';
 import { TypedConfigService } from './config/typed-config.service';
+import { WINSTON_MODULE_NEST_PROVIDER, WinstonLogger } from 'nest-winston';
 
 @Injectable()
 export class AppService {
   constructor(
-    private readonly loggerService: LoggerService,
+    @Inject(WINSTON_MODULE_NEST_PROVIDER)
+    private readonly logger: WinstonLogger,
     private readonly configService: TypedConfigService,
   ) {}
   getHello(): string {
-    // const prefix = this.configService.get<AppConfig>('app')?.messagePrefix;
-    return this.loggerService.log();
+    const message = 'Hello World';
+    return this.logger.log(message);
+    // return message;
   }
 }

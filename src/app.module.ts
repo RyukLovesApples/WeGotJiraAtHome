@@ -3,7 +3,6 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { LoggerModule } from './logger/logger.module';
 import { TasksModule } from './tasks/tasks.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { appConfig } from './config/app.config';
@@ -69,7 +68,6 @@ import { winstonLoggerConfig } from './config/logger.config';
       playground: true,
     }),
     WinstonModule.forRoot(winstonLoggerConfig),
-    LoggerModule,
     TasksModule,
     UsersModule,
     ProjectsModule,
