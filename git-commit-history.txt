@@ -1,3 +1,8 @@
+93410b7 Create src/utils/deepFreeze.ts: generic function to deeply freeze nested objects. Integrate into default permissions to prevent accidental mutation
+8b6312e Add permission config with first defaultPermission draft using ProjectRole -> controller prefix e.g. tasks -> method CRUD
+671d6fd Add permissions module with service. Add Resource and Action enum
+24e103e Merge pull request #5 from RyukLovesApples/feature/project-users
+8b6a9c2 Update src/folder-structure.txt and add commit history src/git-commit-history.txt for an overview of development process
 c835839 Fix circular JSON error during logging by updating Winston config and error metadata handling in CatchEverythingFilter
 406f1a7 Remove loggerService and messageFormatter (replaced by winstonLogger). Add GraphResponse type to invitaion workflow test
 7c2a929 Fix error.log not being populated due to incorrect path/import in winston transport
@@ -7,6 +12,8 @@ b66cb49 Implement global exception filter for REST and GraphQL. Integrate Winsto
 fd63387 Implement automatic ProjectUser creation for owner. Fix return value of getAllProjectUsers in test suite
 023e016 Fix dependency circle for invite implementation. By using forwardRef for ProjectModule import in the InviteModule to break the circular dependency
 ea061fa Rework ProjectUser test setup to fit ProjectUser creation of project owner by default
+b7abd49 Update README.md
+e6d671b Merge pull request #4 from RyukLovesApples/feature/project-users
 30bc117 Add mutation to create ProjectUser via invitation token
 f48bb86 Rework createInvite method to fit invitation cycle and implement createInvite endpoint
 4127886 Create Mailer module and integrate with ProjectUserInviteService
