@@ -26,8 +26,11 @@ import { PaginationResponse } from './responses/pagination.response';
 import { CurrentUserId } from './../users/decorators/current-user-id.decorator';
 import { TaskDto } from './dtos/task.dto';
 import { transformToDto } from 'src/utils/transform';
+import { Resources } from 'src/permissions/decorators/resource.decorator';
+import { Resource } from 'src/permissions/enums/resource.enum';
 
 @Controller()
+@Resources(Resource.TASK)
 @UseInterceptors(ClassSerializerInterceptor)
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}

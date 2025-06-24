@@ -15,8 +15,11 @@ import { plainToInstance } from 'class-transformer';
 import { ProjectUserInviteService } from 'src/invite/project-user-invite.service';
 import { CurrentUserId } from 'src/users/decorators/current-user-id.decorator';
 import { ProjectUserInvite } from 'src/invite/project-user-invite.entity';
+import { Resources } from 'src/permissions/decorators/resource.decorator';
+import { Resource } from 'src/permissions/enums/resource.enum';
 
 @UseInterceptors(ClassSerializerInterceptor)
+@Resources(Resource.PROJECT_USER)
 @Resolver(() => ProjectUser)
 export class ProjectUsersResolver {
   constructor(
