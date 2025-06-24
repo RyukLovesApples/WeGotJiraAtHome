@@ -103,6 +103,8 @@
 ./src/permissions/enums
 ./src/permissions/enums/resource.enum.ts
 ./src/permissions/enums/action.enum.ts
+./src/permissions/utils
+./src/permissions/utils/map-permissions-action.ts
 ./src/permissions/permissions.service.ts
 ./src/permissions/permissions.module.ts
 ./src/permissions/permissions.service.spec.ts

@@ -1,3 +1,4 @@
+82adedb Add src/permissions/utils/map-permissions-action.ts as a helper to map HTTP method to action e.g. GET -> read
 93410b7 Create src/utils/deepFreeze.ts: generic function to deeply freeze nested objects. Integrate into default permissions to prevent accidental mutation
 8b6312e Add permission config with first defaultPermission draft using ProjectRole -> controller prefix e.g. tasks -> method CRUD
 671d6fd Add permissions module with service. Add Resource and Action enum

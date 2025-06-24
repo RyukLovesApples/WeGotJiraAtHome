@@ -1,17 +1,16 @@
-export const mapPermissionAction = (action: string): string => {
-  switch (action) {
+import { Action } from '../enums/action.enum';
+
+export const mapPermissionAction = (method: string): Action | undefined => {
+  switch (method) {
     case 'GET':
-      return 'read';
+      return Action.READ;
     case 'POST':
-      return 'create';
+      return Action.CREATE;
     case 'PUT':
-      return 'update';
+      return Action.UPDATE;
     case 'PATCH':
-      return 'update';
+      return Action.UPDATE;
     case 'DELETE':
-      return 'delete';
-    default:
-      console.info('Method is not included in permissions list!');
-      return '';
+      return Action.DELETE;
   }
 };
