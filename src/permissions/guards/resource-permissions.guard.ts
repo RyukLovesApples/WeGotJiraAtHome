@@ -8,7 +8,7 @@ import { PermissionsService } from '../permissions.service';
 import { AuthenticatedRequest } from 'src/users/decorators/current-user-id.decorator';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class ResourcePermissionGuard implements CanActivate {
   constructor(
     private readonly permissionService: PermissionsService,
     private readonly reflector: Reflector,

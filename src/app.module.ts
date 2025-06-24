@@ -19,7 +19,7 @@ import { ProjectsModule } from './projects/projects.module';
 import { Project } from './projects/project.entity';
 import { ProjectUser } from './project-users/project-user.entity';
 import { ProjectUsersModule } from './project-users/project-users.module';
-import { APP_FILTER, RouterModule } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, RouterModule } from '@nestjs/core';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
@@ -30,6 +30,9 @@ import { CatchEverythingFilter } from './exception-filters/catch-all.exception-f
 import { WinstonModule } from 'nest-winston';
 import { winstonLoggerConfig } from './config/logger.config';
 import { PermissionsModule } from './permissions/permissions.module';
+import { AuthGuard } from './users/auth/auth.guard';
+import { ResourcePermissionGuard } from './permissions/guards/resource-permissions.guard';
+import { RolesGuard } from './users/auth/guards/roles.guard';
 
 @Module({
   imports: [
@@ -100,6 +103,18 @@ import { PermissionsModule } from './permissions/permissions.module';
     {
       provide: APP_FILTER,
       useClass: CatchEverythingFilter,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ResourcePermissionGuard,
     },
   ],
 })

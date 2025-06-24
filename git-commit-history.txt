@@ -1,3 +1,7 @@
+48b7885 Add src/permissions/guards/resource-permission.guard.ts for access control via REST and GraphQL routes
+4267303 Add @Resources decorator to controller level to define default resource
+12285de Add src/permissions/decorators/resource.decorator.ts for meta data access via guard to support permission checks
+fecba21 Add checkPermission method to permission service for check in auth guard. Rework mapPermissionAction to return Action enum value instead of plain string
 82adedb Add src/permissions/utils/map-permissions-action.ts as a helper to map HTTP method to action e.g. GET -> read
 93410b7 Create src/utils/deepFreeze.ts: generic function to deeply freeze nested objects. Integrate into default permissions to prevent accidental mutation
 8b6312e Add permission config with first defaultPermission draft using ProjectRole -> controller prefix e.g. tasks -> method CRUD
