@@ -6,6 +6,7 @@ import { Resource } from '../enums/resource.enum';
 import { RESOURCE_KEY } from '../decorators/resource.decorator';
 import { PermissionsService } from '../permissions.service';
 import { AuthenticatedRequest } from 'src/users/decorators/current-user-id.decorator';
+import { SKIP_RESOURCE_GUARD } from '../decorators/skip-resource.decorator';
 
 @Injectable()
 export class ResourcePermissionGuard implements CanActivate {
@@ -22,6 +23,11 @@ export class ResourcePermissionGuard implements CanActivate {
     if (isPublic) {
       return true;
     }
+    const skipGuard = this.reflector.getAllAndOverride<boolean>(
+      SKIP_RESOURCE_GUARD,
+      [context.getClass(), context.getHandler()],
+    );
+    if (skipGuard) return true;
     const gqlCtx = GqlExecutionContext.create(context).getContext<{
       req: AuthenticatedRequest;
     }>();

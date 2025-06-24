@@ -25,6 +25,7 @@ import { UpdateProjectWithTasks } from './dtos/update-project.dto';
 import { Resources } from 'src/permissions/decorators/resource.decorator';
 import { Resource } from 'src/permissions/enums/resource.enum';
 import { Public } from 'src/users/decorators/public.decorator';
+import { SkipResourceGuard } from 'src/permissions/decorators/skip-resource.decorator';
 
 @Controller()
 @Resources(Resource.PROJECT)
@@ -35,7 +36,7 @@ export class ProjectsController {
     private readonly projectCreationService: ProjectCreationService,
   ) {}
   @Post()
-  @Public()
+  @SkipResourceGuard()
   async create(
     @CurrentUserId() userId: string,
     @Body() createProjectDto: CreateProjectDto,
@@ -55,7 +56,7 @@ export class ProjectsController {
     return transformToDto(ProjectDto, project);
   }
   @Get()
-  @Public()
+  @SkipResourceGuard()
   async getAll(@CurrentUserId() userId: string): Promise<ProjectDto[]> {
     const projects = await this.projectService.getAllUserProjects(userId);
     return plainToInstance(ProjectDto, projects, {
