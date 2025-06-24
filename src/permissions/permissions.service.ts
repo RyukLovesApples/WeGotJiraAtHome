@@ -14,11 +14,12 @@ export class PermissionsService {
   constructor(private readonly projectUsersService: ProjectUsersService) {}
   async checkPermission(
     userId: string,
-    projectId: string,
+    projectId: string | undefined,
     method: string,
     resource: Resource,
   ): Promise<boolean> {
     let projectUser: ProjectUser;
+    if (!projectId) return false;
     try {
       projectUser = await this.projectUsersService.getOneProjectUser(
         userId,
