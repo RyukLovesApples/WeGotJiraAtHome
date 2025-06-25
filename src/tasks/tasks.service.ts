@@ -34,8 +34,8 @@ export class TasksService {
       .createQueryBuilder('task')
       .leftJoinAndSelect('task.user', 'user')
       .leftJoinAndSelect('task.labels', 'labels')
-      .where(`task.project.id = :projectId`, { projectId })
-      // .andWhere(`task.userId = :userId`, { userId });
+      .where(`task.project.id = :projectId`, { projectId });
+    // .andWhere(`task.userId = :userId`, { userId });
     if (filters.status) {
       queryBuilder.andWhere('task.status = :status', {
         status: filters.status,
