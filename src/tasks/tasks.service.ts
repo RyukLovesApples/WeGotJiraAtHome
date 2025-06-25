@@ -27,7 +27,7 @@ export class TasksService {
   public async getAll(
     filters: FindTaskParams,
     pagination: PaginationParams,
-    userId: string,
+    // userId: string,
     projectId: string,
   ): Promise<[Task[], number]> {
     const queryBuilder = this.taskRepository
@@ -35,7 +35,7 @@ export class TasksService {
       .leftJoinAndSelect('task.user', 'user')
       .leftJoinAndSelect('task.labels', 'labels')
       .where(`task.project.id = :projectId`, { projectId })
-      .andWhere(`task.userId = :userId`, { userId });
+      // .andWhere(`task.userId = :userId`, { userId });
     if (filters.status) {
       queryBuilder.andWhere('task.status = :status', {
         status: filters.status,

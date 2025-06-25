@@ -45,8 +45,6 @@ export const defaultPermissions: PermissionMap = deepFreeze({
     },
     tasks: {
       read: true,
-      create: true,
-      // check for ownership of task to enable update and delete
     },
     'project-users': {
       read: true,
@@ -54,9 +52,6 @@ export const defaultPermissions: PermissionMap = deepFreeze({
   },
   VISITOR: {
     projects: {
-      read: true,
-    },
-    tasks: {
       read: true,
     },
   },
