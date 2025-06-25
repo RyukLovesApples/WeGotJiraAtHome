@@ -63,19 +63,20 @@ describe('ProjectUser Integration (GraphQL)', () => {
 
   it('should create a project user', async () => {
     const mutation = `
-      mutation CreateProjectUser($input: CreateProjectUserInput!) {
-        createProjectUser(input: $input) {
+      mutation CreateProjectUser($projectId: String!, $input: CreateProjectUserInput!) {
+        createProjectUser(projectId: $projectId, input: $input) {
           id
           userId
           projectId
           role
         }
-      }`;
+      }
+    `;
 
     const variables = {
+      projectId,
       input: {
         userId: anotherUserId,
-        projectId,
         role: ProjectRole.USER,
       } satisfies CreateProjectUserInput,
     };
@@ -99,9 +100,9 @@ describe('ProjectUser Integration (GraphQL)', () => {
   });
   it('should throw conflict creating identical project user', async () => {
     const variables = {
+      projectId,
       input: {
         userId: projectOwnerId,
-        projectId,
         role: ProjectRole.USER,
       } satisfies CreateProjectUserInput,
     };
@@ -117,9 +118,9 @@ describe('ProjectUser Integration (GraphQL)', () => {
   });
   it('should update a project user role', async () => {
     const variables = {
+      projectId,
       input: {
         userId: anotherUserId,
-        projectId,
         role: ProjectRole.USER,
       } satisfies CreateProjectUserInput,
     };
@@ -129,8 +130,8 @@ describe('ProjectUser Integration (GraphQL)', () => {
       accessToken,
     );
     const updateMutation = `
-    mutation UpdateProjectUser($input: UpdateProjectUserRoleInput!) {
-      updateProjectUser(input: $input) {
+    mutation UpdateProjectUser($projectId: String!, $input: UpdateProjectUserRoleInput!) {
+      updateProjectUser(projectId: $projectId, input: $input) {
         id
         userId
         projectId
@@ -138,9 +139,9 @@ describe('ProjectUser Integration (GraphQL)', () => {
       }
     }`;
     const updateVariables = {
+      projectId,
       input: {
         userId: anotherUserId,
-        projectId,
         role: ProjectRole.ADMIN,
       } satisfies UpdateProjectUserRoleInput,
     };
@@ -164,9 +165,9 @@ describe('ProjectUser Integration (GraphQL)', () => {
   });
   it('should delete a project user', async () => {
     const variables = {
+      projectId,
       input: {
         userId: anotherUserId,
-        projectId,
         role: ProjectRole.USER,
       } satisfies CreateProjectUserInput,
     };
@@ -193,9 +194,9 @@ describe('ProjectUser Integration (GraphQL)', () => {
   });
   it('should get one project user', async () => {
     const createVariables = {
+      projectId,
       input: {
         userId: anotherUserId,
-        projectId,
         role: ProjectRole.ADMIN,
       } satisfies CreateProjectUserInput,
     };
@@ -234,9 +235,9 @@ describe('ProjectUser Integration (GraphQL)', () => {
   });
   it('should return all project users', async () => {
     const firstUserVariables = {
+      projectId,
       input: {
         userId: anotherUserId,
-        projectId,
         role: ProjectRole.USER,
       } satisfies CreateProjectUserInput,
     };
@@ -245,14 +246,14 @@ describe('ProjectUser Integration (GraphQL)', () => {
       .get(JwtService)
       .verify(newUserToken);
     const secondUserVariables = {
+      projectId,
       input: {
         userId: jwtData.sub!,
-        projectId,
         role: ProjectRole.ADMIN,
       } satisfies CreateProjectUserInput,
     };
     await createProjectUser(server, firstUserVariables, accessToken);
-    await createProjectUser(server, secondUserVariables, newUserToken);
+    await createProjectUser(server, secondUserVariables, accessToken);
     const query = `
     query GetAllProjectUsers($projectId: String!) {
       getAllProjectUsers(projectId: $projectId) {
@@ -270,6 +271,7 @@ describe('ProjectUser Integration (GraphQL)', () => {
     const response: GraphQLResponse<{ getAllProjectUsers: ProjectUserDto[] }> =
       await request(server)
         .post('/graphql')
+        .set('Authorization', `Bearer ${accessToken}`)
         .send({ query, variables: { projectId } })
         .expect(200);
     logErrorAndFail(response);

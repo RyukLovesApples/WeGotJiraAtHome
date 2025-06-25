@@ -33,27 +33,28 @@ export class ProjectUsersResolver {
     return 'OK';
   }
   @Mutation(() => ProjectUserDto)
-  @Public()
   async createProjectUser(
     @Args('input') createProjectUserInput: CreateProjectUserInput,
+    @Args('projectId', { type: () => String }) projectId: string,
   ): Promise<ProjectUserDto> {
     const projectUser = await this.projectUsersService.create(
       createProjectUserInput,
+      projectId,
     );
     return transformToDto(ProjectUserDto, projectUser);
   }
   @Mutation(() => ProjectUserDto)
-  @Public()
   async updateProjectUser(
     @Args('input') updateProjectUserInput: UpdateProjectUserRoleInput,
+    @Args('projectId', { type: () => String }) projectId: string,
   ): Promise<ProjectUserDto> {
     const projectUser = await this.projectUsersService.updateProjectUserRole(
       updateProjectUserInput,
+      projectId,
     );
     return transformToDto(ProjectUserDto, projectUser);
   }
   @Mutation(() => Boolean)
-  @Public()
   async deleteProjectUser(
     @Args('userId', { type: () => String }) userId: string,
     @Args('projectId', { type: () => String }) projectId: string,
@@ -62,7 +63,6 @@ export class ProjectUsersResolver {
     return true;
   }
   @Query(() => ProjectUserDto)
-  @Public()
   async getOneProjectUser(
     @Args('userId', { type: () => String }) userId: string,
     @Args('projectId', { type: () => String }) projectId: string,
@@ -74,9 +74,10 @@ export class ProjectUsersResolver {
     return transformToDto(ProjectUserDto, projectUser);
   }
   @Query(() => [ProjectUserDto])
-  @Public()
   async getAllProjectUsers(
     @Args('projectId', { type: () => String }) projectId: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @CurrentUserId() _: string,
   ): Promise<ProjectUserDto[]> {
     const projectUsers =
       await this.projectUsersService.getAllProjectUsers(projectId);
@@ -101,7 +102,7 @@ export class ProjectUsersResolver {
       projectId: projectInvite.projectId,
       role: projectInvite.role,
     };
-    await this.projectUsersService.create(projectUser);
+    await this.projectUsersService.create(projectUser, projectInvite.projectId);
     return true;
   }
 }

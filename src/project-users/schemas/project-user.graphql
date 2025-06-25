@@ -30,20 +30,18 @@ type Query {
 }
 
 type Mutation {
-  createProjectUser(input: CreateProjectUserInput!): ProjectUserDto!
-  updateProjectUser(input: UpdateProjectUserRoleInput!): ProjectUserDto!
+  createProjectUser(input: CreateProjectUserInput!, projectId: String!): ProjectUserDto!
+  updateProjectUser(input: UpdateProjectUserRoleInput!, projectId: String!): ProjectUserDto!
   deleteProjectUser(userId: String!, projectId: String!): Boolean!
   acceptProjectInvite(token: String!): Boolean!
 }
 
 input CreateProjectUserInput {
   userId: String!
-  projectId: String!
   role: ProjectRole!
 }
 
 input UpdateProjectUserRoleInput {
   userId: String!
-  projectId: String!
   role: ProjectRole!
 }

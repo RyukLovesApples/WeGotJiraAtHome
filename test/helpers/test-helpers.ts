@@ -118,14 +118,15 @@ export const createProjectUser = async (
   }>
 > => {
   const mutation = `
-  mutation CreateProjectUser($input: CreateProjectUserInput!) {
-    createProjectUser(input: $input) {
+  mutation CreateProjectUser($projectId: String!, $input: CreateProjectUserInput!) {
+    createProjectUser(projectId: $projectId, input: $input) {
       id
       userId
       projectId
       role
     }
-  }`;
+  }
+`;
   return await request(server)
     .post('/graphql')
     .set('Authorization', `Bearer ${accessToken}`)

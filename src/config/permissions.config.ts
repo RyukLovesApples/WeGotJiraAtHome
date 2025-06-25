@@ -17,8 +17,6 @@ export const defaultPermissions: PermissionMap = deepFreeze({
     'project-users': {
       read: true,
       create: true,
-      update: true,
-      delete: true,
     },
     invite: {
       read: true,
