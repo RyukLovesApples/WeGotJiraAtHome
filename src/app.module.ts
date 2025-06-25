@@ -86,6 +86,10 @@ import { RolesGuard } from './users/auth/guards/roles.guard';
             path: ':projectId/tasks',
             module: TasksModule,
           },
+          {
+            path: ':projectId/invite',
+            module: InviteModule,
+          },
         ],
       },
     ]),

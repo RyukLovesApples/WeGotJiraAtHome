@@ -17,6 +17,7 @@ import { CurrentUserId } from 'src/users/decorators/current-user-id.decorator';
 import { ProjectUserInvite } from 'src/invite/project-user-invite.entity';
 import { Resources } from 'src/permissions/decorators/resource.decorator';
 import { Resource } from 'src/permissions/enums/resource.enum';
+import { SkipResourceGuard } from 'src/permissions/decorators/skip-resource.decorator';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Resources(Resource.PROJECT_USER)
@@ -84,6 +85,7 @@ export class ProjectUsersResolver {
     });
   }
   @Mutation(() => Boolean)
+  @SkipResourceGuard()
   async acceptProjectInvite(
     @CurrentUserId() userId: string,
     @Args('token', { type: () => String }) token: string,

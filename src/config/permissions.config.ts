@@ -21,6 +21,7 @@ export const defaultPermissions: PermissionMap = deepFreeze({
       delete: true,
     },
     invite: {
+      read: true,
       create: true,
     },
   },

@@ -101,6 +101,7 @@
 ./src/permissions/types
 ./src/permissions/types/permission-map.type.ts
 ./src/permissions/decorators
+./src/permissions/decorators/skip-resource.decorator.ts
 ./src/permissions/decorators/resource.decorator.ts
 ./src/permissions/enums
 ./src/permissions/enums/resource.enum.ts

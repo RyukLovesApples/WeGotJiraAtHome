@@ -25,7 +25,7 @@ export class ResourcePermissionGuard implements CanActivate {
     }
     const skipGuard = this.reflector.getAllAndOverride<boolean>(
       SKIP_RESOURCE_GUARD,
-      [context.getClass(), context.getHandler()],
+      [context.getHandler(), context.getClass()],
     );
     if (skipGuard) return true;
     const gqlCtx = GqlExecutionContext.create(context).getContext<{

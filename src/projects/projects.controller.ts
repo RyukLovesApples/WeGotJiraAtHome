@@ -24,7 +24,6 @@ import { Project } from './project.entity';
 import { UpdateProjectWithTasks } from './dtos/update-project.dto';
 import { Resources } from 'src/permissions/decorators/resource.decorator';
 import { Resource } from 'src/permissions/enums/resource.enum';
-import { Public } from 'src/users/decorators/public.decorator';
 import { SkipResourceGuard } from 'src/permissions/decorators/skip-resource.decorator';
 
 @Controller()

@@ -70,10 +70,10 @@ describe('Tasks Integration(e2e)', () => {
     return await request(server)
       .get(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${token}`)
-      .expect(403)
+      .expect(401)
       .expect((res: { body: Error }) => {
         expect(res.body.message).toContain(
-          'Access to task denied. You are not the owner!',
+          'User is not part of project. Pls contact the project owner!',
         );
       });
   });
@@ -150,13 +150,18 @@ describe('Tasks Integration(e2e)', () => {
       .expect(404);
   });
   it('/tasks (GET), should only show list of user tasks', async () => {
-    await createTask(
-      server,
-      unauthorizedUser,
-      mockTasks[0],
-      baseUrl,
-      'noRetrun',
-    );
+    // await createTask(
+    //   server,
+    //   unauthorizedUser,
+    //   mockTasks[0],
+    //   baseUrl,
+    //   'noRetrun',
+    // );
+    const token = await registerAndLogin(server, unauthorizedUser);
+    await createProject(server, token, {
+      ...mockProjects[0],
+      tasks: [mockTasks[0]],
+    });
     await createTask(server, testUser, mockTasks[1], baseUrl);
     const res: { body: PaginationResponse<Task> } = await request(server)
       .get(`${baseUrl}/tasks`)
