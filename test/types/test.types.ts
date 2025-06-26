@@ -1,4 +1,5 @@
 import { Task } from 'src/tasks/task.entity';
+import { z } from 'zod';
 
 export interface RegisterResponse {
   username: string;
@@ -31,3 +32,15 @@ export interface GraphQLErrorResponse {
 export type GraphQLResponse<T> = {
   body: { data?: T; errors?: GraphQLErrorResponse[] };
 };
+
+export const ParsedErrorMessage = z.object({
+  message: z.string(),
+  error: z.string(),
+  statusCode: z.number(),
+});
+
+export interface ParsedErrorGraphQL {
+  message: string;
+  error: string;
+  statusCode: number;
+}

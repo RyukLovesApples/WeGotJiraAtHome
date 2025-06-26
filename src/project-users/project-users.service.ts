@@ -15,8 +15,11 @@ export class ProjectUsersService {
     @InjectRepository(ProjectUser)
     private readonly projectUserRepo: Repository<ProjectUser>,
   ) {}
-  public async create(input: CreateProjectUserInput): Promise<ProjectUser> {
-    const { projectId, userId } = input;
+  public async create(
+    input: CreateProjectUserInput,
+    projectId: string,
+  ): Promise<ProjectUser> {
+    const { userId } = input;
     const existing = await this.projectUserRepo.findOneBy({
       projectId,
       userId,
@@ -24,7 +27,7 @@ export class ProjectUsersService {
     if (existing) {
       throw new ConflictException('User is already part of this project');
     }
-    const projectUser = this.projectUserRepo.create(input);
+    const projectUser = this.projectUserRepo.create({ ...input, projectId });
     return this.projectUserRepo.save(projectUser);
   }
   public async getAllProjectUsers(projectId: string): Promise<ProjectUser[]> {
@@ -49,8 +52,9 @@ export class ProjectUsersService {
   }
   public async updateProjectUserRole(
     input: UpdateProjectUserRoleInput,
+    projectId: string,
   ): Promise<ProjectUser> {
-    const { userId, projectId, role } = input;
+    const { userId, role } = input;
     const projectUser = await this.getOneProjectUser(userId, projectId);
     projectUser.role = role;
     return this.projectUserRepo.save(projectUser);

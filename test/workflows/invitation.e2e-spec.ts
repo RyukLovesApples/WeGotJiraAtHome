@@ -53,6 +53,7 @@ describe('Project invitation workflow', () => {
     5. Create project user from invitation
     6. New project user fetches all tasks
   */
+
   it('should go through invitation cycle', async () => {
     // Register & login as initial user
     const user1AccessToken = await registerAndLogin(server, testUser);
@@ -63,7 +64,7 @@ describe('Project invitation workflow', () => {
       user1AccessToken,
       mockProjects[0],
     );
-    const projectBody = project.body as ProjectDto;
+    const projectBody = project.body as ProjectDto; 
 
     // Create invitation
     const inviteEmail = invitedUser.email;
@@ -73,7 +74,7 @@ describe('Project invitation workflow', () => {
       projectId: projectBody.id,
     };
     await request(server)
-      .post('/invite')
+      .post(`/projects/${projectBody.id}/invite`)
       .set('Authorization', `Bearer ${user1AccessToken}`)
       .send(invitePayload)
       .expect(201);

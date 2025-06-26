@@ -20,6 +20,7 @@ import { Task } from 'src/tasks/task.entity';
 import { CreateProjectDto } from 'src/projects/dtos/create-project.dto';
 import { CreateProjectUserInput } from 'src/project-users/dtos/create-project-user.dto';
 import { ProjectUserDto } from 'src/project-users/dtos/project-user.dto';
+import { z } from 'zod';
 
 export const registerUser = (
   server: Http2Server,
@@ -118,14 +119,15 @@ export const createProjectUser = async (
   }>
 > => {
   const mutation = `
-  mutation CreateProjectUser($input: CreateProjectUserInput!) {
-    createProjectUser(input: $input) {
+  mutation CreateProjectUser($projectId: String!, $input: CreateProjectUserInput!) {
+    createProjectUser(projectId: $projectId, input: $input) {
       id
       userId
       projectId
       role
     }
-  }`;
+  }
+`;
   return await request(server)
     .post('/graphql')
     .set('Authorization', `Bearer ${accessToken}`)
@@ -134,3 +136,6 @@ export const createProjectUser = async (
       variables,
     });
 };
+export function parseGraphQLError<T>(json: string, schema: z.ZodSchema<T>): T {
+  return schema.parse(JSON.parse(json));
+}

@@ -3,7 +3,6 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Delete,
-  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
@@ -22,8 +21,12 @@ import { ProjectDto } from './dtos/project.dto';
 import { transformToDto } from 'src/utils/transform';
 import { Project } from './project.entity';
 import { UpdateProjectWithTasks } from './dtos/update-project.dto';
+import { Resources } from 'src/permissions/decorators/resource.decorator';
+import { Resource } from 'src/permissions/enums/resource.enum';
+import { SkipResourceGuard } from 'src/permissions/decorators/skip-resource.decorator';
 
 @Controller()
+@Resources(Resource.PROJECT)
 @UseInterceptors(ClassSerializerInterceptor)
 export class ProjectsController {
   constructor(
@@ -31,6 +34,7 @@ export class ProjectsController {
     private readonly projectCreationService: ProjectCreationService,
   ) {}
   @Post()
+  @SkipResourceGuard()
   async create(
     @CurrentUserId() userId: string,
     @Body() createProjectDto: CreateProjectDto,
@@ -50,6 +54,7 @@ export class ProjectsController {
     return transformToDto(ProjectDto, project);
   }
   @Get()
+  @SkipResourceGuard()
   async getAll(@CurrentUserId() userId: string): Promise<ProjectDto[]> {
     const projects = await this.projectService.getAllUserProjects(userId);
     return plainToInstance(ProjectDto, projects, {
@@ -62,7 +67,6 @@ export class ProjectsController {
     @Param('projectId') projectId: string,
   ): Promise<ProjectDto | null> {
     const project = await this.findOneOrFail(projectId);
-    this.checkOwnership(project, userId);
     return transformToDto(ProjectDto, project);
   }
   @Patch('/:projectId')
@@ -72,7 +76,6 @@ export class ProjectsController {
     @Body() updateProjectDto: UpdateProjectWithTasks,
   ) {
     const project = await this.findOneOrFail(projectId);
-    this.checkOwnership(project, userId);
     if (updateProjectDto.tasks) {
       const updateProjectTasks =
         await this.projectCreationService.updateProjectWithTasks(
@@ -94,7 +97,6 @@ export class ProjectsController {
     @Param('projectId') projectId: string,
   ) {
     const project = await this.findOneOrFail(projectId);
-    this.checkOwnership(project, userId);
     await this.projectService.delete(project);
   }
   private async findOneOrFail(id: string): Promise<Project> {
@@ -104,11 +106,11 @@ export class ProjectsController {
     }
     return project;
   }
-  private checkOwnership(project: Project, userId: string) {
-    if (project.user.id !== userId) {
-      throw new ForbiddenException(
-        'Access to project denied. You are not the owner or a user of this project!',
-      );
-    }
-  }
+  // private checkOwnership(project: Project, userId: string) {
+  //   if (project.user.id !== userId) {
+  //     throw new ForbiddenException(
+  //       'Access to project denied. You are not the owner or a user of this project!',
+  //     );
+  //   }
+  // }
 }

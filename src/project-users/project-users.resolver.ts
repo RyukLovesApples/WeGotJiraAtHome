@@ -15,8 +15,12 @@ import { plainToInstance } from 'class-transformer';
 import { ProjectUserInviteService } from 'src/invite/project-user-invite.service';
 import { CurrentUserId } from 'src/users/decorators/current-user-id.decorator';
 import { ProjectUserInvite } from 'src/invite/project-user-invite.entity';
+import { Resources } from 'src/permissions/decorators/resource.decorator';
+import { Resource } from 'src/permissions/enums/resource.enum';
+import { SkipResourceGuard } from 'src/permissions/decorators/skip-resource.decorator';
 
 @UseInterceptors(ClassSerializerInterceptor)
+@Resources(Resource.PROJECT_USER)
 @Resolver(() => ProjectUser)
 export class ProjectUsersResolver {
   constructor(
@@ -29,28 +33,32 @@ export class ProjectUsersResolver {
     return 'OK';
   }
   @Mutation(() => ProjectUserDto)
-  @Public()
   async createProjectUser(
+    @CurrentUserId() _: string,
     @Args('input') createProjectUserInput: CreateProjectUserInput,
+    @Args('projectId', { type: () => String }) projectId: string,
   ): Promise<ProjectUserDto> {
     const projectUser = await this.projectUsersService.create(
       createProjectUserInput,
+      projectId,
     );
     return transformToDto(ProjectUserDto, projectUser);
   }
   @Mutation(() => ProjectUserDto)
-  @Public()
   async updateProjectUser(
+    @CurrentUserId() _: string,
     @Args('input') updateProjectUserInput: UpdateProjectUserRoleInput,
+    @Args('projectId', { type: () => String }) projectId: string,
   ): Promise<ProjectUserDto> {
     const projectUser = await this.projectUsersService.updateProjectUserRole(
       updateProjectUserInput,
+      projectId,
     );
     return transformToDto(ProjectUserDto, projectUser);
   }
   @Mutation(() => Boolean)
-  @Public()
   async deleteProjectUser(
+    @CurrentUserId() _: string,
     @Args('userId', { type: () => String }) userId: string,
     @Args('projectId', { type: () => String }) projectId: string,
   ): Promise<boolean> {
@@ -58,8 +66,8 @@ export class ProjectUsersResolver {
     return true;
   }
   @Query(() => ProjectUserDto)
-  @Public()
   async getOneProjectUser(
+    @CurrentUserId() _: string,
     @Args('userId', { type: () => String }) userId: string,
     @Args('projectId', { type: () => String }) projectId: string,
   ): Promise<ProjectUserDto> {
@@ -70,9 +78,10 @@ export class ProjectUsersResolver {
     return transformToDto(ProjectUserDto, projectUser);
   }
   @Query(() => [ProjectUserDto])
-  @Public()
   async getAllProjectUsers(
     @Args('projectId', { type: () => String }) projectId: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @CurrentUserId() _: string,
   ): Promise<ProjectUserDto[]> {
     const projectUsers =
       await this.projectUsersService.getAllProjectUsers(projectId);
@@ -81,6 +90,7 @@ export class ProjectUsersResolver {
     });
   }
   @Mutation(() => Boolean)
+  @SkipResourceGuard()
   async acceptProjectInvite(
     @CurrentUserId() userId: string,
     @Args('token', { type: () => String }) token: string,
@@ -96,7 +106,7 @@ export class ProjectUsersResolver {
       projectId: projectInvite.projectId,
       role: projectInvite.role,
     };
-    await this.projectUsersService.create(projectUser);
+    await this.projectUsersService.create(projectUser, projectInvite.projectId);
     return true;
   }
 }

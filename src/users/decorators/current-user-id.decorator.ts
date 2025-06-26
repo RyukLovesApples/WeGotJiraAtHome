@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { JwtPayload } from 'jsonwebtoken';
 
-interface AuthenticatedRequest extends Request {
+export interface AuthenticatedRequest extends Request {
+  params?: { projectId: string };
   user: JwtPayload & { sub: string };
 }
 

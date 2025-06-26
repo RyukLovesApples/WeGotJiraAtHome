@@ -20,6 +20,7 @@ import { AdminResponse } from '../responses/Admin.response';
 import { Roles } from '../decorators/roles.decorator';
 import { Role } from '../role.enum';
 import { plainToInstance } from 'class-transformer';
+import { SkipResourceGuard } from 'src/permissions/decorators/skip-resource.decorator';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('auth')
@@ -37,6 +38,7 @@ export class AuthController {
     return await this.authService.login(loginUserDto);
   }
   @Get('profile')
+  @SkipResourceGuard()
   public async profileAccess(
     @Request() request: AuthRequest,
   ): Promise<UserDto> {
@@ -49,6 +51,7 @@ export class AuthController {
     throw new NotFoundException();
   }
   @Get('admin')
+  @SkipResourceGuard()
   @Roles(Role.ADMIN)
   adminAccessOnly(): AdminResponse {
     return new AdminResponse({ message: 'This is for admin only!' });

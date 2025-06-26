@@ -21,6 +21,10 @@ import { TaskStatus } from 'src/tasks/task-status.enum';
 import { WrongTaskStatusException } from 'src/tasks/exceptions/wrong-task-status.exeption';
 import { TaskLabel } from 'src/tasks/task-label.entity';
 import { ProjectDto } from 'src/projects/dtos/project.dto';
+import { ProjectUser } from 'src/project-users/project-user.entity';
+import { ProjectRole } from 'src/project-users/project-role.enum';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from 'jsonwebtoken';
 
 describe('Tasks Integration(e2e)', () => {
   let testSetup: TestSetup;
@@ -28,6 +32,7 @@ describe('Tasks Integration(e2e)', () => {
   let taskId: string | undefined;
   let server: Http2Server;
   let baseUrl: string;
+  let projectId: string;
 
   beforeEach(async () => {
     testSetup = await TestSetup.create(AppModule);
@@ -38,6 +43,7 @@ describe('Tasks Integration(e2e)', () => {
       tasks: [mockTasks[0]],
     });
     const projectBody = project.body as ProjectDto;
+    projectId = projectBody.id;
     baseUrl = `/projects/${projectBody.id}`;
     taskId = projectBody.tasks![0].id;
     accessToken = token;
@@ -70,11 +76,9 @@ describe('Tasks Integration(e2e)', () => {
     return await request(server)
       .get(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${token}`)
-      .expect(403)
+      .expect(401)
       .expect((res: { body: Error }) => {
-        expect(res.body.message).toContain(
-          'Access to task denied. You are not the owner!',
-        );
+        expect(res.body.message).toContain('User is not part of project.');
       });
   });
   it('/tasks/id (GET), should throw not found exception, wrong id', async () => {
@@ -150,13 +154,11 @@ describe('Tasks Integration(e2e)', () => {
       .expect(404);
   });
   it('/tasks (GET), should only show list of user tasks', async () => {
-    await createTask(
-      server,
-      unauthorizedUser,
-      mockTasks[0],
-      baseUrl,
-      'noRetrun',
-    );
+    const token = await registerAndLogin(server, unauthorizedUser);
+    await createProject(server, token, {
+      ...mockProjects[0],
+      tasks: [mockTasks[0]],
+    });
     await createTask(server, testUser, mockTasks[1], baseUrl);
     const res: { body: PaginationResponse<Task> } = await request(server)
       .get(`${baseUrl}/tasks`)
@@ -348,5 +350,70 @@ describe('Tasks Integration(e2e)', () => {
       .expect((res: { body: Task }) => {
         expect(res.body.labels?.length).toEqual(1);
       });
+  });
+  it('resource guard, resource guard should deny access to a unknown project user', async () => {
+    const token = await registerAndLogin(server, unauthorizedUser);
+    await createProject(server, token, {
+      ...mockProjects[0],
+      tasks: [mockTasks[0]],
+    });
+    await request(server)
+      .get(`${baseUrl}/tasks/${taskId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(401);
+    await request(server)
+      .get(`${baseUrl}/tasks`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(401);
+    await request(server)
+      .post(`${baseUrl}/tasks`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(mockTasks[2])
+      .expect(401);
+    await request(server)
+      .patch(`${baseUrl}/tasks/${taskId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(mockTasks[1])
+      .expect(401);
+    await request(server)
+      .delete(`${baseUrl}/tasks/${taskId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(401);
+  });
+  it('resource guard, new project user of ProjectRole USER should only be able to read from tasks routes', async () => {
+    const token = await registerAndLogin(server, unauthorizedUser);
+    const { dataSource } = testSetup;
+    const projectUserRepo = dataSource.getRepository(ProjectUser);
+    const jwtData: JwtPayload = testSetup.app.get(JwtService).verify(token);
+    const userId = jwtData.sub;
+    const newProjectUserData = {
+      userId,
+      projectId,
+      role: ProjectRole.USER,
+    };
+    const newProjectUser = projectUserRepo.create(newProjectUserData);
+    await projectUserRepo.save(newProjectUser);
+    await request(server)
+      .get(`${baseUrl}/tasks/${taskId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+    await request(server)
+      .get(`${baseUrl}/tasks`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+    await request(server)
+      .post(`${baseUrl}/tasks`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(mockTasks[2])
+      .expect(403);
+    await request(server)
+      .patch(`${baseUrl}/tasks/${taskId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(mockTasks[1])
+      .expect(403);
+    await request(server)
+      .delete(`${baseUrl}/tasks/${taskId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(403);
   });
 });

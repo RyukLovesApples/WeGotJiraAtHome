@@ -7,6 +7,8 @@ import {
   mockTasks,
   mockProjects,
   testUser,
+  unauthorizedUser,
+  anotherUser,
 } from '../mockVariables/mockVariables';
 import { ProjectDto } from 'src/projects/dtos/project.dto';
 import { TaskDto } from 'src/tasks/dtos/task.dto';
@@ -14,6 +16,10 @@ import { TaskStatus } from 'src/tasks/task-status.enum';
 import { Repository } from 'typeorm';
 import { Task } from 'src/tasks/task.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { ProjectUser } from 'src/project-users/project-user.entity';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from 'jsonwebtoken';
+import { ProjectRole } from 'src/project-users/project-role.enum';
 
 describe('Project Integration', () => {
   let testSetup: TestSetup;
@@ -150,5 +156,59 @@ describe('Project Integration', () => {
       where: { project: { id: projectId } },
     });
     expect(tasks.length).toBe(0);
+  });
+  it('resource guard, unauthorized user should not be able to get resources of project', async () => {
+    const token = await registerAndLogin(server, unauthorizedUser);
+    // '/projects' (GET) should not be blocked by resource guard
+    await request(server)
+      .get(`/projects`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+    await request(server)
+      .get(`/projects/${projectId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(401);
+    // '/projects' (POST) should not be blocked by resource guard
+    await request(server)
+      .post(`/projects`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(mockProjects[1])
+      .expect(201);
+    await request(server)
+      .patch(`/projects/${projectId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(mockProjects[2])
+      .expect(401);
+    await request(server)
+      .delete(`/projects/${projectId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(401);
+  });
+  it('resource guard, new project user of ProjectRole ADMIN should only be able to read and update project', async () => {
+    const token = await registerAndLogin(server, anotherUser);
+    const { dataSource } = testSetup;
+    const projectUserRepo = dataSource.getRepository(ProjectUser);
+    const jwtData: JwtPayload = testSetup.app.get(JwtService).verify(token);
+    const userId = jwtData.sub;
+    const newProjectUserData = {
+      userId,
+      projectId,
+      role: ProjectRole.ADMIN,
+    };
+    const newProjectUser = projectUserRepo.create(newProjectUserData);
+    await projectUserRepo.save(newProjectUser);
+    await request(server)
+      .get(`/projects/${projectId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+    await request(server)
+      .patch(`/projects/${projectId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(mockProjects[2])
+      .expect(200);
+    await request(server)
+      .delete(`/projects/${projectId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(403);
   });
 });

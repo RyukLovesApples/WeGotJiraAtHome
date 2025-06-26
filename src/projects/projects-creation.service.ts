@@ -33,11 +33,13 @@ export class ProjectCreationService {
       user: user,
     });
     const project = await this.projectRepo.save(newProject);
-    await this.projectUserService.create({
-      projectId: project.id,
-      userId,
-      role: ProjectRole.OWNER,
-    });
+    await this.projectUserService.create(
+      {
+        userId,
+        role: ProjectRole.OWNER,
+      },
+      project.id,
+    );
     return project;
   }
 

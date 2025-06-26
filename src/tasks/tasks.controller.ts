@@ -26,8 +26,11 @@ import { PaginationResponse } from './responses/pagination.response';
 import { CurrentUserId } from './../users/decorators/current-user-id.decorator';
 import { TaskDto } from './dtos/task.dto';
 import { transformToDto } from 'src/utils/transform';
+import { Resources } from 'src/permissions/decorators/resource.decorator';
+import { Resource } from 'src/permissions/enums/resource.enum';
 
 @Controller()
+@Resources(Resource.TASK)
 @UseInterceptors(ClassSerializerInterceptor)
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
@@ -37,12 +40,12 @@ export class TasksController {
     @Query() filters: FindTaskParams,
     @Query() pagination: PaginationParams,
     @Param('projectId') projectId: string,
-    @CurrentUserId() userId: string,
+    // @CurrentUserId() userId: string,
   ): Promise<PaginationResponse<Task>> {
     const [items, total] = await this.tasksService.getAll(
       filters,
       pagination,
-      userId,
+      // userId,
       projectId,
     );
 
@@ -57,12 +60,8 @@ export class TasksController {
   }
 
   @Get('/:id')
-  public async findOne(
-    @Param() params: FindOneParams,
-    @CurrentUserId() userId: string,
-  ): Promise<TaskDto> {
+  public async findOne(@Param() params: FindOneParams): Promise<TaskDto> {
     const task = await this.findOneOrFail(params.id);
-    this.checkOwnership(task, userId);
     return transformToDto(TaskDto, task);
   }
 
@@ -84,10 +83,8 @@ export class TasksController {
   public async updateTask(
     @Param() params: FindOneParams,
     @Body() updateTaskDto: UpdateTaskDto,
-    @CurrentUserId() userId: string,
   ): Promise<TaskDto> {
     const task: Task = await this.findOneOrFail(params.id);
-    this.checkOwnership(task, userId);
     const updatedTask = await this.tasksService.updateTask(task, updateTaskDto);
     return transformToDto(TaskDto, updatedTask);
   }
