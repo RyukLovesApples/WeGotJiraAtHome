@@ -34,6 +34,7 @@ export class ProjectUsersResolver {
   }
   @Mutation(() => ProjectUserDto)
   async createProjectUser(
+    @CurrentUserId() _: string,
     @Args('input') createProjectUserInput: CreateProjectUserInput,
     @Args('projectId', { type: () => String }) projectId: string,
   ): Promise<ProjectUserDto> {
@@ -45,6 +46,7 @@ export class ProjectUsersResolver {
   }
   @Mutation(() => ProjectUserDto)
   async updateProjectUser(
+    @CurrentUserId() _: string,
     @Args('input') updateProjectUserInput: UpdateProjectUserRoleInput,
     @Args('projectId', { type: () => String }) projectId: string,
   ): Promise<ProjectUserDto> {
@@ -56,6 +58,7 @@ export class ProjectUsersResolver {
   }
   @Mutation(() => Boolean)
   async deleteProjectUser(
+    @CurrentUserId() _: string,
     @Args('userId', { type: () => String }) userId: string,
     @Args('projectId', { type: () => String }) projectId: string,
   ): Promise<boolean> {
@@ -64,6 +67,7 @@ export class ProjectUsersResolver {
   }
   @Query(() => ProjectUserDto)
   async getOneProjectUser(
+    @CurrentUserId() _: string,
     @Args('userId', { type: () => String }) userId: string,
     @Args('projectId', { type: () => String }) projectId: string,
   ): Promise<ProjectUserDto> {

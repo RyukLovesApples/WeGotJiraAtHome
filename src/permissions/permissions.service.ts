@@ -27,9 +27,7 @@ export class PermissionsService {
       );
     } catch (error) {
       if (error instanceof NotFoundException) {
-        throw new UnauthorizedException(
-          'User is not part of project. Pls contact the project owner!',
-        );
+        throw new UnauthorizedException('User is not part of project.');
       }
       return false;
     }

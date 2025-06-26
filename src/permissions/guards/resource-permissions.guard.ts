@@ -36,21 +36,18 @@ export class ResourcePermissionGuard implements CanActivate {
     const request =
       gqlCtx?.req ?? context.switchToHttp().getRequest<AuthenticatedRequest>();
     const resource = this.reflector.getAllAndOverride<Resource>(RESOURCE_KEY, [
+      context.getHandler(),
       context.getClass(),
     ]);
     const info = gql.getInfo<GraphQLResolveInfo>();
     const isGraphQL = gqlCtx?.req !== undefined && info?.operation?.operation;
-
     const method = isGraphQL
       ? info.operation.operation.toString().toUpperCase() // 'QUERY' | 'MUTATION'
-      : request.method; // 'GET', 'POST', etc
+      : request.method; // e.g. 'GET', 'POST'
     const args = gql.getArgs<{
       projectId?: string;
-      input?: { projectId?: string };
     }>();
-    const projectId = isGraphQL
-      ? (args.projectId ?? args.input?.projectId)
-      : request.params?.projectId;
+    const projectId = isGraphQL ? args.projectId : request.params?.projectId;
 
     const userId = request.user?.sub;
     return this.permissionService.checkPermission(

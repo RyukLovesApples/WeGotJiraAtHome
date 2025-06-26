@@ -1,89 +1,399 @@
-48b7885 Add src/permissions/guards/resource-permission.guard.ts for access control via REST and GraphQL routes
-4267303 Add @Resources decorator to controller level to define default resource
-12285de Add src/permissions/decorators/resource.decorator.ts for meta data access via guard to support permission checks
-fecba21 Add checkPermission method to permission service for check in auth guard. Rework mapPermissionAction to return Action enum value instead of plain string
-82adedb Add src/permissions/utils/map-permissions-action.ts as a helper to map HTTP method to action e.g. GET -> read
-93410b7 Create src/utils/deepFreeze.ts: generic function to deeply freeze nested objects. Integrate into default permissions to prevent accidental mutation
-8b6312e Add permission config with first defaultPermission draft using ProjectRole -> controller prefix e.g. tasks -> method CRUD
-671d6fd Add permissions module with service. Add Resource and Action enum
-24e103e Merge pull request #5 from RyukLovesApples/feature/project-users
-8b6a9c2 Update src/folder-structure.txt and add commit history src/git-commit-history.txt for an overview of development process
-c835839 Fix circular JSON error during logging by updating Winston config and error metadata handling in CatchEverythingFilter
-406f1a7 Remove loggerService and messageFormatter (replaced by winstonLogger). Add GraphResponse type to invitaion workflow test
-7c2a929 Fix error.log not being populated due to incorrect path/import in winston transport
-b66cb49 Implement global exception filter for REST and GraphQL. Integrate WinstonLogger to log errors to logs/error.log
-88ddbbb Add workflow test for the invitation cycle and refactor CurrentUserId decorator and Auth Guard to handle GraphQL and REST. All existing tests pass
-533e110 Move project creation to ProjectCreationService (orchestrator) and centralize ProjectUser auto-creation
-fd63387 Implement automatic ProjectUser creation for owner. Fix return value of getAllProjectUsers in test suite
-023e016 Fix dependency circle for invite implementation. By using forwardRef for ProjectModule import in the InviteModule to break the circular dependency
-ea061fa Rework ProjectUser test setup to fit ProjectUser creation of project owner by default
-b7abd49 Update README.md
-e6d671b Merge pull request #4 from RyukLovesApples/feature/project-users
-30bc117 Add mutation to create ProjectUser via invitation token
-f48bb86 Rework createInvite method to fit invitation cycle and implement createInvite endpoint
-4127886 Create Mailer module and integrate with ProjectUserInviteService
-8124fda Implement ProjectUserInviteService for project invitaions
-c1e6496 Complete GraphQL CRUD and add integration tests
-25c4094 Add first GraphQL resolver for ProjectUser creation to verify GraphQL setup with service method and integration test
-8c4d71c Fix imports: ProjectUser entity moved to its own folder
-15921bc Rework ProjectUser entity to support access guards. Set up GraphQL and add InputType and ObjectType definitions.
-abc8c4d Merge pull request #3 from RyukLovesApples/db/migration
-f1cd0a6 Add TypeORM config file and integrate migration setup in test environment
-70f9a01 Recreat db with new name (we_got_jira_at_home) and test db name (we_got_jira_at_home_e2e). Change config for db setup, test db setup and docker compose
-07bdb24 Merge pull request #2 from RyukLovesApples/feature/projects
-a92252e Refactor task feature and tests to pass after implementing project URL layer
-8dad0cf Add project url to task url. Start to rework task test suite to fit project layer (/projects/projectId/tasks/taskId).
-72a0a2a Merge pull request #1 from RyukLovesApples/feature/projects
-ae25a02 Change structure in README
-bd4b453 Implement CRUD for Projects / Projects with Tasks. Rework related task files (dto´s). Add happy path tests for routes
-88bc7cc Refactor task controller, service, and DTO to ensure password is not exposed in relational data
-9e45bac Add README for project documentation
-59a2d49 Implement project creation with task and project-user relationships
-20954fc Reorganize project structure and fix minor typos
-57105a3 Add tests covering all core task features; refactor task service, controller, task label entity, and incorrect status exception handling
-5ab8bc2 Move functions from test environments to test-helper file
-50f1517 Move types and interfaces from test environments to testTypes file
-01b9067 Move mock data from test environments to mockVariables file
-382a056 Improve auth test setup using helper functions
-c4797f4 Clean up and improve test setup for Tasks integration tests
-271c193 Fix bug where get all tasks returned no data. Remove 'excludeAll' SerializeOptions and use @Exclude/@Expose decorators directly in the entity.
-fe653e6 Add params decorator for current user id and refactor create method of task service and controller
-d4fa35a Add role based guard and test route protection
-ba12232 Add auth test for JWT payload data check and include user role
-ee5f80d Add Role enum and integrate roles into User entity and JWT generation
-250ffc9 Add auth test to test global AuthGuard (unauthorized access to tasks)
-46ceb45 Apply AuthGuard globally and add @Public() decorator to allow unauthenticated access on select routes
-0828fb2 Add test for failed access through guard
-89913cb Disable type check for plainToInstance in profileAccess method of auth controller (revisit/fix later)
-89d67a8 add test for profile access through guard
-b5c5cc7 add integration tests for failed login (invalid email, non-existing user, wrong password)
-baefad0 Add integration test for failed login, mismatched password
-f18f545 Add integration tests for registration and successful login with JWT response
-992a943 refactor: simplify error handling using NestJS built-in exception filter and remove unneeded try/catch blocks
-21e6bc6 Enable strict mode and refactor DTOs, params, entities, and tests for type safety
-5e5cd21 Add first integration test for user registration
-e5e2b95 Set up a new database for e2e testing and execute first test to verify environment configuration.
-7d19b7e Implement test environment setup for e2e testing
-225c984 Implement test config for e2e testing
-bfcca7a Implement auth controller for login and user login DTO
-b395aaa Implement user authentication with JWT
-3f0ff74 add testing for password hashing and comparison for bycrypt
-d4c67f8 change formatting
-7013fc9 implement password service for hashing and comparing password using bcrypt
-edeb12a add additional tests for password validation
-e85d405 replace @IsStrongPassword with @Matches for custom password validation message
-d294892 add user DTO validation for email and password
-4048ea7 create auth config and implement it in the user module
-6b8481c Removed not needed imports
-037b425 feat(task): added password to the user entity for auth functionality and testing
-3b9171a feat(task): implement sortBy and orderBy
-11f9867 feat(task): implement label-based search functionality
-127f0f4 feat(task): fixed no return for getAllTasks with query search
-1119b15 feat(task): implement search functionality for title and description
-11834e9 Add pagination to GET all tasks and change response object
-ce6daab Implement query filter for task status
-3aa3fb3 Formatting file structure
-e0f283d Implement DELETE /tasks/:id/labels to allow removing multiple labels from a task.
-91ae02d Add unique labels check for UPDATE CREATE task and adding new labels
-753fb33 Implement POST /tasks/:id/labels to allow adding multiple labels to a task.
-44ddbe9 Initial commit
+1a4fe42 Adonis Smlatic Wed Jun 25 13:47:39 2025 +0200
+Refactor resource guard to support GraphQL and restructure project user flow
+- Updated ResourcePermissionGuard to extract projectId from GraphQL args
+  and determine action from GraphQL operation (query/mutation) or HTTP method.
+- Extended mapPermissionAction to support GraphQL operations.
+- Refactored ProjectUser resolver and service to accept projectId via args
+  instead of input object, and removed it from DTOs.
+- Updated e2e tests in project-user.e2e-spec.ts to align with new GraphQL API:
+  adjusted mutations, variables, and test helper usage.
+- All tests pass successfully.
+
+
+3946095 Adonis Smlatic Wed Jun 25 11:38:05 2025 +0200
+Add resource guard tests for unauthorized and forbidden access in project.e2e-spec.ts. Remove redundant ownership check in ProjectsController
+
+
+89a8ecb Adonis Smlatic Wed Jun 25 10:55:25 2025 +0200
+Add resource guard tests for unauthorized and forbidden access in tasks.e2e-spec.ts. Remove redundant ownership check in TasksController
+
+
+92c1d11 Adonis Smlatic Wed Jun 25 09:51:40 2025 +0200
+Align routes and tests with ResourcePermissionGuard behavior
+- Applied @SkipResourceGuard to auth and invite routes not tied to a project
+- Nested invite routes under /projects/:projectId to provide param access to the guard
+- Updated test URLs accordingly
+- Fixed response status codes and flows in tasks tests
+
+
+ebb4ac2 Adonis Smlatic Tue Jun 24 15:18:22 2025 +0200
+Add SkipResourceGuard decorator and integrate in ResourcePermissionGuard; apply to create and getAllUserProjects routes
+
+
+222c329 Adonis Smlatic Tue Jun 24 15:07:28 2025 +0200
+Register ResourcePermissionGuard globally in AppModule. Reorder AuthGuard and RolesGuard for proper execution. Note: test suites currently failing
+
+
+48b7885 Adonis Smlatic Tue Jun 24 13:54:43 2025 +0200
+Add src/permissions/guards/resource-permission.guard.ts for access control via REST and GraphQL routes
+
+
+4267303 Adonis Smlatic Tue Jun 24 13:03:01 2025 +0200
+Add @Resources decorator to controller level to define default resource
+
+
+12285de Adonis Smlatic Tue Jun 24 12:50:55 2025 +0200
+Add src/permissions/decorators/resource.decorator.ts for meta data access via guard to support permission checks
+
+
+fecba21 Adonis Smlatic Tue Jun 24 12:13:57 2025 +0200
+Add checkPermission method to permission service for check in auth guard. Rework mapPermissionAction to return Action enum value instead of plain string
+
+
+82adedb Adonis Smlatic Tue Jun 24 10:51:02 2025 +0200
+Add src/permissions/utils/map-permissions-action.ts as a helper to map HTTP method to action e.g. GET -> read
+
+
+93410b7 Adonis Smlatic Mon Jun 23 16:05:13 2025 +0200
+Create src/utils/deepFreeze.ts: generic function to deeply freeze nested objects. Integrate into default permissions to prevent accidental mutation
+
+
+8b6312e Adonis Smlatic Mon Jun 23 15:46:42 2025 +0200
+Add permission config with first defaultPermission draft using ProjectRole -> controller prefix e.g. tasks -> method CRUD
+
+
+671d6fd Adonis Smlatic Mon Jun 23 14:27:50 2025 +0200
+Add permissions module with service. Add Resource and Action enum
+
+
+24e103e RyukLovesApples Mon Jun 23 13:23:13 2025 +0200
+Merge pull request #5 from RyukLovesApples/feature/project-users
+Feature/project users
+
+8b6a9c2 Adonis Smlatic Mon Jun 23 13:10:27 2025 +0200
+Update src/folder-structure.txt and add commit history src/git-commit-history.txt for an overview of development process
+
+
+c835839 Adonis Smlatic Mon Jun 23 13:03:35 2025 +0200
+Fix circular JSON error during logging by updating Winston config and error metadata handling in CatchEverythingFilter
+
+
+406f1a7 Adonis Smlatic Mon Jun 23 12:32:47 2025 +0200
+Remove loggerService and messageFormatter (replaced by winstonLogger). Add GraphResponse type to invitaion workflow test
+
+
+7c2a929 Adonis Smlatic Sun Jun 22 16:56:14 2025 +0200
+Fix error.log not being populated due to incorrect path/import in winston transport
+
+
+b66cb49 Adonis Smlatic Sun Jun 22 12:50:34 2025 +0200
+Implement global exception filter for REST and GraphQL. Integrate WinstonLogger to log errors to logs/error.log
+
+
+88ddbbb Adonis Smlatic Fri Jun 20 11:43:43 2025 +0200
+Add workflow test for the invitation cycle and refactor CurrentUserId decorator and Auth Guard to handle GraphQL and REST. All existing tests pass
+
+
+533e110 Adonis Smlatic Mon Jun 16 17:16:43 2025 +0200
+Move project creation to ProjectCreationService (orchestrator) and centralize ProjectUser auto-creation
+
+
+fd63387 Adonis Smlatic Mon Jun 16 15:24:47 2025 +0200
+Implement automatic ProjectUser creation for owner. Fix return value of getAllProjectUsers in test suite
+
+
+023e016 Adonis Smlatic Mon Jun 16 15:11:04 2025 +0200
+Fix dependency circle for invite implementation. By using forwardRef for ProjectModule import in the InviteModule to break the circular dependency
+
+
+ea061fa Adonis Smlatic Mon Jun 16 13:47:00 2025 +0200
+Rework ProjectUser test setup to fit ProjectUser creation of project owner by default
+
+
+b7abd49 RyukLovesApples Sat Jun 14 16:19:04 2025 +0200
+Update README.md
+
+
+e6d671b RyukLovesApples Sat Jun 14 16:10:10 2025 +0200
+Merge pull request #4 from RyukLovesApples/feature/project-users
+Feature/project users
+
+30bc117 Adonis Smlatic Sat Jun 14 14:05:11 2025 +0200
+Add mutation to create ProjectUser via invitation token
+
+
+f48bb86 Adonis Smlatic Thu Jun 12 16:01:40 2025 +0200
+Rework createInvite method to fit invitation cycle and implement createInvite endpoint
+
+
+4127886 Adonis Smlatic Thu Jun 12 14:19:44 2025 +0200
+Create Mailer module and integrate with ProjectUserInviteService
+- Move ProjectUserInviteService to a dedicated InviteModule
+- Create InviteController with invitation confirmation endpoint
+
+
+8124fda Adonis Smlatic Tue Jun 10 16:03:55 2025 +0200
+Implement ProjectUserInviteService for project invitaions
+
+
+c1e6496 Adonis Smlatic Mon Jun 9 09:32:45 2025 +0200
+Complete GraphQL CRUD and add integration tests
+
+
+25c4094 Adonis Smlatic Wed Jun 4 15:36:21 2025 +0200
+Add first GraphQL resolver for ProjectUser creation to verify GraphQL setup with service method and integration test
+
+
+8c4d71c Adonis Smlatic Tue Jun 3 17:27:25 2025 +0200
+Fix imports: ProjectUser entity moved to its own folder
+
+
+15921bc Adonis Smlatic Tue Jun 3 13:07:45 2025 +0200
+Rework ProjectUser entity to support access guards. Set up GraphQL and add InputType and ObjectType definitions.
+
+
+abc8c4d RyukLovesApples Tue Jun 3 16:28:05 2025 +0200
+Merge pull request #3 from RyukLovesApples/db/migration
+Db/migration
+
+f1cd0a6 Adonis Smlatic Tue Jun 3 16:15:51 2025 +0200
+Add TypeORM config file and integrate migration setup in test environment
+
+
+70f9a01 Adonis Smlatic Tue Jun 3 14:24:53 2025 +0200
+Recreat db with new name (we_got_jira_at_home) and test db name (we_got_jira_at_home_e2e). Change config for db setup, test db setup and docker compose
+
+
+07bdb24 RyukLovesApples Mon Jun 2 11:12:48 2025 +0200
+Merge pull request #2 from RyukLovesApples/feature/projects
+Feature/projects
+
+a92252e Adonis Smlatic Mon Jun 2 11:06:20 2025 +0200
+Refactor task feature and tests to pass after implementing project URL layer
+
+
+8dad0cf Adonis Smlatic Sat May 31 17:32:00 2025 +0200
+Add project url to task url. Start to rework task test suite to fit project layer (/projects/projectId/tasks/taskId).
+
+
+72a0a2a RyukLovesApples Wed May 28 16:47:33 2025 +0200
+Merge pull request #1 from RyukLovesApples/feature/projects
+Feature/projects
+
+ae25a02 Adonis Smlatic Wed May 28 16:39:10 2025 +0200
+Change structure in README
+
+
+bd4b453 Adonis Smlatic Wed May 28 16:27:56 2025 +0200
+Implement CRUD for Projects / Projects with Tasks. Rework related task files (dto´s). Add happy path tests for routes
+
+
+88bc7cc Adonis Smlatic Fri May 23 09:56:22 2025 +0200
+Refactor task controller, service, and DTO to ensure password is not exposed in relational data
+
+
+9e45bac Adonis Smlatic Tue May 20 14:06:04 2025 +0200
+Add README for project documentation
+
+
+59a2d49 Adonis Smlatic Mon May 19 15:08:28 2025 +0200
+Implement project creation with task and project-user relationships
+- Add  and  entities with proper relations
+- Adjust  and  entities to include relations to  and
+- Create service logic to handle project creation with optional tasks
+- Automatically assign project creator as a  with  flag
+- Add basic controller routes for creating projects
+- Set up integration tests for project creation (with and without tasks)
+
+
+20954fc Adonis Smlatic Sun May 18 11:20:25 2025 +0200
+Reorganize project structure and fix minor typos
+
+
+57105a3 Adonis Smlatic Sun May 18 10:33:23 2025 +0200
+Add tests covering all core task features; refactor task service, controller, task label entity, and incorrect status exception handling
+
+
+5ab8bc2 Adonis Smlatic Fri May 16 14:35:47 2025 +0200
+Move functions from test environments to test-helper file
+
+
+50f1517 Adonis Smlatic Fri May 16 11:46:13 2025 +0200
+Move types and interfaces from test environments to testTypes file
+
+
+01b9067 Adonis Smlatic Fri May 16 11:36:38 2025 +0200
+Move mock data from test environments to mockVariables file
+
+
+382a056 Adonis Smlatic Fri May 16 11:16:23 2025 +0200
+Improve auth test setup using helper functions
+
+
+c4797f4 Adonis Smlatic Thu May 15 17:17:23 2025 +0200
+Clean up and improve test setup for Tasks integration tests
+
+
+271c193 Adonis Smlatic Thu May 15 12:39:24 2025 +0200
+Fix bug where get all tasks returned no data. Remove 'excludeAll' SerializeOptions and use @Exclude/@Expose decorators directly in the entity.
+
+
+fe653e6 Adonis Smlatic Wed May 14 14:12:42 2025 +0200
+Add params decorator for current user id and refactor create method of task service and controller
+
+
+d4fa35a Adonis Smlatic Wed May 14 11:20:08 2025 +0200
+Add role based guard and test route protection
+
+
+ba12232 Adonis Smlatic Mon May 12 14:29:01 2025 +0200
+Add auth test for JWT payload data check and include user role
+
+
+ee5f80d Adonis Smlatic Mon May 12 12:38:27 2025 +0200
+Add Role enum and integrate roles into User entity and JWT generation
+
+
+250ffc9 Adonis Smlatic Mon May 12 12:27:26 2025 +0200
+Add auth test to test global AuthGuard (unauthorized access to tasks)
+
+
+46ceb45 Adonis Smlatic Mon May 12 11:57:02 2025 +0200
+Apply AuthGuard globally and add @Public() decorator to allow unauthenticated access on select routes
+
+
+0828fb2 Adonis Smlatic Sun May 11 10:55:24 2025 +0200
+Add test for failed access through guard
+
+
+89913cb Adonis Smlatic Sat May 10 11:41:41 2025 +0200
+Disable type check for plainToInstance in profileAccess method of auth controller (revisit/fix later)
+
+
+89d67a8 Adonis Smlatic Sat May 10 11:25:20 2025 +0200
+add test for profile access through guard
+
+
+b5c5cc7 Adonis Smlatic Sat May 10 09:04:17 2025 +0200
+add integration tests for failed login (invalid email, non-existing user, wrong password)
+
+
+baefad0 Adonis Smlatic Fri May 9 19:52:55 2025 +0200
+Add integration test for failed login, mismatched password
+
+
+f18f545 Adonis Smlatic Fri May 9 17:23:38 2025 +0200
+Add integration tests for registration and successful login with JWT response
+
+
+992a943 Adonis Smlatic Fri May 9 11:05:16 2025 +0200
+refactor: simplify error handling using NestJS built-in exception filter and remove unneeded try/catch blocks
+
+
+21e6bc6 Adonis Smlatic Thu May 8 10:29:49 2025 +0200
+Enable strict mode and refactor DTOs, params, entities, and tests for type safety
+
+
+5e5cd21 Adonis Smlatic Thu May 8 09:15:17 2025 +0200
+Add first integration test for user registration
+
+
+e5e2b95 Adonis Smlatic Wed May 7 15:46:36 2025 +0200
+Set up a new database for e2e testing and execute first test to verify environment configuration.
+
+
+7d19b7e Adonis Smlatic Wed May 7 12:29:11 2025 +0200
+Implement test environment setup for e2e testing
+
+
+225c984 Adonis Smlatic Wed May 7 11:24:11 2025 +0200
+Implement test config for e2e testing
+
+
+bfcca7a Adonis Smlatic Wed May 7 09:56:53 2025 +0200
+Implement auth controller for login and user login DTO
+
+
+b395aaa Adonis Smlatic Tue May 6 11:52:56 2025 +0200
+Implement user authentication with JWT
+
+
+3f0ff74 Adonis Smlatic Mon May 5 17:01:37 2025 +0200
+add testing for password hashing and comparison for bycrypt
+
+
+d4c67f8 Adonis Smlatic Mon May 5 13:45:15 2025 +0200
+change formatting
+
+
+7013fc9 Adonis Smlatic Mon May 5 13:44:01 2025 +0200
+implement password service for hashing and comparing password using bcrypt
+
+
+edeb12a Adonis Smlatic Mon May 5 12:12:41 2025 +0200
+add additional tests for password validation
+
+
+e85d405 Adonis Smlatic Mon May 5 11:29:41 2025 +0200
+replace @IsStrongPassword with @Matches for custom password validation message
+
+
+d294892 Adonis Smlatic Mon May 5 11:21:22 2025 +0200
+add user DTO validation for email and password
+
+
+4048ea7 Adonis Smlatic Fri May 2 10:38:22 2025 +0200
+create auth config and implement it in the user module
+
+
+6b8481c Adonis Smlatic Fri Apr 25 18:50:31 2025 +0200
+Removed not needed imports
+
+
+037b425 Adonis Smlatic Fri Apr 25 18:48:48 2025 +0200
+feat(task): added password to the user entity for auth functionality and testing
+
+
+3b9171a Adonis Smlatic Fri Apr 25 13:11:32 2025 +0200
+feat(task): implement sortBy and orderBy
+
+
+11f9867 Adonis Smlatic Fri Apr 25 12:14:45 2025 +0200
+feat(task): implement label-based search functionality
+
+
+127f0f4 Adonis Smlatic Fri Apr 25 09:57:54 2025 +0200
+feat(task): fixed no return for getAllTasks with query search
+
+
+1119b15 Adonis Smlatic Thu Apr 24 12:17:06 2025 +0200
+feat(task): implement search functionality for title and description
+
+
+11834e9 Adonis Smlatic Thu Apr 24 09:27:44 2025 +0200
+Add pagination to GET all tasks and change response object
+
+
+ce6daab Adonis Smlatic Wed Apr 23 12:20:45 2025 +0200
+Implement query filter for task status
+
+
+3aa3fb3 Adonis Smlatic Wed Apr 23 11:52:07 2025 +0200
+Formatting file structure
+
+
+e0f283d Adonis Smlatic Wed Apr 23 11:47:50 2025 +0200
+Implement DELETE /tasks/:id/labels to allow removing multiple labels from a task.
+
+
+91ae02d Adonis Smlatic Wed Apr 23 10:38:44 2025 +0200
+Add unique labels check for UPDATE CREATE task and adding new labels
+
+
+753fb33 Adonis Smlatic Tue Apr 22 11:21:42 2025 +0200
+Implement POST /tasks/:id/labels to allow adding multiple labels to a task.
+
+
+44ddbe9 Adonis Smlatic Tue Apr 22 10:48:57 2025 +0200
+Initial commit
+
