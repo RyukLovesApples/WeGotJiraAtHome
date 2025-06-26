@@ -21,10 +21,13 @@ import {
 } from '../mockVariables/mockVariables';
 import { ProjectUserDto } from 'src/project-users/dtos/project-user.dto';
 import { UpdateProjectUserRoleInput } from 'src/project-users/dtos/update-project-user.input';
-import { GraphQLResponse, ParsedErrorGraphQL, ParsedErrorMessage } from '../types/test.types';
+import {
+  GraphQLResponse,
+  ParsedErrorGraphQL,
+  ParsedErrorMessage,
+} from '../types/test.types';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from 'jsonwebtoken';
-import { z } from 'zod';
 
 describe('ProjectUser Integration (GraphQL)', () => {
   let testSetup: TestSetup;

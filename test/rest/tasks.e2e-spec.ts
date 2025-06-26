@@ -78,9 +78,7 @@ describe('Tasks Integration(e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .expect(401)
       .expect((res: { body: Error }) => {
-        expect(res.body.message).toContain(
-          'User is not part of project. Pls contact the project owner!',
-        );
+        expect(res.body.message).toContain('User is not part of project.');
       });
   });
   it('/tasks/id (GET), should throw not found exception, wrong id', async () => {
