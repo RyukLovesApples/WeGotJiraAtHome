@@ -11,6 +11,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { ResourceDto } from './dtos/resource.dto';
 
 @Entity()
 @Exclude()
@@ -37,7 +38,7 @@ export class ProjectPermission {
 
   @Column('jsonb')
   @Expose()
-  permissions!: ResourcePermissionDto;
+  permissions!: ResourceDto;
 
   @CreateDateColumn()
   @Expose()
