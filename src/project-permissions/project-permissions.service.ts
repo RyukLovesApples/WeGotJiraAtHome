@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { Resource } from './enums/resource.enum';
 import { ProjectUsersService } from 'src/project-users/project-users.service';
-import { defaultPermissions } from 'src/config/permissions.config';
+import { defaultProjectPermissions } from 'src/config/project-permissions.config';
 import { mapPermissionAction } from './utils/map-permissions-action';
 import { ProjectUser } from 'src/project-users/project-user.entity';
 
@@ -34,6 +34,6 @@ export class PermissionsService {
     const projectRole = projectUser.role;
     const action = mapPermissionAction(method);
     if (!action) return false;
-    return Boolean(defaultPermissions?.[projectRole]?.[resource]?.[action]);
+    return Boolean(defaultProjectPermissions?.[projectRole]?.[resource]?.[action]);
   }
 }

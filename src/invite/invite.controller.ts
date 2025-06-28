@@ -4,9 +4,9 @@ import { UsersService } from 'src/users/users.service';
 import { Response } from 'express';
 import { CreateProjectInvitaionDto } from './dtos/create-project-user-invite.dto';
 import { CurrentUserId } from 'src/users/decorators/current-user-id.decorator';
-import { Resources } from 'src/permissions/decorators/resource.decorator';
-import { Resource } from 'src/permissions/enums/resource.enum';
-import { SkipResourceGuard } from 'src/permissions/decorators/skip-resource.decorator';
+import { Resources } from 'src/project-permissions/decorators/resource.decorator';
+import { Resource } from 'src/project-permissions/enums/resource.enum';
+import { SkipResourceGuard } from 'src/project-permissions/decorators/skip-resource.decorator';
 
 @Resources(Resource.INVITE)
 @Controller()

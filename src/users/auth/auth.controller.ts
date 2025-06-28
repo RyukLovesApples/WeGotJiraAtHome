@@ -20,7 +20,7 @@ import { AdminResponse } from '../responses/Admin.response';
 import { Roles } from '../decorators/roles.decorator';
 import { Role } from '../role.enum';
 import { plainToInstance } from 'class-transformer';
-import { SkipResourceGuard } from 'src/permissions/decorators/skip-resource.decorator';
+import { SkipResourceGuard } from 'src/project-permissions/decorators/skip-resource.decorator';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('auth')

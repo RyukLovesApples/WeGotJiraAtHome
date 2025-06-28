@@ -29,9 +29,9 @@ import { InviteModule } from './invite/invite.module';
 import { CatchEverythingFilter } from './exception-filters/catch-all.exception-filter';
 import { WinstonModule } from 'nest-winston';
 import { winstonLoggerConfig } from './config/logger.config';
-import { PermissionsModule } from './permissions/permissions.module';
+import { PermissionsModule } from './project-permissions/project-permissions.module';
 import { AuthGuard } from './users/auth/auth.guard';
-import { ResourcePermissionGuard } from './permissions/guards/resource-permissions.guard';
+import { ResourcePermissionGuard } from './project-permissions/guards/resource-permissions.guard';
 import { RolesGuard } from './users/auth/guards/roles.guard';
 
 @Module({
@@ -89,6 +89,10 @@ import { RolesGuard } from './users/auth/guards/roles.guard';
           {
             path: ':projectId/invite',
             module: InviteModule,
+          },
+          {
+            path: ':projectId/permissions',
+            module: PermissionsModule,
           },
         ],
       },

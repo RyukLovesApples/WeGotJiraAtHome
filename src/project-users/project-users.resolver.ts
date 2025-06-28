@@ -15,9 +15,9 @@ import { plainToInstance } from 'class-transformer';
 import { ProjectUserInviteService } from 'src/invite/project-user-invite.service';
 import { CurrentUserId } from 'src/users/decorators/current-user-id.decorator';
 import { ProjectUserInvite } from 'src/invite/project-user-invite.entity';
-import { Resources } from 'src/permissions/decorators/resource.decorator';
-import { Resource } from 'src/permissions/enums/resource.enum';
-import { SkipResourceGuard } from 'src/permissions/decorators/skip-resource.decorator';
+import { Resources } from 'src/project-permissions/decorators/resource.decorator';
+import { Resource } from 'src/project-permissions/enums/resource.enum';
+import { SkipResourceGuard } from 'src/project-permissions/decorators/skip-resource.decorator';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Resources(Resource.PROJECT_USER)

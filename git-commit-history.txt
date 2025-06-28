@@ -1,3 +1,17 @@
+b4d2319 RyukLovesApples Thu Jun 26 14:12:51 2025 +0200
+Merge pull request #6 from RyukLovesApples/feature/permissions
+Add Project-Based Resource Permissions with Guard Support for REST and GraphQL
+
+3cac7f0 Adonis Smlatic Thu Jun 26 13:45:53 2025 +0200
+Remove unused Zod import from project-users.e2e-spec.ts. Update error response message in tasks.e2e-spec.ts.
+
+
+2311ded Adonis Smlatic Thu Jun 26 13:28:59 2025 +0200
+Add resource guard tests for unauthorized and forbidden access in project-users.e2e-spec.ts
+- Used zod to validate parsed GraphQL error responses
+- Created a helper for parsing GraphQL errors
+
+
 1a4fe42 Adonis Smlatic Wed Jun 25 13:47:39 2025 +0200
 Refactor resource guard to support GraphQL and restructure project user flow
 - Updated ResourcePermissionGuard to extract projectId from GraphQL args
@@ -396,4 +410,3 @@ Implement POST /tasks/:id/labels to allow adding multiple labels to a task.
 
 44ddbe9 Adonis Smlatic Tue Apr 22 10:48:57 2025 +0200
 Initial commit
-
