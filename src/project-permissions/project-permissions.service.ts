@@ -34,6 +34,8 @@ export class PermissionsService {
     const projectRole = projectUser.role;
     const action = mapPermissionAction(method);
     if (!action) return false;
-    return Boolean(defaultProjectPermissions?.[projectRole]?.[resource]?.[action]);
+    return Boolean(
+      defaultProjectPermissions?.[projectRole]?.[resource]?.[action],
+    );
   }
 }

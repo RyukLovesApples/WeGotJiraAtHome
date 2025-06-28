@@ -12,6 +12,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UserDto } from '../users/dtos/user.dto';
+import { ProjectPermission } from 'src/project-permissions/project-permissions.entity';
 
 @Exclude()
 @Entity()
@@ -31,15 +32,17 @@ export class Project {
   })
   user!: UserDto;
   @Expose()
-  @OneToMany(() => ProjectUser, (projectUsers) => projectUsers.project, {
-    nullable: false,
-  })
+  @OneToMany(() => ProjectUser, (projectUsers) => projectUsers.project)
   projectUsers!: ProjectUser[];
   @Expose()
-  @OneToMany(() => Task, (task) => task.project, {
-    nullable: true,
-  })
+  @OneToMany(() => Task, (task) => task.project)
   tasks?: Task[];
+  @Expose()
+  @OneToMany(
+    () => ProjectPermission,
+    (projectPermission) => projectPermission.project,
+  )
+  permissions?: ProjectPermission[];
   @CreateDateColumn()
   createdAt!: Date;
   @UpdateDateColumn()

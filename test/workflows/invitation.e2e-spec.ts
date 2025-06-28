@@ -64,7 +64,7 @@ describe('Project invitation workflow', () => {
       user1AccessToken,
       mockProjects[0],
     );
-    const projectBody = project.body as ProjectDto; 
+    const projectBody = project.body as ProjectDto;
 
     // Create invitation
     const inviteEmail = invitedUser.email;
