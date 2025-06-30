@@ -79,9 +79,8 @@ export class ProjectUsersResolver {
   }
   @Query(() => [ProjectUserDto])
   async getAllProjectUsers(
-    @Args('projectId', { type: () => String }) projectId: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     @CurrentUserId() _: string,
+    @Args('projectId', { type: () => String }) projectId: string,
   ): Promise<ProjectUserDto[]> {
     const projectUsers =
       await this.projectUsersService.getAllProjectUsers(projectId);

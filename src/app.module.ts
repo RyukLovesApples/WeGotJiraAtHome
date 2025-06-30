@@ -33,6 +33,7 @@ import { PermissionsModule } from './project-permissions/project-permissions.mod
 import { AuthGuard } from './users/auth/auth.guard';
 import { ResourcePermissionGuard } from './project-permissions/guards/resource-permissions.guard';
 import { RolesGuard } from './users/auth/guards/roles.guard';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -100,6 +101,7 @@ import { RolesGuard } from './users/auth/guards/roles.guard';
     MailerModule,
     InviteModule,
     PermissionsModule,
+    CacheModule.register(),
   ],
   controllers: [AppController],
   providers: [
