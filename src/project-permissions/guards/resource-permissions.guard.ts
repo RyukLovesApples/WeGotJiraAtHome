@@ -4,7 +4,7 @@ import { IS_PUBLIC } from 'src/users/decorators/public.decorator';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { Resource } from '../enums/resource.enum';
 import { RESOURCE_KEY } from '../decorators/resource.decorator';
-import { PermissionsService } from '../project-permissions.service';
+import { ProjectPermissionsService } from '../project-permissions.service';
 import { AuthenticatedRequest } from 'src/users/decorators/current-user-id.decorator';
 import { SKIP_RESOURCE_GUARD } from '../decorators/skip-resource.decorator';
 import { GraphQLResolveInfo } from 'graphql/type';
@@ -12,7 +12,7 @@ import { GraphQLResolveInfo } from 'graphql/type';
 @Injectable()
 export class ResourcePermissionGuard implements CanActivate {
   constructor(
-    private readonly permissionService: PermissionsService,
+    private readonly permissionService: ProjectPermissionsService,
     private readonly reflector: Reflector,
   ) {}
 
@@ -50,7 +50,7 @@ export class ResourcePermissionGuard implements CanActivate {
     const projectId = isGraphQL ? args.projectId : request.params?.projectId;
 
     const userId = request.user?.sub;
-    return this.permissionService.checkPermission(
+    return this.permissionService.checkProjectPermission(
       userId,
       projectId,
       method,
