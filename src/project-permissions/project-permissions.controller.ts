@@ -12,12 +12,12 @@ export class ProjectPermissionsController {
     private readonly projectPermissionsService: ProjectPermissionsService,
   ) {}
   @Post()
-  async createProjectPermissions(
+  async createOrUpdateProjectPermissions(
     @CurrentUserId() _: string,
     @Param('projectId') projectId: string,
     @Body() createProjectPermissionsDto: CreateProjectPermissionDto[],
   ): Promise<void> {
-    await this.projectPermissionsService.createProjectPermissions(
+    await this.projectPermissionsService.upsertProjectPermissions(
       projectId,
       createProjectPermissionsDto,
     );

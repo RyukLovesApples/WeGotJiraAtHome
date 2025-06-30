@@ -48,10 +48,13 @@ export class ProjectPermissionsService {
       defaultProjectPermissions?.[projectRole]?.[resource]?.[action],
     );
   }
-  async createProjectPermissions(
+  async upsertProjectPermissions(
     projectId: string,
     createProjectPermissionsDto: CreateProjectPermissionDto[],
-  ): Promise<void> {
+  ) {
+    const existing = await this.projectPermissionRepo.find({
+      where: { projectId },
+    });
     const project = await this.projectsService.getOneById(projectId);
     if (!project) {
       throw new NotFoundException(
@@ -65,10 +68,36 @@ export class ProjectPermissionsService {
         permissions: permission.permissions,
       }),
     );
+
+    if (existing.length === 0) {
+      return this.createProjectPermissions(permissions);
+    } else {
+      return this.updateProjectPermissions(permissions, existing);
+    }
+  }
+  async createProjectPermissions(
+    permissions: CreateProjectPermissionDto[],
+  ): Promise<void> {
     await Promise.all(
       permissions.map((permission) =>
         this.projectPermissionRepo.save(permission),
       ),
     );
+  }
+  async updateProjectPermissions(
+    updatedPermissions: ProjectPermission[],
+    existingPermissions: ProjectPermission[],
+  ): Promise<void> {
+    const permissionMap = new Map(
+      existingPermissions.map((permission) => [permission.role, permission]),
+    );
+
+    const updates = updatedPermissions.map((permission) => {
+      const existing = permissionMap.get(permission.role);
+      if (!existing) return;
+      Object.assign(existing, permission);
+      return this.projectPermissionRepo.save(existing);
+    });
+    await Promise.all(updates.filter(Boolean));
   }
 }
