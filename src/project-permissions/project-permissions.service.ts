@@ -121,4 +121,12 @@ export class ProjectPermissionsService {
     projectRole.permissions = createRolePermission.permissions;
     await this.projectPermissionRepo.save(projectRole);
   }
+  // async getProjectPermissions(projectId: string) {
+  //   const projectPermissions = await this.projectPermissionRepo.findBy({
+  //     projectId,
+  //   });
+  //   if (projectPermissions.length === 0) {
+  //     return defaultProjectPermissions;
+  //   }
+  // }
 }
