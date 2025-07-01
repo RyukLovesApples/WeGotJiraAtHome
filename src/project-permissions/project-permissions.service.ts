@@ -50,22 +50,22 @@ export class ProjectPermissionsService {
   }
   async upsertProjectPermissions(
     projectId: string,
-    createProjectPermissionsDto: CreateProjectPermissionDto[],
-  ) {
-    const existing = await this.projectPermissionRepo.find({
-      where: { projectId },
-    });
+    createProjectPermissions: CreateProjectPermissionDto[],
+  ): Promise<void> {
     const project = await this.projectsService.getOneById(projectId);
     if (!project) {
       throw new NotFoundException(
         `Project with ID: ${projectId} does not exist`,
       );
     }
-    const permissions = createProjectPermissionsDto.map((permission) =>
+    const existing = await this.projectPermissionRepo.find({
+      where: { projectId },
+    });
+    const permissions = createProjectPermissions.map((permission) =>
       this.projectPermissionRepo.create({
         role: permission.role,
         projectId,
-        permissions: permission.permissions,
+        permissions: { ...permission.permissions },
       }),
     );
 
@@ -99,5 +99,26 @@ export class ProjectPermissionsService {
       return this.projectPermissionRepo.save(existing);
     });
     await Promise.all(updates.filter(Boolean));
+  }
+  async updateRolePermission(
+    projectId: string,
+    createRolePermission: CreateProjectPermissionDto,
+  ) {
+    const project = await this.projectsService.getOneById(projectId);
+    if (!project) {
+      throw new NotFoundException(
+        `Project with ID: ${projectId} does not exist`,
+      );
+    }
+    const projectRole = await this.projectPermissionRepo.findOne({
+      where: { projectId, role: createRolePermission.role },
+    });
+    if (!projectRole) {
+      throw new NotFoundException(
+        `Project role with projectId: ${projectId} not found.`,
+      );
+    }
+    projectRole.permissions = createRolePermission.permissions;
+    await this.projectPermissionRepo.save(projectRole);
   }
 }
