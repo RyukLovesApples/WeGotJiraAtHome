@@ -1,4 +1,4 @@
-import { Body, Controller, Inject, Param, Post } from '@nestjs/common';
+import { Body, Controller, Inject, Param, Patch, Post } from '@nestjs/common';
 import { CreateProjectPermissionDto } from './dtos/create-project-permission.dto';
 import { CurrentUserId } from 'src/users/decorators/current-user-id.decorator';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -20,6 +20,17 @@ export class ProjectPermissionsController {
     await this.projectPermissionsService.upsertProjectPermissions(
       projectId,
       createProjectPermissionsDto,
+    );
+  }
+  @Patch()
+  async updateRolePermission(
+    @CurrentUserId() _: string,
+    @Param('projectId') projectId: string,
+    updateRolePermission: CreateProjectPermissionDto,
+  ): Promise<void> {
+    await this.projectPermissionsService.updateRolePermission(
+      projectId,
+      updateRolePermission,
     );
   }
 }

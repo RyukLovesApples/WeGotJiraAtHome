@@ -103,7 +103,7 @@ export class ProjectPermissionsService {
   async updateRolePermission(
     projectId: string,
     createRolePermission: CreateProjectPermissionDto,
-  ) {
+  ): Promise<void> {
     const project = await this.projectsService.getOneById(projectId);
     if (!project) {
       throw new NotFoundException(
