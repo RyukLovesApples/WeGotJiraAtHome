@@ -1,6 +1,4 @@
-interface PermissionNode {
-  [key: string]: boolean | PermissionNode;
-}
+import { PermissionNode } from '../types/permissions-node.type';
 
 export function normalizeRolePermissionsDeep(
   defaultPerms: PermissionNode,

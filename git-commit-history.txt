@@ -1,3 +1,46 @@
+0949f59 Adonis Smlatic Tue Jul 1 11:46:01 2025 +0200
+Add normalizeRolePermissionsDeep in src/project-permissions/utils/ to normalize stored role permission to default role permission
+
+
+06cd771 Adonis Smlatic Tue Jul 1 10:31:24 2025 +0200
+Add updateRolePermission method to ProjectPermissionController.
+
+
+ea7229e Adonis Smlatic Tue Jul 1 10:26:12 2025 +0200
+Add updateRolePermission method to ProjectPermissionsService for partial update option
+
+
+2ae7735 Adonis Smlatic Mon Jun 30 15:47:02 2025 +0200
+Add upsertProjectPermissions method to ProjectPermissionsService - Checks if permissions exist and calls create or update accordingly - Moves project existence check and permission instance creation from createProjectPermissions into upsertProjectPermissions
+Add updateProjectPermissions method to ProjectPermissionsService
+
+Refactor createProjectPermissions controller method to call upsertProjectPermissions
+Rename createProjectPermissions controller method to createOrUpdateProjectPermissions
+
+
+582e6d8 Adonis Smlatic Mon Jun 30 14:19:44 2025 +0200
+Add createProjectPermissions method to service & controller. Refactor CreateProjectPermissionsDto: remove ResourceDto inheritance, add explicit 'permissions' property.
+
+
+bfcbc97 Adonis Smlatic Mon Jun 30 10:41:20 2025 +0200
+Set up caching: install cache-manager, register CacheModule in AppModule, and inject in ProjectPermissionsController
+
+
+edf84f9 Adonis Smlatic Sat Jun 28 14:16:18 2025 +0200
+Add action.dto.ts, resource.dto.ts, project-permission-map.dto.ts and create-project-permission.dto.ts to src/project-permissions/dtos
+
+
+02d87d2 Adonis Smlatic Sat Jun 28 13:03:59 2025 +0200
+Add project-permissions.entity.ts in src/project-permissions; link to Project entity with relationship
+
+
+ad42481 Adonis Smlatic Sat Jun 28 10:41:32 2025 +0200
+Add controller and integrate with RouterModule
+- Added  under
+- Integrated controller route into
+- Renamed  to  across related folders and files
+
+
 b4d2319 RyukLovesApples Thu Jun 26 14:12:51 2025 +0200
 Merge pull request #6 from RyukLovesApples/feature/permissions
 Add Project-Based Resource Permissions with Guard Support for REST and GraphQL
@@ -410,3 +453,4 @@ Implement POST /tasks/:id/labels to allow adding multiple labels to a task.
 
 44ddbe9 Adonis Smlatic Tue Apr 22 10:48:57 2025 +0200
 Initial commit
+
