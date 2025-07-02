@@ -116,6 +116,7 @@
 ./src/project-permissions/project-permissions.service.ts
 ./src/project-permissions/types
 ./src/project-permissions/types/project-permission-map.type.ts
+./src/project-permissions/types/permissions-node.type.ts
 ./src/project-permissions/decorators
 ./src/project-permissions/decorators/skip-resource.decorator.ts
 ./src/project-permissions/decorators/resource.decorator.ts
@@ -123,6 +124,8 @@
 ./src/project-permissions/enums/resource.enum.ts
 ./src/project-permissions/enums/action.enum.ts
 ./src/project-permissions/utils
+./src/project-permissions/utils/normalize-all-permissions.ts
+./src/project-permissions/utils/map-permission-to-role.ts
 ./src/project-permissions/utils/normalize-role-permissions-deep.ts
 ./src/project-permissions/utils/map-permissions-action.ts
 ./src/project-permissions/project-permissions.controller.ts

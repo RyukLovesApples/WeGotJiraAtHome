@@ -167,4 +167,8 @@ export class ProjectPermissionsService {
     );
     return transformToDto(ProjectPermissionMapDto, normalizedPermissions);
   }
+
+  async resetToDefaultProjectPermissions(projectId: string): Promise<void> {
+    await this.projectPermissionRepo.delete({ projectId });
+  }
 }
