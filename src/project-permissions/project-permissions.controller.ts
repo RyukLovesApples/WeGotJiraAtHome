@@ -17,9 +17,14 @@ export class ProjectPermissionsController {
     @Param('projectId') projectId: string,
     @Body() createProjectPermissionsDto: CreateProjectPermissionDto[],
   ): Promise<void> {
-    await this.projectPermissionsService.upsertProjectPermissions(
-      projectId,
-      createProjectPermissionsDto,
+    const permissions =
+      await this.projectPermissionsService.upsertProjectPermissions(
+        projectId,
+        createProjectPermissionsDto,
+      );
+    await this.cacheManager.set(
+      `project-permissions:${projectId}`,
+      permissions,
     );
   }
   @Patch()
@@ -28,9 +33,14 @@ export class ProjectPermissionsController {
     @Param('projectId') projectId: string,
     updateRolePermission: CreateProjectPermissionDto,
   ): Promise<void> {
-    await this.projectPermissionsService.updateRolePermission(
-      projectId,
-      updateRolePermission,
+    const permissions =
+      await this.projectPermissionsService.updateRolePermission(
+        projectId,
+        updateRolePermission,
+      );
+    await this.cacheManager.set(
+      `project-permissions:${projectId}`,
+      permissions,
     );
   }
 }
