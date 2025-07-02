@@ -133,17 +133,17 @@ export class ProjectPermissionsService {
         `Project with ID: ${projectId} does not exist`,
       );
     }
-    const projectRole = await this.projectPermissionRepo.findOne({
+    const projectPermission = await this.projectPermissionRepo.findOne({
       where: { projectId, role: createRolePermission.role },
     });
-    if (!projectRole) {
+    if (!projectPermission) {
       throw new NotFoundException(
         `Project role with projectId: ${projectId} not found.`,
       );
     }
-    projectRole.permissions = { ...createRolePermission.permissions };
+    projectPermission.permissions = { ...createRolePermission.permissions };
     const updatedPermission =
-      await this.projectPermissionRepo.save(projectRole);
+      await this.projectPermissionRepo.save(projectPermission);
     const updatedAndMappedPermission = mapPermissionsToRole([
       updatedPermission,
     ]);
@@ -153,12 +153,18 @@ export class ProjectPermissionsService {
     );
     return transformToDto(ProjectPermissionMapDto, normalizedPermissions);
   }
-  // async getProjectPermissions(projectId: string) {
-  //   const projectPermissions = await this.projectPermissionRepo.findBy({
-  //     projectId,
-  //   });
-  //   if (projectPermissions.length === 0) {
-  //     return defaultProjectPermissions;
-  //   }
-  // }
+  async getProjectPermissions(projectId: string) {
+    const projectPermissions = await this.projectPermissionRepo.findBy({
+      projectId,
+    });
+    if (projectPermissions.length === 0) {
+      return defaultProjectPermissions;
+    }
+    const mappedPermisisons = mapPermissionsToRole(projectPermissions);
+    const normalizedPermissions = normalizeAllPermissions(
+      defaultProjectPermissions,
+      mappedPermisisons,
+    );
+    return transformToDto(ProjectPermissionMapDto, normalizedPermissions);
+  }
 }
