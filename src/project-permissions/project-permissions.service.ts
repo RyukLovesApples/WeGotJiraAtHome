@@ -13,6 +13,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ProjectPermission } from './project-permissions.entity';
 import { Repository } from 'typeorm';
 import { ProjectsService } from 'src/projects/projects.service';
+import { mapPermissionsToRole } from './utils/map-permission-to-role';
+import { normalizeAllPermissions } from './utils/normalize-all-permissions';
+import { transformToDto } from 'src/utils/transform';
+import { ProjectPermissionMapDto } from './dtos/project-permission-map.dto';
 
 @Injectable()
 export class ProjectPermissionsService {
@@ -51,7 +55,7 @@ export class ProjectPermissionsService {
   async upsertProjectPermissions(
     projectId: string,
     createProjectPermissions: CreateProjectPermissionDto[],
-  ): Promise<void> {
+  ): Promise<ProjectPermissionMapDto> {
     const project = await this.projectsService.getOneById(projectId);
     if (!project) {
       throw new NotFoundException(
@@ -77,17 +81,24 @@ export class ProjectPermissionsService {
   }
   async createProjectPermissions(
     permissions: CreateProjectPermissionDto[],
-  ): Promise<void> {
-    await Promise.all(
+  ): Promise<ProjectPermissionMapDto> {
+    const createdPermissions = await Promise.all(
       permissions.map((permission) =>
         this.projectPermissionRepo.save(permission),
       ),
     );
+    const createdAndMappedPermissions =
+      mapPermissionsToRole(createdPermissions);
+    const normalizedPermissions = normalizeAllPermissions(
+      defaultProjectPermissions,
+      createdAndMappedPermissions,
+    );
+    return transformToDto(ProjectPermissionMapDto, normalizedPermissions);
   }
   async updateProjectPermissions(
     updatedPermissions: ProjectPermission[],
     existingPermissions: ProjectPermission[],
-  ): Promise<void> {
+  ): Promise<ProjectPermissionMapDto> {
     const permissionMap = new Map(
       existingPermissions.map((permission) => [permission.role, permission]),
     );
@@ -98,12 +109,24 @@ export class ProjectPermissionsService {
       Object.assign(existing, permission);
       return this.projectPermissionRepo.save(existing);
     });
-    await Promise.all(updates.filter(Boolean));
+    const updatedPermissionsArray = await Promise.all(
+      updates.filter((permission): permission is Promise<ProjectPermission> =>
+        Boolean(permission),
+      ),
+    );
+    const updatedAndMappedPermissions = mapPermissionsToRole(
+      updatedPermissionsArray,
+    );
+    const normalizedPermissions = normalizeAllPermissions(
+      defaultProjectPermissions,
+      updatedAndMappedPermissions,
+    );
+    return transformToDto(ProjectPermissionMapDto, normalizedPermissions);
   }
   async updateRolePermission(
     projectId: string,
     createRolePermission: CreateProjectPermissionDto,
-  ): Promise<void> {
+  ): Promise<ProjectPermissionMapDto> {
     const project = await this.projectsService.getOneById(projectId);
     if (!project) {
       throw new NotFoundException(
@@ -118,8 +141,17 @@ export class ProjectPermissionsService {
         `Project role with projectId: ${projectId} not found.`,
       );
     }
-    projectRole.permissions = createRolePermission.permissions;
-    await this.projectPermissionRepo.save(projectRole);
+    projectRole.permissions = { ...createRolePermission.permissions };
+    const updatedPermission =
+      await this.projectPermissionRepo.save(projectRole);
+    const updatedAndMappedPermission = mapPermissionsToRole([
+      updatedPermission,
+    ]);
+    const normalizedPermissions = normalizeAllPermissions(
+      defaultProjectPermissions,
+      updatedAndMappedPermission,
+    );
+    return transformToDto(ProjectPermissionMapDto, normalizedPermissions);
   }
   // async getProjectPermissions(projectId: string) {
   //   const projectPermissions = await this.projectPermissionRepo.findBy({
