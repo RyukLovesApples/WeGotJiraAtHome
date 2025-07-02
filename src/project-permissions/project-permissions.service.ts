@@ -1,4 +1,5 @@
 import {
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -17,6 +18,8 @@ import { mapPermissionsToRole } from './utils/map-permission-to-role';
 import { normalizeAllPermissions } from './utils/normalize-all-permissions';
 import { transformToDto } from 'src/utils/transform';
 import { ProjectPermissionMapDto } from './dtos/project-permission-map.dto';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class ProjectPermissionsService {
@@ -25,6 +28,7 @@ export class ProjectPermissionsService {
     @InjectRepository(ProjectPermission)
     private readonly projectPermissionRepo: Repository<ProjectPermission>,
     private readonly projectsService: ProjectsService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
   async checkProjectPermission(
     userId: string,
@@ -48,9 +52,14 @@ export class ProjectPermissionsService {
     const projectRole = projectUser.role;
     const action = mapPermissionAction(method);
     if (!action) return false;
-    return Boolean(
-      defaultProjectPermissions?.[projectRole]?.[resource]?.[action],
-    );
+    const cachedPermissions =
+      await this.cacheManager.get<ProjectPermissionMapDto>(
+        `project-permissions:${projectId}`,
+      );
+    const projectPermissions = cachedPermissions
+      ? cachedPermissions
+      : defaultProjectPermissions;
+    return Boolean(projectPermissions?.[projectRole]?.[resource]?.[action]);
   }
   async upsertProjectPermissions(
     projectId: string,

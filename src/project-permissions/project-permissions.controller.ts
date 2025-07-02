@@ -54,6 +54,7 @@ export class ProjectPermissionsController {
       permissions,
     );
   }
+  // GET must always be triggered by frontend on any change!
   @Get()
   async getProjectPermissions(
     @CurrentUserId() _: string,
