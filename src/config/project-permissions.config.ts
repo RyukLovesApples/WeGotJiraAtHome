@@ -22,6 +22,12 @@ export const defaultProjectPermissions: ProjectPermissionMap = deepFreeze({
       read: true,
       create: true,
     },
+    'project-permissions': {
+      read: true,
+      create: true,
+      update: true,
+      delete: true,
+    },
   },
   ADMIN: {
     projects: {

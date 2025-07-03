@@ -22,4 +22,9 @@ export class ResourceDto {
   @ValidateNested()
   @Type(() => ActionDto)
   invite?: ActionDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => ActionDto)
+  'project-permissions'?: ActionDto;
 }

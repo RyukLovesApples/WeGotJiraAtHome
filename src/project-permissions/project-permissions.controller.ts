@@ -15,8 +15,11 @@ import { Cache } from 'cache-manager';
 import { ProjectPermissionsService } from './project-permissions.service';
 import { ProjectPermissionMapDto } from './dtos/project-permission-map.dto';
 import { defaultProjectPermissions } from 'src/config/project-permissions.config';
+import { Resources } from './decorators/resource.decorator';
+import { Resource } from './enums/resource.enum';
 
 @Controller('project-permissions')
+@Resources(Resource.PROJECT_PERMISSIONS)
 export class ProjectPermissionsController {
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
