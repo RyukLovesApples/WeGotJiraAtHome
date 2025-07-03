@@ -4,11 +4,11 @@ import { TestSetup } from '../test.setup';
 import { Http2Server } from 'http2';
 import { createProject, registerAndLogin } from '../helpers/test-helpers';
 import {
-  anotherUser,
-  mockProjects,
-  mockTasks,
-  testUser,
-} from '../mockVariables/mockVariables';
+  secondUser,
+  dummyProjects,
+  dummyTasks,
+  defaultUser,
+} from '../dummy-varaibles/dummy-varaibles';
 import { ProjectDto } from 'src/projects/dtos/project.dto';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from 'jsonwebtoken';
@@ -17,7 +17,7 @@ import { ProjectUser } from 'src/project-users/project-user.entity';
 import { CreateProjectPermissionDto } from 'src/project-permissions/dtos/create-project-permission.dto';
 import { Resource } from 'src/project-permissions/enums/resource.enum';
 
-describe('Permissions Integration', () => {
+describe('Project permissions Integration', () => {
   let testSetup: TestSetup;
   let server: Http2Server;
   let accessToken: string;
@@ -28,12 +28,12 @@ describe('Permissions Integration', () => {
   beforeEach(async () => {
     testSetup = await TestSetup.create(AppModule);
     server = testSetup.app.getHttpServer() as Http2Server;
-    const token = await registerAndLogin(server, testUser);
+    const token = await registerAndLogin(server, defaultUser);
     accessToken = token;
-    const project = await createProject(server, token, mockProjects[0]);
+    const project = await createProject(server, token, dummyProjects[0]);
     const projectBody = project.body as ProjectDto;
     projectId = projectBody.id;
-    anotherUserAccessToken = await registerAndLogin(server, anotherUser);
+    anotherUserAccessToken = await registerAndLogin(server, secondUser);
     baseUrl = `/projects/${projectBody.id}`;
   });
 
@@ -74,7 +74,7 @@ describe('Permissions Integration', () => {
     await request(server)
       .post(`${baseUrl}/tasks`)
       .set('Authorization', `Bearer ${anotherUserAccessToken}`)
-      .send(mockTasks[0])
+      .send(dummyTasks[0])
       .expect(403);
     // User should be able to read project as project user
     await request(server)
@@ -91,7 +91,7 @@ describe('Permissions Integration', () => {
     await request(server)
       .post(`${baseUrl}/tasks`)
       .set('Authorization', `Bearer ${anotherUserAccessToken}`)
-      .send(mockTasks[0])
+      .send(dummyTasks[0])
       .expect(201);
     // Since only the tasks resource was passed, this means all other resources are no longer accessible.
     // Project read permission should no longer be available -> 403 Forbidden
@@ -101,5 +101,63 @@ describe('Permissions Integration', () => {
       .expect(403);
     // Since custom permissions are only accessible via cache -> caching strategy works as expected
     // No extra test needed here.
+  });
+  it('no project user should be able to change owner resource permissions, forbidden', async () => {
+    const permissionChange: CreateProjectPermissionDto = {
+      role: ProjectRole.OWNER,
+      permissions: {
+        [Resource.TASK]: {
+          create: true,
+          read: true,
+        },
+      },
+    };
+    await request(server)
+      .post(`${baseUrl}/permissions`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send([permissionChange])
+      .expect(403);
+  });
+  it('owner should be able to change multiple role permissions', async () => {
+    const permissionChange: CreateProjectPermissionDto[] = [
+      {
+        role: ProjectRole.USER,
+        permissions: {
+          [Resource.TASK]: {
+            create: true,
+            read: true,
+          },
+          [Resource.PROJECT]: {
+            update: true,
+          },
+        },
+      },
+      {
+        role: ProjectRole.ADMIN,
+        permissions: {
+          [Resource.TASK]: {
+            read: true,
+          },
+        },
+      },
+    ];
+    await request(server)
+      .post(`${baseUrl}/permissions`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send(permissionChange)
+      .expect(201);
+    const { dataSource } = testSetup;
+    const projectUserRepo = dataSource.getRepository(ProjectUser);
+    const jwtData: JwtPayload = testSetup.app
+      .get(JwtService)
+      .verify(anotherUserAccessToken);
+    const userId = jwtData.sub;
+    const newProjectUserData = {
+      userId,
+      projectId,
+      role: ProjectRole.USER,
+    };
+    const newProjectUser = projectUserRepo.create(newProjectUserData);
+    await projectUserRepo.save(newProjectUser);
   });
 });
