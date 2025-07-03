@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Inject,
   Param,
@@ -17,6 +18,7 @@ import { ProjectPermissionMapDto } from './dtos/project-permission-map.dto';
 import { defaultProjectPermissions } from 'src/config/project-permissions.config';
 import { Resources } from './decorators/resource.decorator';
 import { Resource } from './enums/resource.enum';
+import { ProjectRole } from 'src/project-users/project-role.enum';
 
 @Controller('project-permissions')
 @Resources(Resource.PROJECT_PERMISSIONS)
@@ -31,6 +33,11 @@ export class ProjectPermissionsController {
     @Param('projectId') projectId: string,
     @Body() createProjectPermissionsDto: CreateProjectPermissionDto[],
   ): Promise<void> {
+    if (
+      createProjectPermissionsDto.some((dto) => dto.role === ProjectRole.ADMIN)
+    ) {
+      throw new ForbiddenException("Can't change permissions for OWNER role");
+    }
     const permissions =
       await this.projectPermissionsService.upsertProjectPermissions(
         projectId,
@@ -47,6 +54,9 @@ export class ProjectPermissionsController {
     @Param('projectId') projectId: string,
     updateRolePermission: CreateProjectPermissionDto,
   ): Promise<void> {
+    if (updateRolePermission.role === ProjectRole.ADMIN) {
+      throw new ForbiddenException("Can't change permissions for OWNER role");
+    }
     const permissions =
       await this.projectPermissionsService.updateRolePermission(
         projectId,
