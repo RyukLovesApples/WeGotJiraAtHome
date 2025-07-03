@@ -21,5 +21,5 @@ export class ProjectPermissionMapDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => ResourceDto)
-  VISITOR?: ResourceDto;
+  GUEST?: ResourceDto;
 }

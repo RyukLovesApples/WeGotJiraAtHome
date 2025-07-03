@@ -48,7 +48,7 @@ export const defaultProjectPermissions: ProjectPermissionMap = deepFreeze({
       read: true,
     },
   },
-  VISITOR: {
+  GUEST: {
     projects: {
       read: true,
     },

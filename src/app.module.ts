@@ -34,6 +34,7 @@ import { AuthGuard } from './users/auth/auth.guard';
 import { ResourcePermissionGuard } from './project-permissions/guards/resource-permissions.guard';
 import { RolesGuard } from './users/auth/guards/roles.guard';
 import { CacheModule } from '@nestjs/cache-manager';
+import { ProjectPermission } from './project-permissions/project-permissions.entity';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { CacheModule } from '@nestjs/cache-manager';
           Project,
           ProjectUser,
           ProjectUserInvite,
+          ProjectPermission,
         ],
       }),
     }),

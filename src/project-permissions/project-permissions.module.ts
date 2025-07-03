@@ -5,12 +5,14 @@ import { ProjectsModule } from 'src/projects/projects.module';
 import { ProjectPermissionsController } from './project-permissions.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProjectPermission } from './project-permissions.entity';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([ProjectPermission]),
     ProjectUsersModule,
     ProjectsModule,
+    CacheModule.register(),
   ],
   providers: [ProjectPermissionsService],
   exports: [ProjectPermissionsService],
