@@ -37,10 +37,10 @@ describe('Tasks Integration(e2e)', () => {
   beforeEach(async () => {
     testSetup = await TestSetup.create(AppModule);
     server = testSetup.app.getHttpServer() as Http2Server;
-    const token = await registerAndLogin(server, testUser);
+    const token = await registerAndLogin(server, { ...testUser });
     const project = await createProject(server, token, {
       ...mockProjects[0],
-      tasks: [mockTasks[0]],
+      tasks: [{ ...mockTasks[0] }],
     });
     const projectBody = project.body as ProjectDto;
     projectId = projectBody.id;

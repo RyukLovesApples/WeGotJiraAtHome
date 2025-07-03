@@ -20,7 +20,7 @@ import { Resources } from './decorators/resource.decorator';
 import { Resource } from './enums/resource.enum';
 import { ProjectRole } from 'src/project-users/project-role.enum';
 
-@Controller('project-permissions')
+@Controller()
 @Resources(Resource.PROJECT_PERMISSIONS)
 export class ProjectPermissionsController {
   constructor(

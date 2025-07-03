@@ -1,25 +1,19 @@
+import { ProjectRole } from 'src/project-users/project-role.enum';
 import { ProjectPermissionMapDto } from '../dtos/project-permission-map.dto';
-import { normalizeRolePermissionsDeep } from './normalize-role-permissions-deep';
 
 export function normalizeAllPermissions(
   defaults: ProjectPermissionMapDto,
   stored?: Partial<ProjectPermissionMapDto>,
 ): ProjectPermissionMapDto {
-  const normalized: ProjectPermissionMapDto = new ProjectPermissionMapDto();
+  const normalized: ProjectPermissionMapDto = { ...defaults };
 
-  for (const role of Object.keys(
-    defaults,
-  ) as (keyof ProjectPermissionMapDto)[]) {
-    const defaultPerms = defaults[role];
-    const storedPerms = stored?.[role];
+  if (!stored) return normalized;
 
-    if (defaultPerms) {
-      normalized[role] = normalizeRolePermissionsDeep(
-        defaultPerms,
-        storedPerms,
-      );
+  for (const role of Object.keys(stored) as ProjectRole[]) {
+    const permissions = stored[role];
+    if (permissions) {
+      normalized[role] = permissions;
     }
   }
-
   return normalized;
 }

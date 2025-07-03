@@ -80,6 +80,7 @@ import { ProjectPermission } from './project-permissions/project-permissions.ent
     ProjectsModule,
     ProjectUsersModule,
     InviteModule,
+    PermissionsModule,
     RouterModule.register([
       {
         path: 'projects',

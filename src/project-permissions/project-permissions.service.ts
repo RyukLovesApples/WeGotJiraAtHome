@@ -102,7 +102,7 @@ export class ProjectPermissionsService {
       defaultProjectPermissions,
       createdAndMappedPermissions,
     );
-    return transformToDto(ProjectPermissionMapDto, normalizedPermissions);
+    return normalizedPermissions;
   }
   async updateProjectPermissions(
     updatedPermissions: ProjectPermission[],
@@ -130,7 +130,7 @@ export class ProjectPermissionsService {
       defaultProjectPermissions,
       updatedAndMappedPermissions,
     );
-    return transformToDto(ProjectPermissionMapDto, normalizedPermissions);
+    return normalizedPermissions;
   }
   async updateRolePermission(
     projectId: string,
@@ -174,7 +174,7 @@ export class ProjectPermissionsService {
       defaultProjectPermissions,
       mappedPermisisons,
     );
-    return transformToDto(ProjectPermissionMapDto, normalizedPermissions);
+    return normalizedPermissions;
   }
 
   async resetToDefaultProjectPermissions(projectId: string): Promise<void> {
