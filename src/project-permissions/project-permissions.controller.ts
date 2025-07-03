@@ -34,7 +34,7 @@ export class ProjectPermissionsController {
     @Body() createProjectPermissionsDto: CreateProjectPermissionDto[],
   ): Promise<void> {
     if (
-      createProjectPermissionsDto.some((dto) => dto.role === ProjectRole.ADMIN)
+      createProjectPermissionsDto.some((dto) => dto.role === ProjectRole.OWNER)
     ) {
       throw new ForbiddenException("Can't change permissions for OWNER role");
     }
@@ -54,7 +54,7 @@ export class ProjectPermissionsController {
     @Param('projectId') projectId: string,
     updateRolePermission: CreateProjectPermissionDto,
   ): Promise<void> {
-    if (updateRolePermission.role === ProjectRole.ADMIN) {
+    if (updateRolePermission.role === ProjectRole.OWNER) {
       throw new ForbiddenException("Can't change permissions for OWNER role");
     }
     const permissions =
