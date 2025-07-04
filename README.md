@@ -57,7 +57,7 @@ Permissions follow a consistent structure:
 - Each project assigns users a role (OWNER, ADMIN, USER, GUEST).
 - Each role defines permissions over resources (e.g., projects, tasks, project-users).
 - Each resource supports actions (read, create, update, delete).
-- > Only explicitly allowed actions (`true`) grant access. All others are denied by default — keeping permission objects slim and secure.
+> Only explicitly allowed actions (`true`) grant access. All others are denied by default — keeping permission objects slim and secure.
 
 #### Default Permissions
 
