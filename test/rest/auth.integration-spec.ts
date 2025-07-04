@@ -8,7 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from 'jsonwebtoken';
 import { AdminResponse } from '../../src/users/responses/Admin.response';
 import { Http2Server } from 'http2';
-import { defaultUser } from '../dummy-varaibles/dummy-varaibles';
+import { defaultUser } from '../dummy-variables/dummy-variables';
 import { LoginResponse, RegisterResponse } from '../types/test.types';
 import {
   createUserWithRole,

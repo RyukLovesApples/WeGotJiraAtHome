@@ -37,15 +37,14 @@ export class TasksController {
 
   @Get()
   public async findAll(
+    @CurrentUserId() _: string,
     @Query() filters: FindTaskParams,
     @Query() pagination: PaginationParams,
     @Param('projectId') projectId: string,
-    // @CurrentUserId() userId: string,
   ): Promise<PaginationResponse<Task>> {
     const [items, total] = await this.tasksService.getAll(
       filters,
       pagination,
-      // userId,
       projectId,
     );
 
@@ -60,16 +59,19 @@ export class TasksController {
   }
 
   @Get('/:id')
-  public async findOne(@Param() params: FindOneParams): Promise<TaskDto> {
+  public async findOne(
+    @CurrentUserId() _: string,
+    @Param() params: FindOneParams,
+  ): Promise<TaskDto> {
     const task = await this.findOneOrFail(params.id);
     return transformToDto(TaskDto, task);
   }
 
   @Post()
   public async create(
+    @CurrentUserId() userId: string,
     @Body() createTaskDto: CreateTaskDto,
     @Param('projectId') projectId: string,
-    @CurrentUserId() userId: string,
   ): Promise<TaskDto> {
     const task = await this.tasksService.create(
       createTaskDto,
@@ -81,6 +83,7 @@ export class TasksController {
 
   @Patch('/:id')
   public async updateTask(
+    @CurrentUserId() _: string,
     @Param() params: FindOneParams,
     @Body() updateTaskDto: UpdateTaskDto,
   ): Promise<TaskDto> {

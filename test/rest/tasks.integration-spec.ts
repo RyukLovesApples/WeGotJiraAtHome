@@ -9,7 +9,7 @@ import {
   unauthorizedUser,
   dummyTasks,
   dummyProjects,
-} from '../dummy-varaibles/dummy-varaibles';
+} from '../dummy-variables/dummy-variables';
 import {
   registerAndLogin,
   createTask,

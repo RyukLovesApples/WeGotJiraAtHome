@@ -58,7 +58,7 @@ export class ProjectPermissionsService {
       );
     const projectPermissions = cachedPermissions
       ? cachedPermissions
-      : defaultProjectPermissions;
+      : await this.getProjectPermissions(projectId);
     return Boolean(projectPermissions?.[projectRole]?.[resource]?.[action]);
   }
   async upsertProjectPermissions(

@@ -6,6 +6,7 @@ import {
   Get,
   Inject,
   Param,
+  ParseArrayPipe,
   Patch,
   Post,
 } from '@nestjs/common';
@@ -31,7 +32,8 @@ export class ProjectPermissionsController {
   async createOrUpdateProjectPermissions(
     @CurrentUserId() _: string,
     @Param('projectId') projectId: string,
-    @Body() createProjectPermissionsDto: CreateProjectPermissionDto[],
+    @Body(new ParseArrayPipe({ items: CreateProjectPermissionDto }))
+    createProjectPermissionsDto: CreateProjectPermissionDto[],
   ): Promise<void> {
     if (
       createProjectPermissionsDto.some((dto) => dto.role === ProjectRole.OWNER)

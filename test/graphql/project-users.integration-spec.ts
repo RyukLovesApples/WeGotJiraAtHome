@@ -18,7 +18,7 @@ import {
   dummyTasks,
   defaultUser,
   unauthorizedUser,
-} from '../dummy-varaibles/dummy-varaibles';
+} from '../dummy-variables/dummy-variables';
 import { ProjectUserDto } from 'src/project-users/dtos/project-user.dto';
 import { UpdateProjectUserRoleInput } from 'src/project-users/dtos/update-project-user.input';
 import {

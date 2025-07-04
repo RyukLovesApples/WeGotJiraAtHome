@@ -9,7 +9,7 @@ import {
   defaultUser,
   unauthorizedUser,
   secondUser,
-} from '../dummy-varaibles/dummy-varaibles';
+} from '../dummy-variables/dummy-variables';
 import { ProjectDto } from 'src/projects/dtos/project.dto';
 import { TaskDto } from 'src/tasks/dtos/task.dto';
 import { TaskStatus } from 'src/tasks/task-status.enum';

@@ -7,7 +7,7 @@ import {
   dummyProjects,
   defaultUser,
   invitedUser,
-} from '../dummy-varaibles/dummy-varaibles';
+} from '../dummy-variables/dummy-variables';
 import { ProjectDto } from 'src/projects/dtos/project.dto';
 import { ProjectUserInvite } from 'src/invite/project-user-invite.entity';
 import { ProjectRole } from 'src/project-users/project-role.enum';
