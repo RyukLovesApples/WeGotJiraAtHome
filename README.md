@@ -46,11 +46,50 @@ A full-featured, test-driven project and task management API inspired by Jira. T
 - Pagination and sorting support
 - DTO validation and robust error handling
 
+### Permission System
+
+The permission system is designed to be lightweight, cache-efficient, and secure. Here's how it works:
+
+#### Structure
+
+Permissions follow a consistent structure:
+- Project → Role → Resource → Action
+- Each project assigns users a role (OWNER, ADMIN, USER, GUEST).
+- Each role defines permissions over resources (e.g., projects, tasks, project-users).
+- Each resource supports actions (read, create, update, delete).
+- > Only explicitly allowed actions (`true`) grant access. All others are denied by default — keeping permission objects slim and secure.
+
+#### Default Permissions
+
+- Default permissions are defined in the codebase (config/project-permissions.config.ts) and do not exist in the database.
+- They are deeply frozen using a utility (deepFreeze) to prevent accidental mutation at runtime.
+- Since they reside entirely in memory, accessing them is O(1) and incurs no I/O cost.
+
+#### Storage
+
+- A default permission map (defaultProjectPermissions) is used as a baseline.
+- If no custom permissions are defined, the database remains empty — reducing storage and keeping the table clean.
+- If custom permissions are added, only those changes are stored in the DB and merged with the default.
+
+#### Utilities
+
+Utility functions like normalizeAllPermissions and mapPermissionsToRole ensure:
+- Default values are filled in for missing fields.
+- The resulting permission map is complete, consistent, and based on a known baseline.
+
+#### Performance
+
+- Permissions are cached per project (project-permissions:{projectId}).
+- Read access is O(1) from cache.
+- Cache is updated only on permission changes — minimizing unnecessary DB queries.
+
+This design is especially efficient for smaller teams and projects where permissions rarely change.
+
 ### Testing
 
 - Integration tests with Jest
 - Modular test setup (`test-setup.ts`)
-- Test helpers and mock data organized by concern
+- Test helpers and dummy data
 - Isolated test environment and dedicated test DB
 
 ---
@@ -63,6 +102,16 @@ A full-featured, test-driven project and task management API inspired by Jira. T
 - **Testing**: Jest (integration and unit tests)
 - **Environment**: dotenv + Joi schema validation
 - **Docker**: Compose setup for DB and app
+
+---
+
+## Architecture
+
+- Modular, feature-based structure using NestJS modules
+- Separation of concerns: services, controllers, and utilities
+- Centralized configuration and validation via Joi
+- Cache layer for permission system (via NestJS CacheManager)
+- Decoupled test setup with isolated test DB and custom bootstrap
 
 ---
 
@@ -80,23 +129,36 @@ npm run test:e2e
 ### Run a specific E2E test file
 npm run test:e2e -- path/to/e2e-test-file
 
-Note: Please setup these environment variables with an own db setup. Mirgration files will be included soon!
+Note:  Please set up the following environment variables with your own db setup. Migration files will be included!
 
+---
 
 ## Installation
 
-Install dependencies
+### Install dependencies
+
+```bash
 npm install
+```
 
-Start PostgreSQL using Docker
+### Start PostgreSQL using Docker
+
+```bash
 docker-compose up -d
+```
 
-Run the app in development mode
+### Run the app in development mode
+
+```bash
 npm run start:dev
+```
+
+---
 
 ## Environment Variables
+
 ### Optional greeting prefix
-APP_MESSAGE_PREFIX=Hello
+APP_MESSAGE_PREFIX=HelloWorld
 ### Database host
 DB_HOST=localhost
 ### Database port
@@ -116,10 +178,13 @@ JWT_EXPIRES_IN=3600s
 
 Check src/config/config.types.ts joi object for current .env setup if db connection fails
 
+---
+
 ## Demo
-🔗 Link to live API/demo frontend — coming soon!
 
 If you'd like to preview the app live, a frontend demo or API documentation will be provided soon.
+
+---
 
 ## Folder Structure
 
@@ -129,10 +194,16 @@ cat folder-structure.txt
 Or simply open the folder-structure.txt file in the root directory.
 I’ll try to keep it updated as the project evolves.
 
+---
+
 ## Author
+
 Adonis Smlatic
 Junior Full-Stack Developer
 https://www.linkedin.com/in/adonis-smlatic-3b072a2b8/
 
+---
+
 ## License
-To be added!
+
+This project is currently unlicensed. License terms will be added soon.

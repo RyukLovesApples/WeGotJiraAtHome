@@ -1,3 +1,78 @@
+33eb03d Adonis Smlatic Fri Jul 4 11:01:36 2025 +0200
+Add tests for project-permissions: happy and failure paths covered
+
+
+eb33540 Adonis Smlatic Thu Jul 3 20:25:50 2025 +0200
+Improve naming for clarity in integration tests
+- Rename variables from 'mock' to 'dummy' for consistency
+- Rename test files from .e2e-spec.ts to .integration-spec.ts
+- Update package.json and jest-integration.json to reflect new naming
+
+
+033476d Adonis Smlatic Thu Jul 3 18:07:47 2025 +0200
+Add first test to project-Permissions.e2e-spec.ts
+- Refactor normalizeAllPermissions to remove normalizeRolePermissionsDeep call, since a copy of the frozen default is enough and stored permissions can simply replace defaults. Simplifies and cleans up the code.
+- Remove transformToDto method in ProjectPermissionsService, as normalizeAllPermissions already guarantees the defaultPermissions shape.
+- Remove src/project-permissions/helpers/normalizeRolePermissionsDeep.ts since it’s no longer needed.
+
+
+d0a44c4 Adonis Smlatic Thu Jul 3 13:41:01 2025 +0200
+Add @Resources decorator with PROJECT_PERMISSION to enable permission checks via ResourceGuard
+
+
+7ec9218 Adonis Smlatic Thu Jul 3 13:02:55 2025 +0200
+Add a OWNER role check for the input of create and update methods of ProjectPermissionsController, to garantee no change of OWNER permissions
+
+
+aacee49 Adonis Smlatic Thu Jul 3 12:54:20 2025 +0200
+Refactor Resource enum and DTO; add new resource to default permissions for access through ResourceGuard
+
+
+2116769 Adonis Smlatic Thu Jul 3 12:43:59 2025 +0200
+Add project-permissions.e2e-spec.ts test setup in src/test/rest and rename ProjectRole enum value VISITOR to GUEST for clarity
+
+
+9384a93 Adonis Smlatic Wed Jul 2 17:59:21 2025 +0200
+Refactor checkProjectPermission in ProjectPermissionsService to support custom permissions via ProjectPermissionsGuard
+
+
+a5bfd2a Adonis Smlatic Wed Jul 2 17:42:57 2025 +0200
+Add getProjectPermissions and resetToDefaultProjectPermissions with caching
+
+
+33f3783 Adonis Smlatic Wed Jul 2 17:14:45 2025 +0200
+Refactor createOrUpdateProjectPermissions and updateRolePermission in ProjectPermissionsController to cache returned value of ProjectPermissionsService methods
+
+
+f7a7105 Adonis Smlatic Wed Jul 2 17:02:34 2025 +0200
+Add resetToDefaultProjectPermissions method to ProjectPermissionsService
+
+
+d785dd6 Adonis Smlatic Wed Jul 2 15:57:29 2025 +0200
+Add getProjectPermissions method to ProjectPermissionsService
+
+
+6045260 Adonis Smlatic Wed Jul 2 15:25:09 2025 +0200
+Simplify and refactor permission mapping and normalization to align with DTOs
+Reworked normalize and mapping methods to use ProjectPermissionMapDto structure (generic approach removed)
+
+Removed generics from helpers for improved clarity and focused responsibility
+
+Refactored ProjectPermissionService to integrate mapping and normalization steps
+
+Transformed final output into validated ProjectPermissionMapDto for stronger type safety
+
+Enhances readability, security, and consistency across permission handling
+
+
+393e5f5 Adonis Smlatic Tue Jul 1 12:33:59 2025 +0200
+Add mapPermissionsToRole in src/project-permissions/utils/ to map stored permissions to expected object shape
+
+
+17a48f2 Adonis Smlatic Tue Jul 1 12:26:11 2025 +0200
+Add normalizeAllPermissions in src/project-permissions/utils/ to normalize all stored role permissions to all default role permissions
+
+
 0949f59 Adonis Smlatic Tue Jul 1 11:46:01 2025 +0200
 Add normalizeRolePermissionsDeep in src/project-permissions/utils/ to normalize stored role permission to default role permission
 
