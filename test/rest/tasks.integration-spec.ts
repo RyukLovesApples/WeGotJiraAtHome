@@ -5,11 +5,11 @@ import { Task } from 'src/tasks/task.entity';
 import { PaginationResponse } from 'src/tasks/responses/pagination.response';
 import { Http2Server } from 'http2';
 import {
-  testUser,
+  defaultUser,
   unauthorizedUser,
-  mockTasks,
-  mockProjects,
-} from '../mockVariables/mockVariables';
+  dummyTasks,
+  dummyProjects,
+} from '../dummy-variables/dummy-variables';
 import {
   registerAndLogin,
   createTask,
@@ -26,7 +26,7 @@ import { ProjectRole } from 'src/project-users/project-role.enum';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from 'jsonwebtoken';
 
-describe('Tasks Integration(e2e)', () => {
+describe('Tasks Integration', () => {
   let testSetup: TestSetup;
   let accessToken: string | undefined;
   let taskId: string | undefined;
@@ -37,10 +37,10 @@ describe('Tasks Integration(e2e)', () => {
   beforeEach(async () => {
     testSetup = await TestSetup.create(AppModule);
     server = testSetup.app.getHttpServer() as Http2Server;
-    const token = await registerAndLogin(server, testUser);
+    const token = await registerAndLogin(server, { ...defaultUser });
     const project = await createProject(server, token, {
-      ...mockProjects[0],
-      tasks: [mockTasks[0]],
+      ...dummyProjects[0],
+      tasks: [{ ...dummyTasks[0] }],
     });
     const projectBody = project.body as ProjectDto;
     projectId = projectBody.id;
@@ -64,8 +64,8 @@ describe('Tasks Integration(e2e)', () => {
       .expect((res: { body: Task }) => {
         expect(res.body).toBeDefined();
         expect(res.body.id).toBeDefined();
-        expect(res.body.title).toBe(mockTasks[0].title);
-        expect(res.body.description).toBe(mockTasks[0].description);
+        expect(res.body.title).toBe(dummyTasks[0].title);
+        expect(res.body.description).toBe(dummyTasks[0].description);
         expect(res.body.status).toBe(TaskStatus.CLOSED);
         expect(Array.isArray(res.body.labels)).toBe(true);
         expect(res.body.labels?.length).toEqual(0);
@@ -83,7 +83,7 @@ describe('Tasks Integration(e2e)', () => {
   });
   it('/tasks/id (GET), should throw not found exception, wrong id', async () => {
     const wrongId = randomUUID();
-    const token = await registerAndLogin(server, testUser);
+    const token = await registerAndLogin(server, defaultUser);
     return await request(server)
       .get(`${baseUrl}/tasks/${wrongId}`)
       .set('Authorization', `Bearer ${token}`)
@@ -104,38 +104,38 @@ describe('Tasks Integration(e2e)', () => {
       });
   });
   it('/tasks (POST), should validate the input, empty title', async () => {
-    await registerAndLogin(server, testUser);
+    await registerAndLogin(server, defaultUser);
     return request(server)
       .post(`${baseUrl}/tasks`)
       .set('Authorization', `Bearer ${accessToken}`)
-      .send({ ...mockTasks[0], title: '' })
+      .send({ ...dummyTasks[0], title: '' })
       .expect(400);
   });
   it('/tasks/id (POST), should validate the input, invalid input type', async () => {
-    await registerAndLogin(server, testUser);
+    await registerAndLogin(server, defaultUser);
     return request(server)
       .post(`${baseUrl}/tasks`)
       .set('Authorization', `Bearer ${accessToken}`)
-      .send({ ...mockTasks[0], title: 2 })
+      .send({ ...dummyTasks[0], title: 2 })
       .expect(400);
   });
   it('/tasks/id (PATCH), sould return changed task', async () => {
     return request(server)
       .patch(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${accessToken}`)
-      .send(mockTasks[1])
+      .send(dummyTasks[1])
       .expect(200)
       .expect((res: { body: Task }) => {
         expect(res.body.id).toBe(taskId);
-        expect(res.body.title).toBe(mockTasks[1].title);
-        expect(res.body.description).toBe(mockTasks[1].description);
+        expect(res.body.title).toBe(dummyTasks[1].title);
+        expect(res.body.description).toBe(dummyTasks[1].description);
       });
   });
   it('/tasks/id (PATCH), should throw custom WrongTaskStatusException', async () => {
     return request(server)
       .patch(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${accessToken}`)
-      .send(mockTasks[2])
+      .send(dummyTasks[2])
       .expect(409)
       .expect((res: { body: WrongTaskStatusException }) => {
         expect(res.body.message).toContain('Cannot change task status from');
@@ -156,10 +156,10 @@ describe('Tasks Integration(e2e)', () => {
   it('/tasks (GET), should only show list of user tasks', async () => {
     const token = await registerAndLogin(server, unauthorizedUser);
     await createProject(server, token, {
-      ...mockProjects[0],
-      tasks: [mockTasks[0]],
+      ...dummyProjects[0],
+      tasks: [dummyTasks[0]],
     });
-    await createTask(server, testUser, mockTasks[1], baseUrl);
+    await createTask(server, defaultUser, dummyTasks[1], baseUrl);
     const res: { body: PaginationResponse<Task> } = await request(server)
       .get(`${baseUrl}/tasks`)
       .set('Authorization', `Bearer ${accessToken}`)
@@ -169,7 +169,7 @@ describe('Tasks Integration(e2e)', () => {
   });
   it('/tasks (GET), should return user tasks with pagination limit', async () => {
     await Promise.all(
-      mockTasks.map((task) => createTask(server, testUser, task, baseUrl)),
+      dummyTasks.map((task) => createTask(server, defaultUser, task, baseUrl)),
     );
     return request(server)
       .get(`${baseUrl}/tasks?limit=3`)
@@ -185,16 +185,16 @@ describe('Tasks Integration(e2e)', () => {
       .delete(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(204);
-    for (const task of mockTasks) {
-      await createTask(server, testUser, task, baseUrl);
+    for (const task of dummyTasks) {
+      await createTask(server, defaultUser, task, baseUrl);
     }
     return request(server)
       .get(`${baseUrl}/tasks?limit=3&offset=2`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200)
       .expect((res: { body: PaginationResponse<Task> }) => {
-        expect(res.body.data[0].title).toBe(mockTasks[1].title);
-        expect(res.body.data[1].title).toBe(mockTasks[0].title);
+        expect(res.body.data[0].title).toBe(dummyTasks[1].title);
+        expect(res.body.data[1].title).toBe(dummyTasks[0].title);
         expect(res.body.data.length).toEqual(2);
         expect(res.body.meta.total).toEqual(4);
       });
@@ -204,18 +204,18 @@ describe('Tasks Integration(e2e)', () => {
       .delete(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(204);
-    for (const task of mockTasks) {
-      await createTask(server, testUser, task, baseUrl);
+    for (const task of dummyTasks) {
+      await createTask(server, defaultUser, task, baseUrl);
     }
     return request(server)
       .get(`${baseUrl}/tasks?orderBy=title&sortingOrder=ASC`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200)
       .expect((res: { body: PaginationResponse<Task> }) => {
-        expect(res.body.data[0].title).toBe(mockTasks[0].title);
-        expect(res.body.data[1].title).toBe(mockTasks[1].title);
-        expect(res.body.data[2].title).toBe(mockTasks[2].title);
-        expect(res.body.data[3].title).toBe(mockTasks[3].title);
+        expect(res.body.data[0].title).toBe(dummyTasks[0].title);
+        expect(res.body.data[1].title).toBe(dummyTasks[1].title);
+        expect(res.body.data[2].title).toBe(dummyTasks[2].title);
+        expect(res.body.data[3].title).toBe(dummyTasks[3].title);
       });
   });
   it('/tasks (GET), should not allow to order by description', async () => {
@@ -223,23 +223,23 @@ describe('Tasks Integration(e2e)', () => {
       .delete(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(204);
-    for (const task of mockTasks) {
-      await createTask(server, testUser, task, baseUrl);
+    for (const task of dummyTasks) {
+      await createTask(server, defaultUser, task, baseUrl);
     }
     return request(server)
       .get(`${baseUrl}/tasks?orderBy=description&sortingOrder=ASC`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200)
       .expect((res: { body: PaginationResponse<Task> }) => {
-        expect(res.body.data[0].title).toBe(mockTasks[0].title);
-        expect(res.body.data[1].title).toBe(mockTasks[1].title);
-        expect(res.body.data[2].title).toBe(mockTasks[2].title);
-        expect(res.body.data[3].title).toBe(mockTasks[3].title);
+        expect(res.body.data[0].title).toBe(dummyTasks[0].title);
+        expect(res.body.data[1].title).toBe(dummyTasks[1].title);
+        expect(res.body.data[2].title).toBe(dummyTasks[2].title);
+        expect(res.body.data[3].title).toBe(dummyTasks[3].title);
       });
   });
   it('/tasks (GET), should return user tasks with searched word', async () => {
     await Promise.all(
-      mockTasks.map((task) => createTask(server, testUser, task, baseUrl)),
+      dummyTasks.map((task) => createTask(server, defaultUser, task, baseUrl)),
     );
     return request(server)
       .get(`${baseUrl}/tasks?search=keyword`)
@@ -251,7 +251,7 @@ describe('Tasks Integration(e2e)', () => {
   });
   it('/tasks (GET), should return empty array, searched word not found', async () => {
     await Promise.all(
-      mockTasks.map((task) => createTask(server, testUser, task, baseUrl)),
+      dummyTasks.map((task) => createTask(server, defaultUser, task, baseUrl)),
     );
     return request(server)
       .get(`${baseUrl}/tasks?search=notIncluded`)
@@ -263,7 +263,7 @@ describe('Tasks Integration(e2e)', () => {
   });
   it('/tasks (GET), should return user tasks with searched word UPPERCASE', async () => {
     await Promise.all(
-      mockTasks.map((task) => createTask(server, testUser, task, baseUrl)),
+      dummyTasks.map((task) => createTask(server, defaultUser, task, baseUrl)),
     );
     return request(server)
       .get(`${baseUrl}/tasks?search=KEYWORD`)
@@ -278,8 +278,8 @@ describe('Tasks Integration(e2e)', () => {
       .delete(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(204);
-    for (const task of mockTasks) {
-      await createTask(server, testUser, task, baseUrl);
+    for (const task of dummyTasks) {
+      await createTask(server, defaultUser, task, baseUrl);
     }
     return request(server)
       .get(
@@ -288,8 +288,8 @@ describe('Tasks Integration(e2e)', () => {
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200)
       .expect((res: { body: PaginationResponse<Task> }) => {
-        expect(res.body.data[0].title).toBe(mockTasks[1].title);
-        expect(res.body.data[1].title).toBe(mockTasks[2].title);
+        expect(res.body.data[0].title).toBe(dummyTasks[1].title);
+        expect(res.body.data[1].title).toBe(dummyTasks[2].title);
         expect(res.body.data.length).toEqual(2);
       });
   });
@@ -354,8 +354,8 @@ describe('Tasks Integration(e2e)', () => {
   it('resource guard, resource guard should deny access to a unknown project user', async () => {
     const token = await registerAndLogin(server, unauthorizedUser);
     await createProject(server, token, {
-      ...mockProjects[0],
-      tasks: [mockTasks[0]],
+      ...dummyProjects[0],
+      tasks: [dummyTasks[0]],
     });
     await request(server)
       .get(`${baseUrl}/tasks/${taskId}`)
@@ -368,12 +368,12 @@ describe('Tasks Integration(e2e)', () => {
     await request(server)
       .post(`${baseUrl}/tasks`)
       .set('Authorization', `Bearer ${token}`)
-      .send(mockTasks[2])
+      .send(dummyTasks[2])
       .expect(401);
     await request(server)
       .patch(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${token}`)
-      .send(mockTasks[1])
+      .send(dummyTasks[1])
       .expect(401);
     await request(server)
       .delete(`${baseUrl}/tasks/${taskId}`)
@@ -404,12 +404,12 @@ describe('Tasks Integration(e2e)', () => {
     await request(server)
       .post(`${baseUrl}/tasks`)
       .set('Authorization', `Bearer ${token}`)
-      .send(mockTasks[2])
+      .send(dummyTasks[2])
       .expect(403);
     await request(server)
       .patch(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${token}`)
-      .send(mockTasks[1])
+      .send(dummyTasks[1])
       .expect(403);
     await request(server)
       .delete(`${baseUrl}/tasks/${taskId}`)

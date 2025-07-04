@@ -2,16 +2,22 @@ import { CreateTaskDto } from 'src/tasks/dtos/create-task.dto';
 import { TaskStatus } from 'src/tasks/task-status.enum';
 import { CreateUserDto } from 'src/users/dtos/create-user.dto';
 
-export const testUser: CreateUserDto = {
+export const defaultUser: CreateUserDto = {
   username: 'adonis',
   email: 'adonis@test.com',
   password: 'Password123%',
 };
 
-export const anotherUser: CreateUserDto = {
+export const secondUser: CreateUserDto = {
   username: 'daniel',
   email: 'daniel@test.com',
   password: 'Password321%',
+};
+
+export const thirdUser: CreateUserDto = {
+  username: 'julia',
+  email: 'julia@test.com',
+  password: 'Password231%',
 };
 
 export const invitedUser: CreateUserDto = {
@@ -21,12 +27,12 @@ export const invitedUser: CreateUserDto = {
 };
 
 export const unauthorizedUser: CreateUserDto = {
-  username: 'adonis1',
-  email: 'adonis1@test.com',
+  username: 'smith',
+  email: 'smith@test.com',
   password: 'Password123%1',
 };
 
-export const mockTasks: CreateTaskDto[] = [
+export const dummyTasks: CreateTaskDto[] = [
   {
     title: '1 test task',
     description: '4testing tasks for crud and access0',
@@ -49,7 +55,7 @@ export const mockTasks: CreateTaskDto[] = [
   },
 ];
 
-export const mockProjects = [
+export const dummyProjects = [
   {
     name: 'test1',
     description: 'test description1',

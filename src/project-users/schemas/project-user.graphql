@@ -20,7 +20,7 @@ enum ProjectRole {
   OWNER
   ADMIN
   USER
-  VISITOR
+  GUEST
 }
 
 type Query {

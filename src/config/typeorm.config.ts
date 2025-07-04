@@ -10,7 +10,7 @@ export default new DataSource({
   username: process.env.DB_USER ?? 'postgres',
   password: process.env.DB_PASSWORD ?? 'postgres',
   database: process.env.DB_NAME ?? 'we_got_jira_at_home',
-  synchronize: false,
+  synchronize: true,
   entities: ['src/**/*.entity.ts', 'dist/**/*.entity.js'],
   migrations: ['src/migrations/*.ts', 'dist/migrations/*.js'],
   migrationsRun: false,

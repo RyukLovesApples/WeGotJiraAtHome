@@ -4,10 +4,10 @@ import { AppModule } from '../../src/app.module';
 import { TestSetup } from '../test.setup';
 import { createProject, registerAndLogin } from '../helpers/test-helpers';
 import {
-  mockProjects,
-  testUser,
+  dummyProjects,
+  defaultUser,
   invitedUser,
-} from '../mockVariables/mockVariables';
+} from '../dummy-variables/dummy-variables';
 import { ProjectDto } from 'src/projects/dtos/project.dto';
 import { ProjectUserInvite } from 'src/invite/project-user-invite.entity';
 import { ProjectRole } from 'src/project-users/project-role.enum';
@@ -56,15 +56,15 @@ describe('Project invitation workflow', () => {
 
   it('should go through invitation cycle', async () => {
     // Register & login as initial user
-    const user1AccessToken = await registerAndLogin(server, testUser);
+    const user1AccessToken = await registerAndLogin(server, defaultUser);
 
     // Create a project
     const project = await createProject(
       server,
       user1AccessToken,
-      mockProjects[0],
+      dummyProjects[0],
     );
-    const projectBody = project.body as ProjectDto; 
+    const projectBody = project.body as ProjectDto;
 
     // Create invitation
     const inviteEmail = invitedUser.email;

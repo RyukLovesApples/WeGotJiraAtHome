@@ -1,3 +1,135 @@
+33eb03d Adonis Smlatic Fri Jul 4 11:01:36 2025 +0200
+Add tests for project-permissions: happy and failure paths covered
+
+
+eb33540 Adonis Smlatic Thu Jul 3 20:25:50 2025 +0200
+Improve naming for clarity in integration tests
+- Rename variables from 'mock' to 'dummy' for consistency
+- Rename test files from .e2e-spec.ts to .integration-spec.ts
+- Update package.json and jest-integration.json to reflect new naming
+
+
+033476d Adonis Smlatic Thu Jul 3 18:07:47 2025 +0200
+Add first test to project-Permissions.e2e-spec.ts
+- Refactor normalizeAllPermissions to remove normalizeRolePermissionsDeep call, since a copy of the frozen default is enough and stored permissions can simply replace defaults. Simplifies and cleans up the code.
+- Remove transformToDto method in ProjectPermissionsService, as normalizeAllPermissions already guarantees the defaultPermissions shape.
+- Remove src/project-permissions/helpers/normalizeRolePermissionsDeep.ts since it’s no longer needed.
+
+
+d0a44c4 Adonis Smlatic Thu Jul 3 13:41:01 2025 +0200
+Add @Resources decorator with PROJECT_PERMISSION to enable permission checks via ResourceGuard
+
+
+7ec9218 Adonis Smlatic Thu Jul 3 13:02:55 2025 +0200
+Add a OWNER role check for the input of create and update methods of ProjectPermissionsController, to garantee no change of OWNER permissions
+
+
+aacee49 Adonis Smlatic Thu Jul 3 12:54:20 2025 +0200
+Refactor Resource enum and DTO; add new resource to default permissions for access through ResourceGuard
+
+
+2116769 Adonis Smlatic Thu Jul 3 12:43:59 2025 +0200
+Add project-permissions.e2e-spec.ts test setup in src/test/rest and rename ProjectRole enum value VISITOR to GUEST for clarity
+
+
+9384a93 Adonis Smlatic Wed Jul 2 17:59:21 2025 +0200
+Refactor checkProjectPermission in ProjectPermissionsService to support custom permissions via ProjectPermissionsGuard
+
+
+a5bfd2a Adonis Smlatic Wed Jul 2 17:42:57 2025 +0200
+Add getProjectPermissions and resetToDefaultProjectPermissions with caching
+
+
+33f3783 Adonis Smlatic Wed Jul 2 17:14:45 2025 +0200
+Refactor createOrUpdateProjectPermissions and updateRolePermission in ProjectPermissionsController to cache returned value of ProjectPermissionsService methods
+
+
+f7a7105 Adonis Smlatic Wed Jul 2 17:02:34 2025 +0200
+Add resetToDefaultProjectPermissions method to ProjectPermissionsService
+
+
+d785dd6 Adonis Smlatic Wed Jul 2 15:57:29 2025 +0200
+Add getProjectPermissions method to ProjectPermissionsService
+
+
+6045260 Adonis Smlatic Wed Jul 2 15:25:09 2025 +0200
+Simplify and refactor permission mapping and normalization to align with DTOs
+Reworked normalize and mapping methods to use ProjectPermissionMapDto structure (generic approach removed)
+
+Removed generics from helpers for improved clarity and focused responsibility
+
+Refactored ProjectPermissionService to integrate mapping and normalization steps
+
+Transformed final output into validated ProjectPermissionMapDto for stronger type safety
+
+Enhances readability, security, and consistency across permission handling
+
+
+393e5f5 Adonis Smlatic Tue Jul 1 12:33:59 2025 +0200
+Add mapPermissionsToRole in src/project-permissions/utils/ to map stored permissions to expected object shape
+
+
+17a48f2 Adonis Smlatic Tue Jul 1 12:26:11 2025 +0200
+Add normalizeAllPermissions in src/project-permissions/utils/ to normalize all stored role permissions to all default role permissions
+
+
+0949f59 Adonis Smlatic Tue Jul 1 11:46:01 2025 +0200
+Add normalizeRolePermissionsDeep in src/project-permissions/utils/ to normalize stored role permission to default role permission
+
+
+06cd771 Adonis Smlatic Tue Jul 1 10:31:24 2025 +0200
+Add updateRolePermission method to ProjectPermissionController.
+
+
+ea7229e Adonis Smlatic Tue Jul 1 10:26:12 2025 +0200
+Add updateRolePermission method to ProjectPermissionsService for partial update option
+
+
+2ae7735 Adonis Smlatic Mon Jun 30 15:47:02 2025 +0200
+Add upsertProjectPermissions method to ProjectPermissionsService - Checks if permissions exist and calls create or update accordingly - Moves project existence check and permission instance creation from createProjectPermissions into upsertProjectPermissions
+Add updateProjectPermissions method to ProjectPermissionsService
+
+Refactor createProjectPermissions controller method to call upsertProjectPermissions
+Rename createProjectPermissions controller method to createOrUpdateProjectPermissions
+
+
+582e6d8 Adonis Smlatic Mon Jun 30 14:19:44 2025 +0200
+Add createProjectPermissions method to service & controller. Refactor CreateProjectPermissionsDto: remove ResourceDto inheritance, add explicit 'permissions' property.
+
+
+bfcbc97 Adonis Smlatic Mon Jun 30 10:41:20 2025 +0200
+Set up caching: install cache-manager, register CacheModule in AppModule, and inject in ProjectPermissionsController
+
+
+edf84f9 Adonis Smlatic Sat Jun 28 14:16:18 2025 +0200
+Add action.dto.ts, resource.dto.ts, project-permission-map.dto.ts and create-project-permission.dto.ts to src/project-permissions/dtos
+
+
+02d87d2 Adonis Smlatic Sat Jun 28 13:03:59 2025 +0200
+Add project-permissions.entity.ts in src/project-permissions; link to Project entity with relationship
+
+
+ad42481 Adonis Smlatic Sat Jun 28 10:41:32 2025 +0200
+Add controller and integrate with RouterModule
+- Added  under
+- Integrated controller route into
+- Renamed  to  across related folders and files
+
+
+b4d2319 RyukLovesApples Thu Jun 26 14:12:51 2025 +0200
+Merge pull request #6 from RyukLovesApples/feature/permissions
+Add Project-Based Resource Permissions with Guard Support for REST and GraphQL
+
+3cac7f0 Adonis Smlatic Thu Jun 26 13:45:53 2025 +0200
+Remove unused Zod import from project-users.e2e-spec.ts. Update error response message in tasks.e2e-spec.ts.
+
+
+2311ded Adonis Smlatic Thu Jun 26 13:28:59 2025 +0200
+Add resource guard tests for unauthorized and forbidden access in project-users.e2e-spec.ts
+- Used zod to validate parsed GraphQL error responses
+- Created a helper for parsing GraphQL errors
+
+
 1a4fe42 Adonis Smlatic Wed Jun 25 13:47:39 2025 +0200
 Refactor resource guard to support GraphQL and restructure project user flow
 - Updated ResourcePermissionGuard to extract projectId from GraphQL args

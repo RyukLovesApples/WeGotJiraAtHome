@@ -2,7 +2,7 @@ import * as request from 'supertest';
 import { AppModule } from '../../src/app.module';
 import { TestSetup } from '../test.setup';
 
-describe('AppController (e2e)', () => {
+describe('AppController', () => {
   let testSetup: TestSetup;
 
   beforeEach(async () => {

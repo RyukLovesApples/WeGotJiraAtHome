@@ -1,7 +1,7 @@
-import { PermissionMap } from 'src/permissions/types/permission-map.type';
+import { ProjectPermissionMap } from 'src/project-permissions/types/project-permission-map.type';
 import { deepFreeze } from 'src/utils/deepFreeze';
 
-export const defaultPermissions: PermissionMap = deepFreeze({
+export const defaultProjectPermissions: ProjectPermissionMap = deepFreeze({
   OWNER: {
     projects: {
       read: true,
@@ -21,6 +21,12 @@ export const defaultPermissions: PermissionMap = deepFreeze({
     invite: {
       read: true,
       create: true,
+    },
+    'project-permissions': {
+      read: true,
+      create: true,
+      update: true,
+      delete: true,
     },
   },
   ADMIN: {
@@ -48,7 +54,7 @@ export const defaultPermissions: PermissionMap = deepFreeze({
       read: true,
     },
   },
-  VISITOR: {
+  GUEST: {
     projects: {
       read: true,
     },

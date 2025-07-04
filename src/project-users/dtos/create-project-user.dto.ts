@@ -11,11 +11,6 @@ export class CreateProjectUserInput {
   @IsNotEmpty()
   userId!: string;
 
-  // @Field()
-  // @IsUUID()
-  // @IsNotEmpty()
-  // projectId!: string;
-
   @Field(() => ProjectRole)
   @IsNotEmpty()
   role!: ProjectRole;

@@ -4,12 +4,12 @@ import { TestSetup } from '../test.setup';
 import { AppModule } from 'src/app.module';
 import { createProject, registerAndLogin } from '../helpers/test-helpers';
 import {
-  mockTasks,
-  mockProjects,
-  testUser,
+  dummyTasks,
+  dummyProjects,
+  defaultUser,
   unauthorizedUser,
-  anotherUser,
-} from '../mockVariables/mockVariables';
+  secondUser,
+} from '../dummy-variables/dummy-variables';
 import { ProjectDto } from 'src/projects/dtos/project.dto';
 import { TaskDto } from 'src/tasks/dtos/task.dto';
 import { TaskStatus } from 'src/tasks/task-status.enum';
@@ -31,10 +31,10 @@ describe('Project Integration', () => {
   beforeEach(async () => {
     testSetup = await TestSetup.create(AppModule);
     server = testSetup.app.getHttpServer() as Http2Server;
-    accessToken = await registerAndLogin(server, testUser);
+    accessToken = await registerAndLogin(server, defaultUser);
     const project = await createProject(server, accessToken, {
-      ...mockProjects[0],
-      tasks: [mockTasks[0], mockTasks[1]],
+      ...dummyProjects[0],
+      tasks: [dummyTasks[0], dummyTasks[1]],
     });
     const projectBody = project.body as ProjectDto;
     projectId = projectBody.id;
@@ -50,11 +50,11 @@ describe('Project Integration', () => {
   });
 
   it('/projects (POST), should create project without password exposure', async () => {
-    return createProject(server, accessToken, mockProjects[0])
+    return createProject(server, accessToken, dummyProjects[0])
       .expect(201)
       .expect((res: { body: ProjectDto }) => {
         expect(res.body.id).toBeDefined();
-        expect(res.body.name).toBe(mockProjects[0].name);
+        expect(res.body.name).toBe(dummyProjects[0].name);
         expect(res.body.user).toBeDefined();
         expect(res.body.user).not.toHaveProperty('password');
       });
@@ -63,7 +63,11 @@ describe('Project Integration', () => {
     return request(server)
       .post('/projects')
       .set('Authorization', `Bearer ${accessToken}`)
-      .send({ name: 'test', description: 'test description', tasks: mockTasks })
+      .send({
+        name: 'test',
+        description: 'test description',
+        tasks: dummyTasks,
+      })
       .expect(201)
       .expect((res: { body: ProjectDto }) => {
         expect(res.body.id).toBeDefined();
@@ -77,7 +81,7 @@ describe('Project Integration', () => {
     await request(server)
       .post('/projects')
       .set('Authorization', `Bearer ${accessToken}`)
-      .send(mockProjects[1])
+      .send(dummyProjects[1])
       .expect(201);
 
     return request(server)
@@ -104,10 +108,10 @@ describe('Project Integration', () => {
     return request(server)
       .patch(`/projects/${projectId}`)
       .set('Authorization', `Bearer ${accessToken}`)
-      .send(mockProjects[1])
+      .send(dummyProjects[1])
       .expect(200)
       .expect((res: { body: ProjectDto }) => {
-        expect(res.body.name).toBe(mockProjects[1].name);
+        expect(res.body.name).toBe(dummyProjects[1].name);
         expect(res.body.id).toBe(projectId);
         expect(res.body.user).not.toHaveProperty('password');
       });
@@ -116,11 +120,11 @@ describe('Project Integration', () => {
     return request(server)
       .patch(`/projects/${projectId}`)
       .set('Authorization', `Bearer ${accessToken}`)
-      .send({ name: mockProjects[1].name })
+      .send({ name: dummyProjects[1].name })
       .expect(200)
       .expect((res: { body: ProjectDto }) => {
-        expect(res.body.name).toBe(mockProjects[1].name);
-        expect(res.body.description).toBe(mockProjects[0].description);
+        expect(res.body.name).toBe(dummyProjects[1].name);
+        expect(res.body.description).toBe(dummyProjects[0].description);
         expect(res.body.id).toBe(projectId);
         expect(res.body.user).not.toHaveProperty('password');
       });
@@ -130,18 +134,18 @@ describe('Project Integration', () => {
       .patch(`/projects/${projectId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
-        name: mockProjects[1].name,
+        name: dummyProjects[1].name,
         tasks: [
-          { ...mockTasks[2], status: TaskStatus.CLOSED, id: tasks[0].id },
+          { ...dummyTasks[2], status: TaskStatus.CLOSED, id: tasks[0].id },
         ],
       })
       .expect(200)
       .expect((res: { body: ProjectDto }) => {
-        expect(res.body.name).toBe(mockProjects[1].name);
-        expect(res.body.description).toBe(mockProjects[0].description);
+        expect(res.body.name).toBe(dummyProjects[1].name);
+        expect(res.body.description).toBe(dummyProjects[0].description);
         expect(res.body.id).toBe(projectId);
         expect(res.body.user).not.toHaveProperty('password');
-        expect(res.body.tasks![0].title).toBe(mockTasks[2].title);
+        expect(res.body.tasks![0].title).toBe(dummyTasks[2].title);
       });
   });
   it('/projects/id (DELETE), should delete project with tasks', async () => {
@@ -172,12 +176,12 @@ describe('Project Integration', () => {
     await request(server)
       .post(`/projects`)
       .set('Authorization', `Bearer ${token}`)
-      .send(mockProjects[1])
+      .send(dummyProjects[1])
       .expect(201);
     await request(server)
       .patch(`/projects/${projectId}`)
       .set('Authorization', `Bearer ${token}`)
-      .send(mockProjects[2])
+      .send(dummyProjects[2])
       .expect(401);
     await request(server)
       .delete(`/projects/${projectId}`)
@@ -185,7 +189,7 @@ describe('Project Integration', () => {
       .expect(401);
   });
   it('resource guard, new project user of ProjectRole ADMIN should only be able to read and update project', async () => {
-    const token = await registerAndLogin(server, anotherUser);
+    const token = await registerAndLogin(server, secondUser);
     const { dataSource } = testSetup;
     const projectUserRepo = dataSource.getRepository(ProjectUser);
     const jwtData: JwtPayload = testSetup.app.get(JwtService).verify(token);
@@ -204,7 +208,7 @@ describe('Project Integration', () => {
     await request(server)
       .patch(`/projects/${projectId}`)
       .set('Authorization', `Bearer ${token}`)
-      .send(mockProjects[2])
+      .send(dummyProjects[2])
       .expect(200);
     await request(server)
       .delete(`/projects/${projectId}`)

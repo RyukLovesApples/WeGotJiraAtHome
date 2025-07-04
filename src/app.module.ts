@@ -29,10 +29,12 @@ import { InviteModule } from './invite/invite.module';
 import { CatchEverythingFilter } from './exception-filters/catch-all.exception-filter';
 import { WinstonModule } from 'nest-winston';
 import { winstonLoggerConfig } from './config/logger.config';
-import { PermissionsModule } from './permissions/permissions.module';
+import { PermissionsModule } from './project-permissions/project-permissions.module';
 import { AuthGuard } from './users/auth/auth.guard';
-import { ResourcePermissionGuard } from './permissions/guards/resource-permissions.guard';
+import { ResourcePermissionGuard } from './project-permissions/guards/resource-permissions.guard';
 import { RolesGuard } from './users/auth/guards/roles.guard';
+import { CacheModule } from '@nestjs/cache-manager';
+import { ProjectPermission } from './project-permissions/project-permissions.entity';
 
 @Module({
   imports: [
@@ -58,6 +60,7 @@ import { RolesGuard } from './users/auth/guards/roles.guard';
           Project,
           ProjectUser,
           ProjectUserInvite,
+          ProjectPermission,
         ],
       }),
     }),
@@ -77,6 +80,7 @@ import { RolesGuard } from './users/auth/guards/roles.guard';
     ProjectsModule,
     ProjectUsersModule,
     InviteModule,
+    PermissionsModule,
     RouterModule.register([
       {
         path: 'projects',
@@ -90,12 +94,17 @@ import { RolesGuard } from './users/auth/guards/roles.guard';
             path: ':projectId/invite',
             module: InviteModule,
           },
+          {
+            path: ':projectId/permissions',
+            module: PermissionsModule,
+          },
         ],
       },
     ]),
     MailerModule,
     InviteModule,
     PermissionsModule,
+    CacheModule.register(),
   ],
   controllers: [AppController],
   providers: [

@@ -21,9 +21,9 @@ import { ProjectDto } from './dtos/project.dto';
 import { transformToDto } from 'src/utils/transform';
 import { Project } from './project.entity';
 import { UpdateProjectWithTasks } from './dtos/update-project.dto';
-import { Resources } from 'src/permissions/decorators/resource.decorator';
-import { Resource } from 'src/permissions/enums/resource.enum';
-import { SkipResourceGuard } from 'src/permissions/decorators/skip-resource.decorator';
+import { Resources } from 'src/project-permissions/decorators/resource.decorator';
+import { Resource } from 'src/project-permissions/enums/resource.enum';
+import { SkipResourceGuard } from 'src/project-permissions/decorators/skip-resource.decorator';
 
 @Controller()
 @Resources(Resource.PROJECT)

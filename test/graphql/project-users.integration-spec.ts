@@ -13,12 +13,12 @@ import { CreateProjectUserInput } from 'src/project-users/dtos/create-project-us
 import { ProjectRole } from 'src/project-users/project-role.enum';
 import { ProjectDto } from 'src/projects/dtos/project.dto';
 import {
-  anotherUser,
-  mockProjects,
-  mockTasks,
-  testUser,
+  secondUser,
+  dummyProjects,
+  dummyTasks,
+  defaultUser,
   unauthorizedUser,
-} from '../mockVariables/mockVariables';
+} from '../dummy-variables/dummy-variables';
 import { ProjectUserDto } from 'src/project-users/dtos/project-user.dto';
 import { UpdateProjectUserRoleInput } from 'src/project-users/dtos/update-project-user.input';
 import {
@@ -29,7 +29,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from 'jsonwebtoken';
 
-describe('ProjectUser Integration (GraphQL)', () => {
+describe('Project user Integration (GraphQL)', () => {
   let testSetup: TestSetup;
   let server: Http2Server;
   let accessToken: string;
@@ -41,15 +41,15 @@ describe('ProjectUser Integration (GraphQL)', () => {
   beforeEach(async () => {
     testSetup = await TestSetup.create(AppModule);
     server = testSetup.app.getHttpServer() as Http2Server;
-    accessToken = await registerAndLogin(server, testUser);
+    accessToken = await registerAndLogin(server, defaultUser);
     const project = await createProject(server, accessToken, {
-      ...mockProjects[0],
-      tasks: [mockTasks[0], mockTasks[1]],
+      ...dummyProjects[0],
+      tasks: [dummyTasks[0], dummyTasks[1]],
     });
     const projectBody = project.body as ProjectDto;
     projectId = projectBody.id;
     projectOwnerId = projectBody.user.id;
-    const anotherUserToken = await registerAndLogin(server, anotherUser);
+    const anotherUserToken = await registerAndLogin(server, secondUser);
     permissionAccessToken = anotherUserToken;
     const anotherUserJwtData: JwtPayload = testSetup.app
       .get(JwtService)
@@ -236,10 +236,10 @@ describe('ProjectUser Integration (GraphQL)', () => {
     logErrorAndFail(response);
     expect(response.body.data?.getOneProjectUser.role).toBe(ProjectRole.ADMIN);
     expect(response.body.data?.getOneProjectUser.user?.username).toBe(
-      anotherUser.username,
+      secondUser.username,
     );
     expect(response.body.data?.getOneProjectUser.user?.email).toBe(
-      anotherUser.email,
+      secondUser.email,
     );
   });
 
