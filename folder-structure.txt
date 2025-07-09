@@ -34,6 +34,8 @@
 ./package.json
 ./tsconfig.build.json
 ./.env
+./scripts
+./scripts/setup-db.sh
 ./.prettierrc
 ./tsconfig.json
 ./docker-compose.yml

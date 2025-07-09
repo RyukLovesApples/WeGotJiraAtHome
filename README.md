@@ -85,7 +85,9 @@ Utility functions like normalizeAllPermissions and mapPermissionsToRole ensure:
 
 This design is especially efficient for smaller teams and projects where permissions rarely change.
 
-### Testing
+---
+
+## Testing
 
 - Integration tests with Jest
 - Modular test setup (`test-setup.ts`)
@@ -123,11 +125,11 @@ npm run test
 ### Run a specific test file
 npm run test -- path/to/test-file
 
-### Run all E2E tests
-npm run test:e2e
+### Run all integration tests
+npm run test:integration
 
 ### Run a specific E2E test file
-npm run test:e2e -- path/to/e2e-test-file
+npm run test:integration -- path/to/integration-test-file
 
 Note:  Please set up the following environment variables with your own db setup. Migration files will be included!
 
@@ -157,23 +159,31 @@ npm run start:dev
 
 ## Environment Variables
 
-### Optional greeting prefix
+#### Optional greeting prefix
 APP_MESSAGE_PREFIX=HelloWorld
-### Database host
+
+#### Database host
 DB_HOST=localhost
-### Database port
+
+#### Database port
 DB_PORT=5432
-### Database username (required)
+
+#### Database username (required)
 DB_USER=your_db_user
-### Database password (required)
+
+#### Database password (required)
 DB_PASSWORD=your_db_password
-### Database name (required)
+
+#### Database name (required)
 DB_NAME=your_db_name
-### Set to 1 to auto-sync schema (not recommended in prod)
+
+#### Set to 1 to auto-sync schema (not recommended in prod)
 DB_SYNC=0
-### Secret key for JWT (required)
+
+#### Secret key for JWT (required)
 JWT_SECRET=your_jwt_secret
-### Token expiration time (e.g., 3600s)
+
+#### Token expiration time (e.g., 3600s)
 JWT_EXPIRES_IN=3600s
 
 Check src/config/config.types.ts joi object for current .env setup if db connection fails
