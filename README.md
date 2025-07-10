@@ -238,19 +238,52 @@ Check src/config/config.types.ts joi object for current .env setup if db connect
 
 ---
 
-## Demo
+## Experimental Frontend Setup
+This feature is experimental and mainly intended for those who want to explore frontend development using this backend.
 
-If you'd like to preview the app live, a frontend demo or API documentation will be provided.
+If you're interested, I've included a small script that scaffolds a Vite-based frontend and reorganizes the project into a clean full-stack structure.
+
+What it does:
+
+- Moves all backend files into a ./backend folder
+- Creates a .env file with default values (postgres user/pass, random JWT secret, etc.)
+- Starts the backend via Docker for database initialization
+- Creates a ./frontend folder and runs the Vite CLI (npm create vite@latest) so you can pick your preferred setup (e.g., React, Vue, etc.)
+
+#### To try it:
+Run this once from the root:
+```bash
+npm run frontend:init
+```
+
+Once the structure is set up, you can start the backend using:
+```bash
+npm run start:backend
+```
+
+When you're done developing:
+
+```bash
+cd backend
+docker-compose down -v
+```
+
+> ⚠️ This script is experimental and won’t affect the backend functionality. If you're learning frontend or want to build on top of a real-world API, this might be a good starting point. There's no registration, no rate limits, and no API keys needed.
+
+API documentation will be added once core features are finalized. Until then, check out the entity and DTO files if you’re curious.
 
 ---
 
 ## Folder Structure
 
-You can view the current folder structure with:
-bash:
+To see the current layout of the project, run:
+
+```bash
 cat folder-structure.txt
-Or simply open the folder-structure.txt file in the root directory.
-I’ll try to keep it updated as the project evolves.
+```
+
+Or just open the folder-structure.txt file in the root directory.
+> I’ll keep this file updated as the project structure evolves.
 
 ---
 
