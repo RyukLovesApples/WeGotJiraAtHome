@@ -85,7 +85,9 @@ Utility functions like normalizeAllPermissions and mapPermissionsToRole ensure:
 
 This design is especially efficient for smaller teams and projects where permissions rarely change.
 
-### Testing
+---
+
+## Testing
 
 - Integration tests with Jest
 - Modular test setup (`test-setup.ts`)
@@ -115,36 +117,22 @@ This design is especially efficient for smaller teams and projects where permiss
 
 ---
 
-## Running Tests
+## Installation & Running the App
 
-### Run all unit tests
-npm run test
+### Local Setup (optional)
+Requires Node.js and PostgreSQL to be installed manually.
 
-### Run a specific test file
-npm run test -- path/to/test-file
-
-### Run all E2E tests
-npm run test:e2e
-
-### Run a specific E2E test file
-npm run test:e2e -- path/to/e2e-test-file
-
-Note:  Please set up the following environment variables with your own db setup. Migration files will be included!
-
----
-
-## Installation
-
-### Install dependencies
+#### Install dependencies
 
 ```bash
 npm install
 ```
 
-### Start PostgreSQL using Docker
+#### Initialize .env interactively
+Creates a .env file with required environment variables. Prompts for DB name, user, password, and JWT secret (auto-generated if left blank).
 
 ```bash
-docker-compose up -d
+npm run init:lite
 ```
 
 ### Run the app in development mode
@@ -153,46 +141,149 @@ docker-compose up -d
 npm run start:dev
 ```
 
+### Docker setup (recommended)
+
+#### Initialize .env and spin up containers
+Runs init:lite and sets up PostgreSQL and app containers.
+
+```bash
+npm run init
+```
+
+#### Restart Docker containers (after first setup)
+
+```bash
+npm run docker:restart
+```
+
+#### Open a shell inside the app container
+
+```bash
+npm run enter
+```
+
+#### Start the app in development mode (inside container)
+
+```bash
+npm run enter:start
+```
+
+---
+
+## Running Tests
+
+### Local Setup (optional)
+
+#### Run all integration tests
+
+```bash
+npm run test:integration
+```
+
+#### Run a specific integration test file
+
+```bash
+npm run test:integration -- filename
+```
+
+### Docker Setup (recommended)
+
+#### Run all integration tests
+
+```bash
+npm run enter:test
+```
+
+#### Run a specific integration test file
+
+```bash
+npm run enter:test -- filename
+```
+
+> All tests pass and run successfully. However, you may notice duplicate logs or memory issues during testing. This appears to be related to the test setup (possibly multiple app instances being created). It does not affect real usage (e.g., Postman).
+
 ---
 
 ## Environment Variables
 
-### Optional greeting prefix
+#### Optional greeting prefix
 APP_MESSAGE_PREFIX=HelloWorld
-### Database host
-DB_HOST=localhost
-### Database port
+
+#### Database host
+DB_HOST=localhost # for local setup
+DB_HOST=db # docker setup
+
+#### Database port
 DB_PORT=5432
-### Database username (required)
+
+#### Database username (required)
 DB_USER=your_db_user
-### Database password (required)
+
+#### Database password (required)
 DB_PASSWORD=your_db_password
-### Database name (required)
+
+#### Database name (required)
 DB_NAME=your_db_name
-### Set to 1 to auto-sync schema (not recommended in prod)
+
+#### Set to 1 to auto-sync schema (not recommended in prod)
 DB_SYNC=0
-### Secret key for JWT (required)
+
+#### Secret key for JWT (required)
 JWT_SECRET=your_jwt_secret
-### Token expiration time (e.g., 3600s)
+
+#### Token expiration time (e.g., 3600s)
 JWT_EXPIRES_IN=3600s
 
 Check src/config/config.types.ts joi object for current .env setup if db connection fails
 
 ---
 
-## Demo
+## Experimental Frontend Setup
+This feature is experimental and mainly intended for those who want to explore frontend development using this backend.
 
-If you'd like to preview the app live, a frontend demo or API documentation will be provided soon.
+If you're interested, I've included a small script that scaffolds a Vite-based frontend and reorganizes the project into a clean full-stack structure.
+
+What it does:
+
+- Moves all backend files into a ./backend folder
+- Creates a .env file with default values (postgres user/pass, random JWT secret, etc.)
+- Starts the backend via Docker for database initialization
+- Creates a ./frontend folder and runs the Vite CLI (npm create vite@latest) so you can pick your preferred setup (e.g., React, Vue, etc.)
+
+#### To try it:
+Run this once from the root:
+```bash
+npm run frontend:init
+```
+
+Once the structure is set up, you can start the backend using:
+```bash
+npm run start:backend
+```
+
+When you're done developing:
+
+```bash
+cd backend
+docker-compose down -v
+```
+
+> ⚠️ This script is experimental and won’t affect the backend functionality. If you're learning frontend or want to build on top of a real-world API, this might be a good starting point. There's no registration, no rate limits, and no API keys needed.
+
+API documentation will be added once core features are finalized. Until then, check out the entity and DTO files if you’re curious.
 
 ---
 
 ## Folder Structure
 
-You can view the current folder structure with:
-bash:
+To see the current layout of the project, run:
+
+```bash
 cat folder-structure.txt
-Or simply open the folder-structure.txt file in the root directory.
-I’ll try to keep it updated as the project evolves.
+```
+
+Or just open the folder-structure.txt file in the root directory.
+> I’ll keep this file updated as the project structure evolves.
 
 ---
 

@@ -23,10 +23,12 @@
 ./test/rest/app.integration-spec.ts
 ./dist
 ./folder-structure.txt
+./Dockerfile
 ./git-commit-history.txt
 ./nest-cli.json
 ./node_modules
 ./README.md
+./.dockerignore
 ./logs
 ./logs/error.log
 ./.gitignore
@@ -34,6 +36,9 @@
 ./package.json
 ./tsconfig.build.json
 ./.env
+./scripts
+./scripts/init-env.sh
+./scripts/init-test-db.sql
 ./.prettierrc
 ./tsconfig.json
 ./docker-compose.yml

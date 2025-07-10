@@ -1,15 +1,15 @@
 export const testConfig = {
   database: {
     type: 'postgres',
-    host: 'localhost',
-    port: 5432,
-    username: 'postgres',
-    password: 'postgres',
-    database: 'we_got_jira_at_home_e2e',
+    host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT ?? '5432', 10),
+    username: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: `${process.env.DB_NAME}_integration`,
     synchronize: true,
   },
   app: {
-    messagePrefix: '',
+    messagePrefix: 'HelloWorld',
   },
   auth: {
     jwt: {
