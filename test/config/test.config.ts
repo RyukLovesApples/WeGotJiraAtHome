@@ -1,15 +1,15 @@
 export const testConfig = {
   database: {
     type: 'postgres',
-    host: 'localhost',
+    host: 'db',
     port: 5432,
     username: 'postgres',
     password: 'postgres',
-    database: 'we_got_jira_at_home_e2e',
+    database: 'we_got_jira_at_home_integration',
     synchronize: true,
   },
   app: {
-    messagePrefix: '',
+    messagePrefix: 'HelloWorld',
   },
   auth: {
     jwt: {
