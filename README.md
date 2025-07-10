@@ -135,7 +135,7 @@ Creates a .env file with required environment variables. Prompts for DB name, us
 npm run init:lite
 ```
 
-### Run the app in development mode
+#### Run the app in development mode
 
 ```bash
 npm run start:dev
@@ -210,8 +210,10 @@ npm run enter:test -- filename
 APP_MESSAGE_PREFIX=HelloWorld
 
 #### Database host
-DB_HOST=localhost # for local setup
-DB_HOST=db # docker setup
+Local setup:
+DB_HOST=localhost
+Docker setup:
+DB_HOST=db
 
 #### Database port
 DB_PORT=5432
