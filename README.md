@@ -117,36 +117,22 @@ This design is especially efficient for smaller teams and projects where permiss
 
 ---
 
-## Running Tests
+## Installation & Running the App
 
-### Run all unit tests
-npm run test
+### Local Setup (optional)
+Requires Node.js and PostgreSQL to be installed manually.
 
-### Run a specific test file
-npm run test -- path/to/test-file
-
-### Run all integration tests
-npm run test:integration
-
-### Run a specific E2E test file
-npm run test:integration -- path/to/integration-test-file
-
-Note:  Please set up the following environment variables with your own db setup. Migration files will be included!
-
----
-
-## Installation
-
-### Install dependencies
+#### Install dependencies
 
 ```bash
 npm install
 ```
 
-### Start PostgreSQL using Docker
+#### Initialize .env interactively
+Creates a .env file with required environment variables. Prompts for DB name, user, password, and JWT secret (auto-generated if left blank).
 
 ```bash
-docker-compose up -d
+npm run init:lite
 ```
 
 ### Run the app in development mode
@@ -154,6 +140,67 @@ docker-compose up -d
 ```bash
 npm run start:dev
 ```
+
+### Docker setup (recommended)
+
+#### Initialize .env and spin up containers
+Runs init:lite and sets up PostgreSQL and app containers.
+
+```bash
+npm run init
+```
+
+#### Restart Docker containers (after first setup)
+
+```bash
+npm run docker:restart
+```
+
+#### Open a shell inside the app container
+
+```bash
+npm run enter
+```
+
+#### Start the app in development mode (inside container)
+
+```bash
+npm run enter:start
+```
+
+---
+
+## Running Tests
+
+### Local Setup (optional)
+
+#### Run all integration tests
+
+```bash
+npm run test:integration
+```
+
+#### Run a specific integration test file
+
+```bash
+npm run test:integration -- filename
+```
+
+### Docker Setup (recommended)
+
+#### Run all integration tests
+
+```bash
+npm run enter:test
+```
+
+#### Run a specific integration test file
+
+```bash
+npm run enter:test -- filename
+```
+
+> All tests pass and run successfully. However, you may notice duplicate logs or memory issues during testing. This appears to be related to the test setup (possibly multiple app instances being created). It does not affect real usage (e.g., Postman).
 
 ---
 
@@ -163,7 +210,8 @@ npm run start:dev
 APP_MESSAGE_PREFIX=HelloWorld
 
 #### Database host
-DB_HOST=localhost
+DB_HOST=localhost # for local setup
+DB_HOST=db # docker setup
 
 #### Database port
 DB_PORT=5432
@@ -192,7 +240,7 @@ Check src/config/config.types.ts joi object for current .env setup if db connect
 
 ## Demo
 
-If you'd like to preview the app live, a frontend demo or API documentation will be provided soon.
+If you'd like to preview the app live, a frontend demo or API documentation will be provided.
 
 ---
 

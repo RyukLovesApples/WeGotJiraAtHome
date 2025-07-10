@@ -14,6 +14,7 @@
     "start:prod": "node dist/main",
     "init:lite": "bash scripts/init-env.sh",
     "init": "bash /scripts/init-env.sh && docker compose up -d",
+    "docker:restart": "docker-compose down -v && docker-compose up --build",
     "enter": "docker exec -it weGotJiraAtHome bash",
     "enter:start": "docker exec -it weGotJiraAtHome npm run start:dev",
     "enter:test": "docker exec -it weGotJiraAtHome npm run test:integration --",
