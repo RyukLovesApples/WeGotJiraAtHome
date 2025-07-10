@@ -34,7 +34,7 @@ DB_PORT=5432  # replace if already in use
 DB_NAME=$DB_NAME
 DB_USER=$DB_USER
 DB_PASSWORD=$DB_PASSWORD
-DB_SYNC=0     # set to 1 -> will auto generate tables in db
+DB_SYNC=0     # remove 0 for production and work with migrations
 
 JWT_SECRET=$JWT_SECRET
 JWT_EXPIRES_IN=60m
