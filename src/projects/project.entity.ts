@@ -12,7 +12,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UserDto } from '../users/dtos/user.dto';
-import { ProjectPermission } from 'src/project-permissions/project-permissions.entity';
+import { ProjectPermission } from '../project-permissions/project-permissions.entity';
 
 @Exclude()
 @Entity()

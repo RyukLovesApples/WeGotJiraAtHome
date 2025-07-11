@@ -13,7 +13,7 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "init:lite": "bash scripts/init-env.sh",
-    "init": "bash scripts/init-env.sh && docker compose up -d",
+    "init:app": "bash scripts/init-project-setup.sh",
     "docker:restart": "docker-compose down && docker-compose up --build",
     "enter": "docker exec -it weGotJiraAtHome bash",
     "enter:start": "docker exec -it weGotJiraAtHome npm run start:dev",
@@ -27,7 +27,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:integration": "jest --detectOpenHandles --config ./test/jest-integration.json",
     "typeorm": "typeorm-ts-node-commonjs",
-    "migration:generate": "npm run build && npm run typeorm migration:generate -- -d src/config/typeorm.config.ts",
+    "migration:generate": "npm run typeorm migration:generate -- -d src/config/typeorm.config.ts",
     "migration:run": "npm run build && npm run typeorm migration:run -- -d src/config/typeorm.config.ts"
   },
   "dependencies": {

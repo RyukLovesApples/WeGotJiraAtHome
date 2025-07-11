@@ -1,6 +1,6 @@
 import { Exclude, Expose } from 'class-transformer';
-import { ProjectRole } from 'src/project-users/project-role.enum';
-import { Project } from 'src/projects/project.entity';
+import { ProjectRole } from '../project-users/project-role.enum';
+import { Project } from '../projects/project.entity';
 import {
   Entity,
   Unique,

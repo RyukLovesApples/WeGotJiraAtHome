@@ -11,8 +11,12 @@ fi
 if [ ! -d "./backend" ]; then
   echo "Moving backend files into ./backend..."
   mkdir backend
-  shopt -s extglob
-  mv !(frontend|scripts|backend) backend/ 2>/dev/null || true
+  find . -maxdepth 1 -mindepth 1 \
+    ! -name 'backend' \
+    ! -name 'frontend' \
+    ! -name 'scripts' \
+    ! -name '.' \
+    -exec mv {} backend/ \;
 fi
 
 # creates .env standard variables

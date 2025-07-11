@@ -13,7 +13,6 @@ if [[ -f "$ENV_FILE" ]]; then
   fi
 fi
 
-read -p "Enter the database name: " DB_NAME
 read -p "Enter the database user: " DB_USER
 read -s -p "Enter password for DB user: " DB_PASSWORD
 echo ""
@@ -31,13 +30,15 @@ APP_MESSAGE_PREFIX=HelloWorld
 
 DB_HOST=db
 DB_PORT=5432  # replace if already in use
-DB_NAME=$DB_NAME
+DB_NAME=we_got_jira_at_home
 DB_USER=$DB_USER
 DB_PASSWORD=$DB_PASSWORD
-DB_SYNC=0     # remove 0 for production and work with migrations
+DB_SYNC=0     # for showcase setup this is always false. For own development environment -> true
 
 JWT_SECRET=$JWT_SECRET
 JWT_EXPIRES_IN=60m
+
+NODE_ENV=development
 EOL
 
 echo "✅ .env file created with basic config!"
