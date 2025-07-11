@@ -23,7 +23,7 @@ import { CreateTaskLabelDto } from './dtos/create-task-label.dto';
 import { FindTaskParams } from './params/find-task.params';
 import { PaginationParams } from './params/task-pagination.params';
 import { PaginationResponse } from './responses/pagination.response';
-import { CurrentUserId } from './../users/decorators/current-user-id.decorator';
+import { CurrentUserId } from '../users/decorators/current-user-id.decorator';
 import { TaskDto } from './dtos/task.dto';
 import { transformToDto } from 'src/utils/transform';
 import { Resources } from 'src/project-permissions/decorators/resource.decorator';

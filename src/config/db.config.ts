@@ -10,6 +10,6 @@ export const typeOrmConfig = registerAs(
     username: process.env.DB_USER ?? 'postgres',
     password: process.env.DB_PASSWORD ?? 'postgres',
     database: process.env.DB_NAME ?? 'we_got_jira_at_home',
-    synchronize: Boolean(process.env.DB_SYNC ?? false),
+    synchronize: false,
   }),
 );
