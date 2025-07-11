@@ -144,10 +144,14 @@ npm run start:dev
 ### Docker setup (recommended)
 
 #### Initialize .env and spin up containers
-Runs init:lite and sets up PostgreSQL and app containers.
+Run the init-project-setup.sh script via the command below. This will:
+- Create your .env file (if missing)
+- Set up PostgreSQL with required databases
+- Generate and run the initial migration
+- Start the app and database containers
 
 ```bash
-npm run init
+npm run init:app
 ```
 
 #### Restart Docker containers (after first setup)
@@ -238,10 +242,11 @@ Check src/config/config.types.ts joi object for current .env setup if db connect
 
 ---
 
-## Experimental Frontend Setup
-This feature is experimental and mainly intended for those who want to explore frontend development using this backend.
+## ⚠️ Experimental Frontend Setup — DO NOT RUN YET!
 
-If you're interested, I've included a small script that scaffolds a Vite-based frontend and reorganizes the project into a clean full-stack structure.
+> **IMPORTANT:** This script is **experimental** and **does NOT work reliably at this time.**
+> Running it **may break project structure** or cause unexpected issues.
+> Only run if you want to explore at your own risk. I will update this notice when the script is stable.
 
 What it does:
 
@@ -267,8 +272,6 @@ When you're done developing:
 cd backend
 docker-compose down -v
 ```
-
-> ⚠️ This script is experimental and won’t affect the backend functionality. If you're learning frontend or want to build on top of a real-world API, this might be a good starting point. There's no registration, no rate limits, and no API keys needed.
 
 API documentation will be added once core features are finalized. Until then, check out the entity and DTO files if you’re curious.
 
