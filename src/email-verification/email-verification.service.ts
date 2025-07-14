@@ -9,6 +9,7 @@ import { EmailVerification } from './email-verification.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MailerService } from 'src/mailer/mailer.service';
+import { emailVerificationTemplate } from 'src/mailer/templates/email-verification.template';
 
 @Injectable()
 export class EmailVerificationService {
