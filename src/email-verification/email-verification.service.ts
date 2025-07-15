@@ -35,6 +35,10 @@ export class EmailVerificationService {
       html: emailVerificationTemplate(verificationLink, user.username),
     });
   }
+  async deleteEmailVerificationById(token: string): Promise<void> {
+    await this.emailVerificationRepo.delete({ id: token });
+  }
+
   async deleteExpiredEmailVerification(): Promise<void> {
     await this.emailVerificationRepo
       .createQueryBuilder()
@@ -52,6 +56,7 @@ export class EmailVerificationService {
         'Could not find the email verification entry',
       );
     }
+
     return emailVerification;
   }
 

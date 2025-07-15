@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { User } from './users.entity';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { PasswordService } from './password/password.service';
+import { Role } from './role.enum';
 
 @Injectable()
 export class UsersService {
@@ -34,6 +35,12 @@ export class UsersService {
       ...rest,
       password: hashedPassword,
     });
+    return await this.userRepository.save(user);
+  }
+
+  public async updateUserRole(userId: string, role: Role): Promise<User> {
+    const user = await this.findOne(userId);
+    user.roles = [role];
     return await this.userRepository.save(user);
   }
 }
