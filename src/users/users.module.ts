@@ -11,8 +11,7 @@ import { PasswordService } from './password/password.service';
 import { AuthService } from './auth/auth.service';
 import { AuthController } from './auth/auth.controller';
 import { AuthGuard } from './auth/auth.guard';
-// import { APP_GUARD } from '@nestjs/core';
-// import { RolesGuard } from './auth/guards/roles.guard';
+import { EmailVerificationModule } from 'src/email-verification/email-verification.module';
 
 @Module({
   imports: [
@@ -27,22 +26,10 @@ import { AuthGuard } from './auth/auth.guard';
         },
       }),
     }),
+    EmailVerificationModule,
   ],
   controllers: [UsersController, AuthController],
-  providers: [
-    UsersService,
-    PasswordService,
-    AuthService,
-    AuthGuard,
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: AuthGuard,
-    // },
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: RolesGuard,
-    // },
-  ],
+  providers: [UsersService, PasswordService, AuthService, AuthGuard],
   exports: [UsersService, JwtModule],
 })
 export class UsersModule {}

@@ -36,6 +36,7 @@ import { RolesGuard } from './users/auth/guards/roles.guard';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ProjectPermission } from './project-permissions/project-permissions.entity';
 import { EmailVerificationModule } from './email-verification/email-verification.module';
+import { EmailVerification } from './email-verification/email-verification.entity';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { EmailVerificationModule } from './email-verification/email-verification
           ProjectUser,
           ProjectUserInvite,
           ProjectPermission,
+          EmailVerification,
         ],
       }),
     }),

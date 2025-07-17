@@ -40,7 +40,8 @@ export class UsersService {
 
   public async updateUserRole(userId: string, role: Role): Promise<User> {
     const user = await this.findOne(userId);
-    user.roles = [role];
+    user.roles[0] = role;
+    this.userRepository.create(user);
     return await this.userRepository.save(user);
   }
 }

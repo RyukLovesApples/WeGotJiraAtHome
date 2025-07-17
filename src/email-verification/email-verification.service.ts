@@ -1,9 +1,4 @@
-import {
-  forwardRef,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { EmailVerification } from './email-verification.entity';
 import { Repository } from 'typeorm';
@@ -47,16 +42,12 @@ export class EmailVerificationService {
       .where('expiresAt < :now', { now: new Date() })
       .execute();
   }
-  async getEmailVerificationByToken(token: string): Promise<EmailVerification> {
+  async getEmailVerificationByToken(
+    token: string,
+  ): Promise<EmailVerification | null> {
     const emailVerification = await this.emailVerificationRepo.findOne({
       where: { id: token },
     });
-    if (!emailVerification) {
-      throw new NotFoundException(
-        'Could not find the email verification entry',
-      );
-    }
-
     return emailVerification;
   }
 
