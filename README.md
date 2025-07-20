@@ -147,11 +147,23 @@ npm run start:dev
 Run the init-project-setup.sh script via the command below. This will:
 - Create your .env file (if missing)
 - Set up PostgreSQL with required databases
-- Generate and run the initial migration
-- Start the app and database containers
+- Start the app and database containers and creates main and test db
+- Generate and run the initial migration based on current entities
 
 ```bash
 npm run init:app
+```
+
+#### No Bash? Use this instead
+This will:
+- Create a temporary Linux shell container
+- Create your .env file (if missing) → runs init-env.sh inside env-init service
+- Build the Docker Compose for DB connection and app
+- Create main and test DB → runs create-dbs.sh inside init service
+- Generate and run initial migration based on current entities
+
+```bash
+npm run init:bash
 ```
 
 #### Restart Docker containers (after first setup)

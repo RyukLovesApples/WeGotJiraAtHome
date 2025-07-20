@@ -14,7 +14,7 @@
     "start:prod": "node dist/main",
     "init:lite": "bash scripts/init-env.sh",
     "init:app": "bash scripts/init-project-setup.sh",
-    "init:test": "docker build -f Dockerfile.init -t wegotjira-init . && docker compose run --rm env-init && docker compose up -d --build && docker-compose run --rm init && docker compose exec app npm run migration:generate -- src/migrations/InitialMigration && docker compose exec app npm run migration:run",
+    "init:bash": "docker build -f Dockerfile.init -t wegotjira-init . && docker compose run --rm env-init && docker compose up -d --build && docker-compose run --rm init && docker compose exec app npm run migration:generate -- src/migrations/InitialMigration && docker compose exec app npm run migration:run",
     "docker:restart": "docker compose down && docker compose up --build",
     "enter": "docker exec -it weGotJiraAtHome bash",
     "enter:start": "docker exec -it weGotJiraAtHome npm run start:dev",
