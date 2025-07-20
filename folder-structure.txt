@@ -1,5 +1,4 @@
 .
-./.DS_Store
 ./test
 ./test/dummy-variables
 ./test/dummy-variables/dummy-variables.ts
@@ -9,6 +8,7 @@
 ./test/config
 ./test/config/test.config.ts
 ./test/workflows
+./test/workflows/email-verification.integration-spec.ts
 ./test/workflows/invitation.integration-spec.ts
 ./test/graphql
 ./test/graphql/project-users.integration-spec.ts
@@ -37,8 +37,10 @@
 ./tsconfig.build.json
 ./.env
 ./scripts
+./scripts/init-project-setup.sh
 ./scripts/init-env.sh
-./scripts/init-test-db.sql
+./scripts/frontend-setup.sh
+./scripts/init-dbs.sql
 ./.prettierrc
 ./tsconfig.json
 ./docker-compose.yml
@@ -47,6 +49,13 @@
 ./eslint.config.mjs
 ./src
 ./src/migrations
+./src/email-verification
+./src/email-verification/email-verification.service.spec.ts
+./src/email-verification/email-verification.module.ts
+./src/email-verification/email-verification.controller.spec.ts
+./src/email-verification/email-verification.entity.ts
+./src/email-verification/email-verification.service.ts
+./src/email-verification/email-verification.controller.ts
 ./src/tasks
 ./src/tasks/task-label.entity.ts
 ./src/tasks/responses
@@ -99,6 +108,7 @@
 ./src/mailer/types/send-mail-options.type.ts
 ./src/mailer/mailer.module.ts
 ./src/mailer/templates
+./src/mailer/templates/email-verification.template.ts
 ./src/mailer/templates/invitation.template.ts
 ./src/mailer/mailer.service.spec.ts
 ./src/exception-filters
@@ -151,6 +161,12 @@
 ./src/invite/invite.controller.ts
 ./src/invite/invite.module.ts
 ./src/invite/invite.controller.spec.ts
+./src/common
+./src/common/dtos
+./src/common/dtos/params
+./src/common/dtos/params/token.params.ts
+./src/common/dtos/params/taskId.params.ts
+./src/common/dtos/params/projectId.params.ts
 ./src/users
 ./src/users/users.entity.ts
 ./src/users/password

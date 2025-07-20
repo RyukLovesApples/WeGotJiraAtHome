@@ -28,7 +28,7 @@ A full-featured, test-driven project and task management API inspired by Jira. T
 - JWT authentication with embedded role info
 - Guards for public/private and role-restricted routes
 - Custom decorators for cleaner controller logic
-- Admin role support for developer-level access
+- Email verification module: Allows users to verify their email addresses, which updates their user role ensuring only verified users get access to sensitive features
 
 ### Projects & ProjectUsers
 

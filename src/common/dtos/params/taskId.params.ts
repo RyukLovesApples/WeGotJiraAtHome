@@ -1,8 +1,8 @@
 import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
-export class FindOneParams {
+export class TaskIdParams {
   @IsNotEmpty()
   @IsString()
   @IsUUID()
-  id!: string;
+  taskId!: string;
 }
