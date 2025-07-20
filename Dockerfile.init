@@ -9,5 +9,3 @@ WORKDIR /app
 COPY ./scripts ./scripts
 COPY .env .env
 COPY docker-compose.yml docker-compose.yml
-
-ENTRYPOINT ["bash", "./scripts/init-project-setup.sh"]

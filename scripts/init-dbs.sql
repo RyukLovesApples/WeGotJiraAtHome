@@ -1,1 +1,0 @@
-CREATE DATABASE we_got_jira_at_home_integration;
