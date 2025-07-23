@@ -13,27 +13,16 @@ import { ProjectUserInvite } from 'src/invite/project-user-invite.entity';
 import { ProjectRole } from 'src/project-users/project-role.enum';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from 'jsonwebtoken';
-import { MailerService } from 'src/mailer/mailer.service';
-import { SendMailOptions } from 'src/mailer/types/send-mail-options.type';
 import { GraphQLResponse } from 'test/types/test.types';
 import { ProjectUserDto } from 'src/project-users/dtos/project-user.dto';
 
 describe('Project invitation workflow', () => {
   let testSetup: TestSetup;
   let server: Http2Server;
-  let mailerServiceMock: jest.SpyInstance<
-    Promise<any>,
-    [mailData: SendMailOptions]
-  >;
 
   beforeEach(async () => {
     testSetup = await TestSetup.create(AppModule);
     server = testSetup.app.getHttpServer() as Http2Server;
-
-    const mailerService = testSetup.app.get(MailerService);
-    mailerServiceMock = jest
-      .spyOn(mailerService, 'sendEmail')
-      .mockResolvedValue(undefined);
   });
 
   afterEach(async () => {
@@ -41,7 +30,6 @@ describe('Project invitation workflow', () => {
   });
 
   afterAll(async () => {
-    mailerServiceMock.mockRestore();
     await testSetup.teardown();
   });
 

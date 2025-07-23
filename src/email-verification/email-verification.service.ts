@@ -1,10 +1,10 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from '../users/users.service';
 import { EmailVerification } from './email-verification.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MailerService } from 'src/mailer/mailer.service';
-import { emailVerificationTemplate } from 'src/mailer/templates/email-verification.template';
+import { MailerService } from '../mailer/mailer.service';
+import { emailVerificationTemplate } from '../mailer/templates/email-verification.template';
 
 @Injectable()
 export class EmailVerificationService {

@@ -1,11 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Controller, Get, Post, Query, Res } from '@nestjs/common';
 import { EmailVerificationService } from './email-verification.service';
-import { UsersService } from 'src/users/users.service';
-import { Role } from 'src/users/role.enum';
+import { UsersService } from '../users/users.service';
+import { Role } from '../users/role.enum';
 import { Response } from 'express';
-import { CurrentUserId } from 'src/users/decorators/current-user-id.decorator';
-import { TokenParams } from 'src/common/dtos/params/token.params';
-import { Public } from 'src/users/decorators/public.decorator';
+import { CurrentUserId } from '../users/decorators/current-user-id.decorator';
+import { TokenParams } from '../common/dtos/params/token.params';
+import { Public } from '../users/decorators/public.decorator';
 
 const ALLOWED_URLS = [
   'https://your-frontend.com',
