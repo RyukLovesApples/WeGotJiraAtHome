@@ -5,29 +5,18 @@ import { Http2Server } from 'http2';
 import { JwtPayload } from 'jsonwebtoken';
 import { AppModule } from 'src/app.module';
 import { EmailVerification } from 'src/email-verification/email-verification.entity';
-import { MailerService } from 'src/mailer/mailer.service';
 import { defaultUser } from '../dummy-variables/dummy-variables';
 import { registerAndLogin } from '../helpers/test-helpers';
 import { TestSetup } from '../test.setup';
 import { Role } from 'src/users/role.enum';
-import { SendMailOptions } from 'src/mailer/types/send-mail-options.type';
 
 describe('Email verification workflow', () => {
   let testSetup: TestSetup;
   let server: Http2Server;
-  let mailerServiceMock: jest.SpyInstance<
-    Promise<any>,
-    [mailData: SendMailOptions]
-  >;
 
   beforeEach(async () => {
     testSetup = await TestSetup.create(AppModule);
     server = testSetup.app.getHttpServer() as Http2Server;
-
-    const mailerService = testSetup.app.get(MailerService);
-    mailerServiceMock = jest
-      .spyOn(mailerService, 'sendEmail')
-      .mockResolvedValue(undefined);
   });
 
   afterEach(async () => {
@@ -35,7 +24,6 @@ describe('Email verification workflow', () => {
   });
 
   afterAll(async () => {
-    mailerServiceMock.mockRestore();
     await testSetup.teardown();
   });
 

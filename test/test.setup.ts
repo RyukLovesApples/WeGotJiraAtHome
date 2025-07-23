@@ -4,6 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { DataSource } from 'typeorm';
 import { testConfig } from './config/test.config';
 import { ValidationPipe } from '@nestjs/common';
+import { MailerService } from 'src/mailer/mailer.service';
 
 export class TestSetup {
   app!: INestApplication;
@@ -27,6 +28,10 @@ export class TestSetup {
           if (key.includes('app')) return testConfig.app;
           return null;
         },
+      })
+      .overrideProvider(MailerService)
+      .useValue({
+        sendEmail: jest.fn().mockResolvedValue(undefined),
       })
       .compile();
     this.app = moduleFixture.createNestApplication();

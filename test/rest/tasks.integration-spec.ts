@@ -56,6 +56,7 @@ describe('Tasks Integration', () => {
   afterAll(async () => {
     await testSetup.teardown();
   });
+
   it('/tasks/id (GET), should return task', async () => {
     return request(server)
       .get(`${baseUrl}/tasks/${taskId}`)
