@@ -15,24 +15,26 @@ export class PasswordResetService {
     private readonly userService: UsersService,
     private readonly mailerService: MailerService,
   ) {}
-  async createPasswordReset(userId: string): Promise<void> {
-    const user = await this.userService.findOne(userId);
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  async createPasswordReset(email: string): Promise<void> {
+    const user = await this.userService.findOneByEmail(email);
+    if (!user) {
+      return;
+    }
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
     const passwordReset = this.passwordResetRepo.create({
       expiresAt,
-      userId,
+      userId: user.id,
     });
     const { id } = await this.passwordResetRepo.save(passwordReset);
     const passwordResetLink = `https://WeGotJiraAtHome.com/password-reset?token=${id}`;
     await this.mailerService.sendEmail({
-      to: user.email,
+      to: email,
       subject: 'Password reset; WeGotJiraAtHome',
       html: passwordResetTemplate(passwordResetLink, user.username),
     });
   }
-  async deletePasswordReset(token: string): Promise<boolean> {
+  async deletePasswordResetById(token: string): Promise<void> {
     await this.passwordResetRepo.delete(token);
-    return true;
   }
   async deleteExpiredPasswordReset(): Promise<void> {
     await this.passwordResetRepo
@@ -48,5 +50,11 @@ export class PasswordResetService {
   }
   isExpired(expiration: Date): boolean {
     return new Date() > expiration;
+  }
+  async onConfirm(id: string): Promise<void> {
+    await this.passwordResetRepo.update(id, { confirmed: true });
+  }
+  async markAsUsed(id: string): Promise<void> {
+    await this.passwordResetRepo.update(id, { used: true });
   }
 }

@@ -13,6 +13,12 @@ export class PasswordReset {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
+  @Column({ default: false })
+  confirmed!: boolean;
+
+  @Column({ default: false })
+  used!: boolean;
+
   @Column()
   userId!: string;
 

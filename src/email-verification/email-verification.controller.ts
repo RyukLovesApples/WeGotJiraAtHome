@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Controller, Get, Post, Query, Res } from '@nestjs/common';
 import { EmailVerificationService } from './email-verification.service';
 import { UsersService } from '../users/users.service';
@@ -12,8 +9,8 @@ import { Public } from '../users/decorators/public.decorator';
 
 const ALLOWED_URLS = [
   'https://your-frontend.com',
-  'https://your-frontend.com',
   'https://your-frontend.com/profile',
+  'etc.',
 ];
 
 function isAllowedRedirect(url: string): boolean {
@@ -66,10 +63,7 @@ export class EmailVerificationController {
   }
 
   @Post('send')
-  async sendEmailVerification(
-    @CurrentUserId() userId: string,
-  ): Promise<boolean> {
+  async sendEmailVerification(@CurrentUserId() userId: string): Promise<void> {
     await this.emailVerificationService.createEmailVerification(userId);
-    return true;
   }
 }
