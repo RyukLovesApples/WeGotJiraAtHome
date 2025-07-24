@@ -1,10 +1,16 @@
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  Logger,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './users.entity';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { PasswordService } from './password/password.service';
 import { Role } from './role.enum';
+import { PasswordResetService } from 'src/password-reset/password-reset.service';
 
 @Injectable()
 export class UsersService {
@@ -13,6 +19,7 @@ export class UsersService {
     private readonly passwordService: PasswordService,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly passwordResetService: PasswordResetService,
   ) {}
 
   public async findOne(id: string): Promise<User> {
@@ -43,5 +50,25 @@ export class UsersService {
     user.roles[0] = role;
     this.userRepository.create(user);
     return await this.userRepository.save(user);
+  }
+
+  public async updatePasswordAfterReset(
+    token: string,
+    password: string,
+  ): Promise<void> {
+    const passwordReset =
+      await this.passwordResetService.getPasswordResetById(token);
+    if (
+      !passwordReset ||
+      this.passwordResetService.isExpired(passwordReset.expiresAt)
+    ) {
+      throw new BadRequestException(
+        `Password reset record is expired or does not exist`,
+      );
+    }
+    const user = await this.findOne(passwordReset?.userId);
+    const hashedPassword = await this.passwordService.hashPassword(password);
+    await this.userRepository.update(user.id, { password: hashedPassword });
+    await this.passwordResetService.markAsUsed(token);
   }
 }

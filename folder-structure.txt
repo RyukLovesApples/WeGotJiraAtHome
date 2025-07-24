@@ -172,6 +172,8 @@
 ./src/common/dtos/params/projectId.params.ts
 ./src/password-reset
 ./src/password-reset/password-reset.controller.ts
+./src/password-reset/dtos
+./src/password-reset/dtos/send-password-reset.dto.ts
 ./src/password-reset/password-reset.service.spec.ts
 ./src/password-reset/password-reset.module.ts
 ./src/password-reset/password-reset.service.ts
@@ -203,6 +205,7 @@
 ./src/users/dtos
 ./src/users/dtos/user.dto.ts
 ./src/users/dtos/login-user.dto.ts
+./src/users/dtos/password-reset.dto.ts
 ./src/users/dtos/create-user.dto.ts
 ./src/users/role.enum.ts
 ./src/app.controller.ts
