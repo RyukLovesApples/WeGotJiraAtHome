@@ -1,4 +1,5 @@
 .
+./Dockerfile.init
 ./test
 ./test/dummy-variables
 ./test/dummy-variables/dummy-variables.ts
@@ -39,9 +40,10 @@
 ./scripts
 ./scripts/init-project-setup.sh
 ./scripts/init-env.sh
+./scripts/create-dbs.sh
 ./scripts/frontend-setup.sh
-./scripts/init-dbs.sql
 ./.prettierrc
+./.gitattributes
 ./tsconfig.json
 ./docker-compose.yml
 ./.http
@@ -108,6 +110,7 @@
 ./src/mailer/types/send-mail-options.type.ts
 ./src/mailer/mailer.module.ts
 ./src/mailer/templates
+./src/mailer/templates/password-reset.template.ts
 ./src/mailer/templates/email-verification.template.ts
 ./src/mailer/templates/invitation.template.ts
 ./src/mailer/mailer.service.spec.ts
@@ -167,6 +170,13 @@
 ./src/common/dtos/params/token.params.ts
 ./src/common/dtos/params/taskId.params.ts
 ./src/common/dtos/params/projectId.params.ts
+./src/password-reset
+./src/password-reset/password-reset.controller.ts
+./src/password-reset/password-reset.service.spec.ts
+./src/password-reset/password-reset.module.ts
+./src/password-reset/password-reset.service.ts
+./src/password-reset/password-reset.controller.spec.ts
+./src/password-reset/password-reset.entity.ts
 ./src/users
 ./src/users/users.entity.ts
 ./src/users/password

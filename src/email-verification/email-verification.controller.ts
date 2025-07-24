@@ -66,7 +66,9 @@ export class EmailVerificationController {
   }
 
   @Post('send')
-  async sendEmailVerification(@CurrentUserId() userId: string) {
+  async sendEmailVerification(
+    @CurrentUserId() userId: string,
+  ): Promise<boolean> {
     await this.emailVerificationService.createEmailVerification(userId);
     return true;
   }
