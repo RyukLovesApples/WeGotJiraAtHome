@@ -35,6 +35,8 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { ProjectPermission } from './project-permissions/project-permissions.entity';
 import { EmailVerificationModule } from './email-verification/email-verification.module';
 import { EmailVerification } from './email-verification/email-verification.entity';
+import { PasswordResetModule } from './password-reset/password-reset.module';
+import { PasswordReset } from './password-reset/password-reset.entity';
 
 @Module({
   imports: [
@@ -62,6 +64,7 @@ import { EmailVerification } from './email-verification/email-verification.entit
           ProjectUserInvite,
           ProjectPermission,
           EmailVerification,
+          PasswordReset,
         ],
       }),
     }),
@@ -107,6 +110,7 @@ import { EmailVerification } from './email-verification/email-verification.entit
     PermissionsModule,
     CacheModule.register(),
     EmailVerificationModule,
+    PasswordResetModule,
   ],
   controllers: [AppController],
   providers: [
