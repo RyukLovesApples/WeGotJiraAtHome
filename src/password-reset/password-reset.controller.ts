@@ -16,7 +16,8 @@ export class PasswordResetController {
   ): Promise<void> {
     const passwordReset =
       await this.passwordResetService.getPasswordResetById(token);
-    if (!passwordReset) {
+
+    if (!passwordReset || passwordReset.used) {
       return res.redirect(
         'https://your-frontend.com/password-reset/not-found-dummy',
       );
@@ -32,6 +33,7 @@ export class PasswordResetController {
     );
   }
   @Post('send')
+  @Public()
   async sendEmailVerification(
     @Body() { email }: SendPasswordResetDto,
   ): Promise<void> {

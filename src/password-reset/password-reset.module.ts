@@ -14,5 +14,6 @@ import { MailerModule } from 'src/mailer/mailer.module';
   ],
   controllers: [PasswordResetController],
   providers: [PasswordResetService],
+  exports: [PasswordResetService],
 })
 export class PasswordResetModule {}

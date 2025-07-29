@@ -3,6 +3,7 @@ import {
   NotFoundException,
   Logger,
   BadRequestException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -64,6 +65,11 @@ export class UsersService {
     ) {
       throw new BadRequestException(
         `Password reset record is expired or does not exist`,
+      );
+    }
+    if (!passwordReset?.confirmed) {
+      throw new UnauthorizedException(
+        `The token is not falid and has not be confirmed`,
       );
     }
     const user = await this.findOne(passwordReset?.userId);

@@ -11,6 +11,7 @@
 ./test/workflows
 ./test/workflows/email-verification.integration-spec.ts
 ./test/workflows/invitation.integration-spec.ts
+./test/workflows/password-reset.integration-spec.ts
 ./test/graphql
 ./test/graphql/project-users.integration-spec.ts
 ./test/jest-integration.json

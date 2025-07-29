@@ -12,6 +12,7 @@ import { AuthService } from './auth/auth.service';
 import { AuthController } from './auth/auth.controller';
 import { AuthGuard } from './auth/auth.guard';
 import { EmailVerificationModule } from 'src/email-verification/email-verification.module';
+import { PasswordResetModule } from 'src/password-reset/password-reset.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { EmailVerificationModule } from 'src/email-verification/email-verificati
       }),
     }),
     EmailVerificationModule,
+    PasswordResetModule,
   ],
   controllers: [UsersController, AuthController],
   providers: [UsersService, PasswordService, AuthService, AuthGuard],
