@@ -28,7 +28,16 @@ A full-featured, test-driven project and task management API inspired by Jira. T
 - JWT authentication with embedded role info
 - Guards for public/private and role-restricted routes
 - Custom decorators for cleaner controller logic
-- Email verification module: Allows users to verify their email addresses, which updates their user role ensuring only verified users get access to sensitive features
+- Email Verification (via Mailer & Email-Driven Workflows) – Verifies a user’s email before granting access to sensitive routes (e.g., project creation, profile).
+- Password Reset (via Mailer & Email-Driven Workflows) – Allows secure password recovery through a time-limited token sent via email.
+
+### Mailer & Email-Driven Workflows
+
+The Mailer is its own dedicated module responsible for sending and managing all application emails. It serves as the central hub for workflows that involve email as part of the user journey.
+
+- Email Verification – Ensures users validate their email before accessing sensitive routes (e.g., project creation, profile)
+- Project Invitations – Sends invite links via email and automatically creates a ProjectUser record with permissions upon acceptance
+- Password Reset – Allows users to request a reset token and update their password securely.
 
 ### Projects & ProjectUsers
 
@@ -36,7 +45,7 @@ A full-featured, test-driven project and task management API inspired by Jira. T
 - Automatically assign project to Project User
 - Designed for full CRUD of project users
 - ProjectUser module serves as the canonical source for project membership and roles to enable consistent permissions enforcement
-- Invitation module to handle project invites and automated user addition on acceptance
+- Invitation System (via Mailer & Email-Driven Workflows) – Sends project invites via email and handles automated user creation with default permissions on acceptance.
 
 ### Tasks
 
