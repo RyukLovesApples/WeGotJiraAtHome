@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { TaskStatus } from './task-status.enum';
 import { CreateTaskDto } from './dtos/create-task.dto';
 import { UpdateTaskDto } from './dtos/update-task.dto';
@@ -27,7 +31,6 @@ export class TasksService {
   public async getAll(
     filters: FindTaskParams,
     pagination: PaginationParams,
-    // userId: string,
     projectId: string,
   ): Promise<[Task[], number]> {
     const queryBuilder = this.taskRepository
@@ -35,7 +38,6 @@ export class TasksService {
       .leftJoinAndSelect('task.user', 'user')
       .leftJoinAndSelect('task.labels', 'labels')
       .where(`task.project.id = :projectId`, { projectId });
-    // .andWhere(`task.userId = :userId`, { userId });
     if (filters.status) {
       queryBuilder.andWhere('task.status = :status', {
         status: filters.status,
@@ -64,16 +66,15 @@ export class TasksService {
       filters.sortingOrder || 'DESC',
     );
     queryBuilder.skip(pagination.offset).take(pagination.limit);
-    // log for the sql query -> getSql()
-    // console.log(queryBuilder.getSql());
-    const [items, total] = await queryBuilder.getManyAndCount();
-    return [items, total];
+    const [flatTasks, total] = await queryBuilder.getManyAndCount();
+    const tree = buildTaskTree(flatTasks);
+    return [tree, total];
   }
 
   public async getOneTask(id: string): Promise<Task | null> {
     return await this.taskRepository.findOne({
       where: { id },
-      relations: ['labels', 'user'],
+      relations: ['labels', 'user', 'subtasks', 'subtasks.labels'],
     });
   }
 
@@ -97,13 +98,64 @@ export class TasksService {
       title: createTaskDto.title,
       description: createTaskDto.description,
       status: createTaskDto.status,
-      user: user,
+      userId: userId,
       labels: labels,
       projectId: projectId,
     });
 
     const task: Task = await this.taskRepository.save(newTask);
     return task;
+  }
+
+  public async createSubtask(
+    parentId: string,
+    createTaskDto: CreateTaskDto,
+    userId: string,
+    projectId: string,
+  ): Promise<Task> {
+    const parentTask = await this.taskRepository.findOne({
+      where: { id: parentId },
+    });
+    if (!parentTask) throw new NotFoundException('Parent task not found');
+
+    if (parentTask.layer >= 2) {
+      throw new BadRequestException('Max task depth (3 levels) reached');
+    }
+
+    const user = await this.userRepository.findOneBy({ id: userId });
+    if (!user) throw new NotFoundException('User not found');
+
+    if (createTaskDto.labels) {
+      createTaskDto.labels = this.uniqueLabels(createTaskDto.labels);
+    }
+
+    const labels = createTaskDto.labels?.map((label) =>
+      this.labelRepository.create({ name: label.name }),
+    );
+
+    const newTask = this.taskRepository.create({
+      title: createTaskDto.title,
+      description: createTaskDto.description,
+      status: createTaskDto.status || TaskStatus.OPEN,
+      userId,
+      labels,
+      projectId,
+      parentId: parentTask.id,
+      layer: parentTask.layer + 1,
+    });
+
+    return await this.taskRepository.save(newTask);
+  }
+
+  public async assignTask(taskId: string, userId: string): Promise<Task> {
+    const task = await this.taskRepository.findOne({ where: { id: taskId } });
+    if (!task) throw new NotFoundException('Task not found');
+
+    const user = await this.userRepository.findOneBy({ id: userId });
+    if (!user) throw new NotFoundException('User not found');
+
+    task.assignedToId = userId;
+    return await this.taskRepository.save(task);
   }
 
   public async updateTask(
@@ -175,8 +227,7 @@ export class TasksService {
     });
     return this.getOneTask(taskId);
   }
-  // simple valid logic for changing status. open -> in progress -> closed
-  // for frontend should change the function to send message to client if he is sure
+
   private isValidStatusTransition(
     currentStatus: TaskStatus,
     newStatus: TaskStatus,

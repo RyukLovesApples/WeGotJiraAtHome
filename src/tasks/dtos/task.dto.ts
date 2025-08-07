@@ -19,6 +19,12 @@ export class TaskDto {
   labels?: TaskLabel[];
 
   @Expose()
+  assignedToId!: string;
+
+  @Expose()
+  dueDate!: Date;
+
+  @Expose()
   createdAt!: Date;
 
   @Expose()
