@@ -16,6 +16,7 @@ import { CreateTaskLabelDto } from './dtos/create-task-label.dto';
 import { FindTaskParams } from './params/find-task.params';
 import { PaginationParams } from './params/task-pagination.params';
 import { UpdateEmbeddedTaskDto } from './dtos/update-embedded-task.dto';
+import { buildTaskTree } from './utils/build-task-tree';
 
 @Injectable()
 export class TasksService {
