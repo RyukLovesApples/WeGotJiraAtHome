@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { AppModule } from 'src/app.module';
 import { TestSetup } from '../test.setup';
 import * as request from 'supertest';
@@ -9,6 +10,7 @@ import {
   unauthorizedUser,
   dummyTasks,
   dummyProjects,
+  secondUser,
 } from '../dummy-variables/dummy-variables';
 import {
   registerAndLogin,
@@ -25,6 +27,7 @@ import { ProjectUser } from 'src/project-users/project-user.entity';
 import { ProjectRole } from 'src/project-users/project-role.enum';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from 'jsonwebtoken';
+import { HttpErrorResponse } from 'test/types/test.types';
 
 describe('Tasks Integration', () => {
   let testSetup: TestSetup;
@@ -416,5 +419,194 @@ describe('Tasks Integration', () => {
       .delete(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${token}`)
       .expect(403);
+  });
+  describe('Subtasks', () => {
+    it('should create subtask', async () => {
+      return request(server)
+        .post(`${baseUrl}/tasks/${taskId}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ ...dummyTasks[1] })
+        .expect(201);
+    });
+
+    it('should assign subtask to user', async () => {
+      const res = await request(server)
+        .post(`${baseUrl}/tasks/${taskId}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ ...dummyTasks[1] })
+        .expect(201);
+
+      const token = await registerAndLogin(server, secondUser);
+      const { dataSource } = testSetup;
+      const projectUserRepo = dataSource.getRepository(ProjectUser);
+      const jwtData: JwtPayload = testSetup.app.get(JwtService).verify(token);
+      const userId = jwtData.sub;
+      const projectUser = projectUserRepo.create({
+        userId,
+        projectId,
+        role: ProjectRole.ADMIN,
+      });
+      await projectUserRepo.save(projectUser);
+
+      const resBody = res.body as Task;
+
+      const task: { body: Task } = await request(server)
+        .post(`${baseUrl}/tasks/${resBody.id}/assign`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ userId: userId })
+        .expect(201);
+      expect(task.body.assignedToId).toBe(userId);
+    });
+
+    it('should not allow subtasks further than second layer, throw 400', async () => {
+      // first subtask layer
+      const firstSubtask = await request(server)
+        .post(`${baseUrl}/tasks/${taskId}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ ...dummyTasks[1] })
+        .expect(201);
+
+      // second layer
+      const secondSubtask = await request(server)
+        .post(`${baseUrl}/tasks/${firstSubtask.body.id}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ ...dummyTasks[2] })
+        .expect(201);
+
+      const res: { body: HttpErrorResponse } = await request(server)
+        .post(`${baseUrl}/tasks/${secondSubtask.body.id}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ ...dummyTasks[2] })
+        .expect(400);
+      expect(res.body.message).toContain('Max task depth (3 levels) reached');
+    });
+
+    it('should throw not found exception for non existing task', async () => {
+      const invalidUUID = randomUUID();
+      await request(server)
+        .post(`${baseUrl}/tasks/${invalidUUID}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ ...dummyTasks[1] })
+        .expect(404);
+    });
+
+    it('should be able to create multiple subtasks for one task', async () => {
+      await request(server)
+        .post(`${baseUrl}/tasks/${taskId}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ ...dummyTasks[1] })
+        .expect(201);
+
+      await request(server)
+        .post(`${baseUrl}/tasks/${taskId}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ ...dummyTasks[2] })
+        .expect(201);
+
+      const res: { body: Task } = await request(server)
+        .get(`${baseUrl}/tasks/${taskId}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(200);
+      expect(res.body.subtasks?.length).toBe(2);
+    });
+
+    it('should be able to get one subtask', async () => {
+      const subtask: { body: Task } = await request(server)
+        .post(`${baseUrl}/tasks/${taskId}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ ...dummyTasks[1] })
+        .expect(201);
+
+      const res: { body: Task } = await request(server)
+        .get(`${baseUrl}/tasks/${subtask.body.id}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(200);
+      expect(res.body.description).toContain(dummyTasks[1].description);
+      expect(res.body.parentId).toBe(taskId);
+
+      console.log(res.body);
+    });
+
+    it('should return finished task and subtask tree', async () => {
+      await request(server)
+        .post(`${baseUrl}/tasks`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ ...dummyTasks[3] })
+        .expect(201);
+
+      await request(server)
+        .post(`${baseUrl}/tasks/${taskId}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ ...dummyTasks[1] })
+        .expect(201);
+
+      await request(server)
+        .post(`${baseUrl}/tasks/${taskId}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ ...dummyTasks[2] })
+        .expect(201);
+
+      const res = await request(server)
+        .get(`${baseUrl}/tasks`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(200);
+      expect(res.body.data[0].description).toBe(dummyTasks[3].description);
+      expect(res.body.data[1].description).toBe(dummyTasks[0].description);
+      expect(res.body.data[1].subtasks.length).toBe(2);
+      expect(res.body.data[1].subtasks[0].description).toBe(
+        dummyTasks[2].description,
+      );
+    });
+
+    it('should be able to update subtask', async () => {
+      const subtask: { body: Task } = await request(server)
+        .post(`${baseUrl}/tasks/${taskId}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ ...dummyTasks[1] })
+        .expect(201);
+      expect(subtask.body.description).toBe(dummyTasks[1].description);
+
+      const res = await request(server)
+        .patch(`${baseUrl}/tasks/${subtask.body.id}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ description: dummyTasks[3].description })
+        .expect(200);
+      expect(res.body.description).toBe(dummyTasks[3].description);
+    });
+
+    it('should be able to delete subtask', async () => {
+      const subtask: { body: Task } = await request(server)
+        .post(`${baseUrl}/tasks/${taskId}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ ...dummyTasks[1] })
+        .expect(201);
+
+      await request(server)
+        .delete(`${baseUrl}/tasks/${subtask.body.id}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(204);
+    });
+
+    it('should be able to create labels for subtask (ergo all other tested functionalities from labels work for subtasks)', async () => {
+      const subtask: { body: Task } = await request(server)
+        .post(`${baseUrl}/tasks/${taskId}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ ...dummyTasks[1] })
+        .expect(201);
+
+      await request(server)
+        .post(`${baseUrl}/tasks/${subtask.body.id}/labels`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send([{ name: 'label1' }, { name: 'label2' }])
+        .expect(201);
+
+      const res = await request(server)
+        .get(`${baseUrl}/tasks/${subtask.body.id}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ ...dummyTasks[1] })
+        .expect(200);
+      expect(res.body.labels.length).toBe(2);
+      expect(res.body.labels[0].name).toContain('label1');
+    });
   });
 });

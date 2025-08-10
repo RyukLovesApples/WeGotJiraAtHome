@@ -1,5 +1,5 @@
 import { Expose, Type } from 'class-transformer';
-import { Task } from '../task.entity';
+import { TaskDto } from '../dtos/task.dto';
 
 const decorators = {
   expose: Expose as () => PropertyDecorator,
@@ -18,9 +18,7 @@ export class PaginationMeta {
 
 export class PaginationResponse<T> {
   @decorators.expose()
-  // check on later for correct typing
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  @Type(() => Task)
+  @Type(() => TaskDto)
   data!: T[];
 
   @decorators.expose()

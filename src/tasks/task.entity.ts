@@ -70,6 +70,7 @@ export class Task {
   projectId!: string;
 
   @Column({ nullable: true, default: null })
+  @Expose()
   parentId!: string;
   @ManyToOne(() => Task, (task) => task.subtasks, {
     nullable: true,
@@ -79,6 +80,7 @@ export class Task {
   parent?: Task;
 
   @OneToMany(() => Task, (task) => task.parent)
+  @Expose()
   subtasks?: Task[];
 
   @ManyToOne(() => User, { nullable: true })
@@ -95,6 +97,7 @@ export class Task {
   dueDate!: Date;
 
   @Column({ default: 0, type: 'int' })
+  @Expose()
   layer!: number;
 
   @CreateDateColumn()

@@ -84,13 +84,13 @@ export class TasksController {
     return transformToDto(TaskDto, task);
   }
 
-  @Post(':id')
+  @Post(':taskId')
   async createSubtask(
     @CurrentUserId() userId: string,
     @Param() { projectId }: ProjectIdParams,
     @Param() { taskId }: TaskIdParams,
     @Body() createTaskDto: CreateTaskDto,
-  ) {
+  ): Promise<TaskDto> {
     const subtask = await this.tasksService.createSubtask(
       taskId,
       createTaskDto,
@@ -99,8 +99,10 @@ export class TasksController {
     );
     return transformToDto(TaskDto, subtask);
   }
-  @Post(':id/assign')
+
+  @Post(':taskId/assign')
   async assignTask(
+    @CurrentUserId() _: string,
     @Param() { taskId }: TaskIdParams,
     @Body() dto: AssignUserDto,
   ): Promise<TaskDto> {
