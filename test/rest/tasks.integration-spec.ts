@@ -523,11 +523,9 @@ describe('Tasks Integration', () => {
         .expect(200);
       expect(res.body.description).toContain(dummyTasks[1].description);
       expect(res.body.parentId).toBe(taskId);
-
-      console.log(res.body);
     });
 
-    it('should return finished task and subtask tree', async () => {
+    it('should return task and subtask tree', async () => {
       await request(server)
         .post(`${baseUrl}/tasks`)
         .set('Authorization', `Bearer ${accessToken}`)

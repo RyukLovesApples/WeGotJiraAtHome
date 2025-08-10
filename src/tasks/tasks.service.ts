@@ -17,6 +17,8 @@ import { FindTaskParams } from './params/find-task.params';
 import { PaginationParams } from './params/task-pagination.params';
 import { UpdateEmbeddedTaskDto } from './dtos/update-embedded-task.dto';
 import { buildTaskTree } from './utils/build-task-tree';
+import { plainToInstance } from 'class-transformer';
+import { TaskDto } from './dtos/task.dto';
 
 @Injectable()
 export class TasksService {
@@ -33,7 +35,7 @@ export class TasksService {
     filters: FindTaskParams,
     pagination: PaginationParams,
     projectId: string,
-  ): Promise<[Task[], number]> {
+  ): Promise<[TaskDto[], number]> {
     const queryBuilder = this.taskRepository
       .createQueryBuilder('task')
       .leftJoinAndSelect('task.user', 'user')
@@ -68,7 +70,10 @@ export class TasksService {
     );
     queryBuilder.skip(pagination.offset).take(pagination.limit);
     const [flatTasks, total] = await queryBuilder.getManyAndCount();
-    const tree = buildTaskTree(flatTasks);
+    const dtos = plainToInstance(TaskDto, flatTasks, {
+      excludeExtraneousValues: true,
+    });
+    const tree = buildTaskTree(dtos);
     return [tree, total];
   }
 

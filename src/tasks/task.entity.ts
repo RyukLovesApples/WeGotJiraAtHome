@@ -67,11 +67,13 @@ export class Task {
 
   @Index('IDX_TASK_PROJECT', ['projectId'])
   @Column()
+  @Expose()
   projectId!: string;
 
   @Column({ nullable: true, default: null })
   @Expose()
   parentId!: string;
+
   @ManyToOne(() => Task, (task) => task.subtasks, {
     nullable: true,
     onDelete: 'CASCADE',

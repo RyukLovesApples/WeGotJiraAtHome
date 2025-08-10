@@ -1,7 +1,6 @@
 import { Expose, Type } from 'class-transformer';
 import { UserDto } from '../../users/dtos/user.dto';
 import { TaskLabel } from '../task-label.entity';
-import { Task } from '../task.entity';
 
 export class TaskDto {
   @Expose()
@@ -26,8 +25,8 @@ export class TaskDto {
   assignedToId!: string;
 
   @Expose()
-  // @Type(() => TaskDto)
-  subtasks?: Task[];
+  @Type(() => TaskDto)
+  subtasks?: TaskDto[];
 
   @Expose()
   layer!: number;
@@ -40,6 +39,12 @@ export class TaskDto {
 
   @Expose()
   updatedAt!: Date;
+
+  @Expose()
+  projectId!: string;
+
+  @Expose()
+  userId!: string;
 
   @Expose()
   @Type(() => UserDto)

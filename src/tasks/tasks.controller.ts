@@ -44,15 +44,15 @@ export class TasksController {
     @Query() filters: FindTaskParams,
     @Query() pagination: PaginationParams,
     @Param('projectId') projectId: string,
-  ): Promise<PaginationResponse<Task>> {
-    const [items, total] = await this.tasksService.getAll(
+  ): Promise<PaginationResponse<TaskDto>> {
+    const [tree, total] = await this.tasksService.getAll(
       filters,
       pagination,
       projectId,
     );
 
     return {
-      data: items,
+      data: tree,
       meta: {
         total: total,
         limit: pagination.limit,
