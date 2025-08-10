@@ -7,6 +7,9 @@ export class TaskDto {
   id!: string;
 
   @Expose()
+  parentId?: string;
+
+  @Expose()
   title!: string;
 
   @Expose()
@@ -19,10 +22,29 @@ export class TaskDto {
   labels?: TaskLabel[];
 
   @Expose()
+  assignedToId!: string;
+
+  @Expose()
+  @Type(() => TaskDto)
+  subtasks?: TaskDto[];
+
+  @Expose()
+  layer!: number;
+
+  @Expose()
+  dueDate!: Date;
+
+  @Expose()
   createdAt!: Date;
 
   @Expose()
   updatedAt!: Date;
+
+  @Expose()
+  projectId!: string;
+
+  @Expose()
+  userId!: string;
 
   @Expose()
   @Type(() => UserDto)

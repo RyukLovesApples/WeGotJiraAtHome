@@ -43,8 +43,11 @@ export class Task {
   status!: TaskStatus;
 
   @ManyToOne(() => User, (user) => user.tasks, { nullable: false })
-  @Expose()
+  @JoinColumn({ name: 'userId' })
   user!: User;
+
+  @Column()
+  userId!: string;
 
   @Expose()
   @OneToMany(() => TaskLabel, (label) => label.task, {
@@ -64,7 +67,40 @@ export class Task {
 
   @Index('IDX_TASK_PROJECT', ['projectId'])
   @Column()
+  @Expose()
   projectId!: string;
+
+  @Column({ nullable: true, default: null })
+  @Expose()
+  parentId!: string;
+
+  @ManyToOne(() => Task, (task) => task.subtasks, {
+    nullable: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'parentId' })
+  parent?: Task;
+
+  @OneToMany(() => Task, (task) => task.parent)
+  @Expose()
+  subtasks?: Task[];
+
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'assignedToId' })
+  @Expose()
+  assignedTo?: User;
+
+  @Column({ nullable: true })
+  @Expose()
+  assignedToId?: string;
+
+  @Column({ nullable: true, type: 'timestamp' })
+  @Expose()
+  dueDate!: Date;
+
+  @Column({ default: 0, type: 'int' })
+  @Expose()
+  layer!: number;
 
   @CreateDateColumn()
   @Expose()

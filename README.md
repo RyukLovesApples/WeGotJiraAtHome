@@ -50,7 +50,9 @@ The Mailer is its own dedicated module responsible for sending and managing all 
 ### Tasks
 
 - Full CRUD for tasks
-- Attach multiple labels to tasks
+- Support for subtasks (up to two levels deep)
+- Assign users to tasks and subtasks
+- Attach multiple labels to tasks and subtasks
 - Filter by status, labels, title, and description
 - Pagination and sorting support
 - DTO validation and robust error handling
@@ -342,4 +344,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-

@@ -63,6 +63,8 @@
 ./src/tasks/task-label.entity.ts
 ./src/tasks/responses
 ./src/tasks/responses/pagination.response.ts
+./src/tasks/utils
+./src/tasks/utils/build-task-tree.ts
 ./src/tasks/exceptions
 ./src/tasks/exceptions/wrong-task-status.exeption.ts
 ./src/tasks/dtos
@@ -70,6 +72,7 @@
 ./src/tasks/dtos/update-task.dto.ts
 ./src/tasks/dtos/task.dto.ts
 ./src/tasks/dtos/create-task-label.dto.ts
+./src/tasks/dtos/assign-user.dto.ts
 ./src/tasks/dtos/update-embedded-task.dto.ts
 ./src/tasks/dtos/update-task-status.dto.ts
 ./src/tasks/tasks.module.ts

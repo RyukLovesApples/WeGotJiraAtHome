@@ -4,6 +4,8 @@ import {
   IsEnum,
   ValidateNested,
   IsOptional,
+  IsUUID,
+  IsDate,
 } from 'class-validator';
 import { TaskStatus } from '../task-status.enum';
 import { CreateTaskLabelDto } from './create-task-label.dto';
@@ -26,4 +28,13 @@ export class CreateTaskDto {
   @ValidateNested({ each: true })
   @Type(() => CreateTaskLabelDto)
   labels?: CreateTaskLabelDto[];
+
+  @IsOptional()
+  @IsString()
+  @IsUUID()
+  assignedToId?: string;
+
+  @IsOptional()
+  @IsDate()
+  dueDate?: Date;
 }

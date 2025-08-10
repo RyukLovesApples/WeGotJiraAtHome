@@ -28,6 +28,9 @@ import { TaskDto } from './dtos/task.dto';
 import { transformToDto } from 'src/utils/transform';
 import { Resources } from 'src/project-permissions/decorators/resource.decorator';
 import { Resource } from 'src/project-permissions/enums/resource.enum';
+import { TaskIdParams } from 'src/common/dtos/params/taskId.params';
+import { ProjectIdParams } from 'src/common/dtos/params/projectId.params';
+import { AssignUserDto } from './dtos/assign-user.dto';
 
 @Controller()
 @Resources(Resource.TASK)
@@ -41,15 +44,15 @@ export class TasksController {
     @Query() filters: FindTaskParams,
     @Query() pagination: PaginationParams,
     @Param('projectId') projectId: string,
-  ): Promise<PaginationResponse<Task>> {
-    const [items, total] = await this.tasksService.getAll(
+  ): Promise<PaginationResponse<TaskDto>> {
+    const [tree, total] = await this.tasksService.getAll(
       filters,
       pagination,
       projectId,
     );
 
     return {
-      data: items,
+      data: tree,
       meta: {
         total: total,
         limit: pagination.limit,
@@ -78,6 +81,32 @@ export class TasksController {
       userId,
       projectId,
     );
+    return transformToDto(TaskDto, task);
+  }
+
+  @Post(':taskId')
+  async createSubtask(
+    @CurrentUserId() userId: string,
+    @Param() { projectId }: ProjectIdParams,
+    @Param() { taskId }: TaskIdParams,
+    @Body() createTaskDto: CreateTaskDto,
+  ): Promise<TaskDto> {
+    const subtask = await this.tasksService.createSubtask(
+      taskId,
+      createTaskDto,
+      userId,
+      projectId,
+    );
+    return transformToDto(TaskDto, subtask);
+  }
+
+  @Post(':taskId/assign')
+  async assignTask(
+    @CurrentUserId() _: string,
+    @Param() { taskId }: TaskIdParams,
+    @Body() dto: AssignUserDto,
+  ): Promise<TaskDto> {
+    const task = await this.tasksService.assignTask(taskId, dto.userId);
     return transformToDto(TaskDto, task);
   }
 
