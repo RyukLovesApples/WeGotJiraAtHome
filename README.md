@@ -12,8 +12,7 @@ A full-featured, test-driven project and task management API inspired by Jira. T
 
 - Role-based access control (Admin, Regular User)
 - Authentication via JWT
-- Projects with ownership and members
-- Tasks with status updates, labels, and filters
+- Projects, Epics and Tasks for hierarchical work organization
 - Modular architecture for maintainability and scalability
 - Full integration test coverage
 - Isolated environment setup for testing
@@ -39,9 +38,10 @@ The Mailer is its own dedicated module responsible for sending and managing all 
 - Project Invitations – Sends invite links via email and automatically creates a ProjectUser record with permissions upon acceptance
 - Password Reset – Allows users to request a reset token and update their password securely.
 
-### Projects & ProjectUsers
+### Projects, Epics & ProjectUsers
 
-- Create projects (with optional tasks)
+- Create projects
+- Epics: Introduced as an intermediate organizational layer between Projects and Tasks. Epics help group related tasks under a single, larger objective within a project.
 - Automatically assign project to Project User
 - Designed for full CRUD of project users
 - ProjectUser module serves as the canonical source for project membership and roles to enable consistent permissions enforcement
@@ -226,8 +226,6 @@ npm run enter:test
 ```bash
 npm run enter:test -- filename
 ```
-
-> All tests pass and run successfully. However, you may notice duplicate logs or memory issues during testing. This appears to be related to the test setup (possibly multiple app instances being created). It does not affect real usage (e.g., Postman).
 
 ---
 
