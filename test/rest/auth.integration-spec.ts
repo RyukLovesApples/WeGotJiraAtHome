@@ -21,7 +21,7 @@ describe('Auth Integration', () => {
   let testSetup: TestSetup;
   let server: Http2Server;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     testSetup = await TestSetup.create(AppModule);
     server = testSetup.app.getHttpServer() as Http2Server;
   });
@@ -46,6 +46,7 @@ describe('Auth Integration', () => {
           expect(res.body).not.toHaveProperty('password');
         });
     });
+
     it('/users/register (POST), failed registration, duplicate email', async () => {
       await registerUser(server, defaultUser);
       return request(server)
@@ -53,6 +54,7 @@ describe('Auth Integration', () => {
         .send(defaultUser)
         .expect(409);
     });
+
     it('/users/register (POST), should hash the password before saving to the DB', async () => {
       await registerUser(server, defaultUser);
       const { dataSource } = testSetup;
@@ -67,6 +69,7 @@ describe('Auth Integration', () => {
       );
       expect(isMatch).toBe(true);
     });
+
     it('/users/register (POST), should fail with missing email', async () => {
       const invalidUser = { ...defaultUser, email: '' };
       await request(server)
@@ -86,6 +89,7 @@ describe('Auth Integration', () => {
           expect(res.body.accessToken).toMatch(/^[A-Za-z0-9-._~+/]+=*$/);
         });
     });
+
     it('/auth/login (POST), failed login, empty password', async () => {
       await registerUser(server, defaultUser);
       return loginUser(server, { ...defaultUser, password: '' })
@@ -95,6 +99,7 @@ describe('Auth Integration', () => {
           expect(errorBody?.message).toContain('password should not be empty');
         });
     });
+
     it('/auth/login (POST), failed login, not an email format', async () => {
       await registerUser(server, defaultUser);
       return loginUser(server, { ...defaultUser, email: 'adonisgmail.com' })
@@ -104,6 +109,7 @@ describe('Auth Integration', () => {
           expect(errorBody?.message).toContain('email must be an email');
         });
     });
+
     it('/auth/login (POST), failed login, unautherized, email does not exist', async () => {
       await registerUser(server, defaultUser);
       return loginUser(server, { ...defaultUser, email: 'adonis@gmail.com' })
@@ -115,6 +121,7 @@ describe('Auth Integration', () => {
           );
         });
     });
+
     it('/auth/login (POST), failed login, password does not match', async () => {
       await registerUser(server, defaultUser);
       return loginUser(server, { ...defaultUser, password: 'adonis' })
@@ -144,6 +151,7 @@ describe('Auth Integration', () => {
           expect(res.body).not.toHaveProperty('password');
         });
     });
+
     it('auth/profile (GET), failed access through auth guard', async () => {
       const incorrectToken = 'asödlfklöökasdfjsdflök';
       return request(server)
@@ -151,6 +159,7 @@ describe('Auth Integration', () => {
         .set('Authorization', `Bearer ${incorrectToken}`)
         .expect(401);
     });
+
     it('should check JWT payload data and include user role in response', async () => {
       await createUserWithRole(testSetup.app, defaultUser, [Role.ADMIN]);
       const response = await loginUser(server, defaultUser);
@@ -163,6 +172,7 @@ describe('Auth Integration', () => {
       expect(jwtData.password).not.toBeDefined();
       expect(jwtData.email).not.toBeDefined();
     });
+
     it('/auth/admin role guard should protect route (GET), successful access', async () => {
       await createUserWithRole(testSetup.app, defaultUser, [Role.ADMIN]);
       const response = await loginUser(server, defaultUser);
@@ -175,6 +185,7 @@ describe('Auth Integration', () => {
           expect(res.body.message).toBe('This is for admin only!');
         });
     });
+
     it('/auth/admin role guard should protect route (GET), access denied, role not defined', async () => {
       await registerUser(server, defaultUser);
       const response = await loginUser(server, defaultUser);
@@ -184,6 +195,7 @@ describe('Auth Integration', () => {
         .set('Authorization', `Bearer ${token}`)
         .expect(403);
     });
+
     it('/users/register (POST), should not allow to register as admin, should stripe roles and return default user', async () => {
       return await request(server)
         .post('/users/register')

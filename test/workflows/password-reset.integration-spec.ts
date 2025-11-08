@@ -15,7 +15,7 @@ describe('Password reset workflow', () => {
   let testSetup: TestSetup;
   let server: Http2Server;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     testSetup = await TestSetup.create(AppModule);
     server = testSetup.app.getHttpServer() as Http2Server;
   });

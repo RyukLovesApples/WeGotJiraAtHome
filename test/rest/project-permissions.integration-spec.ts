@@ -10,6 +10,7 @@ import {
   defaultUser,
   thirdUser,
   unauthorizedUser,
+  dummyEpics,
 } from '../dummy-variables/dummy-variables';
 import { ProjectDto } from 'src/projects/dtos/project.dto';
 import { JwtService } from '@nestjs/jwt';
@@ -18,6 +19,7 @@ import { ProjectRole } from 'src/project-users/project-role.enum';
 import { ProjectUser } from 'src/project-users/project-user.entity';
 import { CreateProjectPermissionDto } from 'src/project-permissions/dtos/create-project-permission.dto';
 import { Resource } from 'src/project-permissions/enums/resource.enum';
+import { EpicDto } from 'src/epics/dtos/epic.dto';
 
 describe('Project permissions Integration', () => {
   let testSetup: TestSetup;
@@ -26,17 +28,30 @@ describe('Project permissions Integration', () => {
   let projectId: string;
   let secondUserAccessToken: string;
   let baseUrl: string;
+  let epicId: string;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     testSetup = await TestSetup.create(AppModule);
     server = testSetup.app.getHttpServer() as Http2Server;
+  });
+
+  beforeEach(async () => {
     const token = await registerAndLogin(server, defaultUser);
     accessToken = token;
     const project = await createProject(server, token, dummyProjects[0]);
     const projectBody = project.body as ProjectDto;
     projectId = projectBody.id;
     secondUserAccessToken = await registerAndLogin(server, secondUser);
-    baseUrl = `/projects/${projectBody.id}`;
+
+    const epicRes = await request(server)
+      .post(`/projects/${projectId}/epics`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send(dummyEpics[1])
+      .expect(201);
+    const epic = epicRes.body as EpicDto;
+    epicId = epic.id;
+
+    baseUrl = `/projects/${projectId}`;
   });
 
   afterEach(async () => {
@@ -74,7 +89,7 @@ describe('Project permissions Integration', () => {
 
     // Try creating task -> should fail with 403 Forbidden
     await request(server)
-      .post(`${baseUrl}/tasks`)
+      .post(`${baseUrl}/epics/${epicId}/tasks`)
       .set('Authorization', `Bearer ${secondUserAccessToken}`)
       .send(dummyTasks[0])
       .expect(403);
@@ -91,7 +106,7 @@ describe('Project permissions Integration', () => {
       .expect(201);
     // User should now be able to create a task
     await request(server)
-      .post(`${baseUrl}/tasks`)
+      .post(`${baseUrl}/epics/${epicId}/tasks`)
       .set('Authorization', `Bearer ${secondUserAccessToken}`)
       .send(dummyTasks[0])
       .expect(201);
@@ -104,6 +119,7 @@ describe('Project permissions Integration', () => {
     // Since custom permissions are only accessible via cache -> caching strategy works as expected
     // No extra test needed here.
   });
+
   it('no project user should be able to change owner resource permissions, forbidden', async () => {
     const permissionChange: CreateProjectPermissionDto = {
       role: ProjectRole.OWNER,
@@ -120,6 +136,7 @@ describe('Project permissions Integration', () => {
       .send([permissionChange])
       .expect(403);
   });
+
   it('owner should be able to change multiple role permissions', async () => {
     const permissionChange: CreateProjectPermissionDto[] = [
       {
@@ -173,7 +190,6 @@ describe('Project permissions Integration', () => {
     };
     const thirdProjectUser = projectUserRepo.create(thirdProjectUserData);
     await projectUserRepo.save(thirdProjectUser);
-    console.log('hey');
 
     // Project user of role USER should by default not be able to update projects -> 403 Forbidden
     await request(server)
@@ -184,7 +200,7 @@ describe('Project permissions Integration', () => {
 
     // Project user of role ADMIN should by default be able to create a task
     await request(server)
-      .post(`${baseUrl}/tasks`)
+      .post(`${baseUrl}/epics/${epicId}/tasks`)
       .set('Authorization', `Bearer ${thirdUserToken}`)
       .send({ ...dummyTasks[0] })
       .expect(201);
@@ -205,11 +221,12 @@ describe('Project permissions Integration', () => {
 
     // ADMIN role should no longer be able to create a task
     await request(server)
-      .post(`${baseUrl}/tasks`)
+      .post(`${baseUrl}/epics/${epicId}/tasks`)
       .set('Authorization', `Bearer ${thirdUserToken}`)
       .send({ ...dummyTasks[1] })
       .expect(403);
   });
+
   it('should not allow to pass unknown project role, test validation', async () => {
     const permissionChange = {
       role: 'super-user',
@@ -226,6 +243,7 @@ describe('Project permissions Integration', () => {
       .send([permissionChange])
       .expect(400);
   });
+
   it('should throw conflict if unauthorized user tries to access project route', async () => {
     const unauthorizedToken = await registerAndLogin(server, unauthorizedUser);
     await request(server)
