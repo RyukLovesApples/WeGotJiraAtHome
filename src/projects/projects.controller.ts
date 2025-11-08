@@ -39,14 +39,14 @@ export class ProjectsController {
     @CurrentUserId() userId: string,
     @Body() createProjectDto: CreateProjectDto,
   ): Promise<ProjectDto | null> {
-    if (createProjectDto.tasks) {
-      const projectWithTasks =
-        await this.projectCreationService.createProjectWithTasks(
-          createProjectDto,
-          userId,
-        );
-      return transformToDto(ProjectDto, projectWithTasks);
-    }
+    // if (createProjectDto.tasks) {
+    //   const projectWithTasks =
+    //     await this.projectCreationService.createProjectWithTasks(
+    //       createProjectDto,
+    //       userId,
+    //     );
+    //   return transformToDto(ProjectDto, projectWithTasks);
+    // }
     const project = await this.projectCreationService.create(
       createProjectDto,
       userId,
@@ -76,14 +76,14 @@ export class ProjectsController {
     @Body() updateProjectDto: UpdateProjectWithTasks,
   ) {
     const project = await this.findOneOrFail(projectId);
-    if (updateProjectDto.tasks) {
-      const updateProjectTasks =
-        await this.projectCreationService.updateProjectWithTasks(
-          project,
-          updateProjectDto,
-        );
-      return transformToDto(ProjectDto, updateProjectTasks);
-    }
+    // if (updateProjectDto.tasks) {
+    //   const updateProjectTasks =
+    //     await this.projectCreationService.updateProjectWithTasks(
+    //       project,
+    //       updateProjectDto,
+    //     );
+    //   return transformToDto(ProjectDto, updateProjectTasks);
+    // }
     const updatedProject = await this.projectService.update(
       project,
       updateProjectDto,

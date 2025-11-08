@@ -32,6 +32,9 @@ export class TaskDto {
   layer!: number;
 
   @Expose()
+  epicId!: string;
+
+  @Expose()
   dueDate!: Date;
 
   @Expose()

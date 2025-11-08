@@ -8,6 +8,12 @@ export const defaultProjectPermissions: ProjectPermissionMap = deepFreeze({
       update: true,
       delete: true,
     },
+    epics: {
+      read: true,
+      create: true,
+      update: true,
+      delete: true,
+    },
     tasks: {
       read: true,
       create: true,
@@ -34,6 +40,12 @@ export const defaultProjectPermissions: ProjectPermissionMap = deepFreeze({
       read: true,
       update: true,
     },
+    epics: {
+      read: true,
+      create: true,
+      update: true,
+      delete: true,
+    },
     tasks: {
       read: true,
       create: true,
@@ -45,6 +57,9 @@ export const defaultProjectPermissions: ProjectPermissionMap = deepFreeze({
   },
   USER: {
     projects: {
+      read: true,
+    },
+    epics: {
       read: true,
     },
     tasks: {

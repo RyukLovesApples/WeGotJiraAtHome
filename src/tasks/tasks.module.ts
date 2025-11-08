@@ -6,9 +6,13 @@ import { Task } from './task.entity';
 import { UsersModule } from 'src/users/users.module';
 import { User } from 'src/users/users.entity';
 import { TaskLabel } from './task-label.entity';
+import { Epic } from 'src/epics/epics.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Task, User, TaskLabel]), UsersModule],
+  imports: [
+    TypeOrmModule.forFeature([Task, User, Epic, TaskLabel]),
+    UsersModule,
+  ],
   controllers: [TasksController],
   providers: [TasksService],
   exports: [TasksService],
