@@ -14,7 +14,7 @@ describe('Email verification workflow', () => {
   let testSetup: TestSetup;
   let server: Http2Server;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     testSetup = await TestSetup.create(AppModule);
     server = testSetup.app.getHttpServer() as Http2Server;
   });
@@ -93,6 +93,7 @@ describe('Email verification workflow', () => {
       'https://your-frontend.com/email-verification/expired-dummy',
     );
   });
+
   it('should return not found with repeated clicks on link', async () => {
     const token = await registerAndLogin(server, defaultUser);
     const jwtData: JwtPayload = testSetup.app.get(JwtService).verify(token);
@@ -117,6 +118,7 @@ describe('Email verification workflow', () => {
       'https://your-frontend.com/email-verification/not-found-dummy',
     );
   });
+
   it('should throw BAD REQUEST on invalid token fromat, test pipe', async () => {
     const emptyToken = '';
     const notUUIDToken = 'aölsdkfjö3lfj';

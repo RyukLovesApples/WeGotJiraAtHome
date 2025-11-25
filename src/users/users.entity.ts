@@ -1,4 +1,4 @@
-import { Expose } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import { Task } from '../tasks/task.entity';
 import {
   Column,
@@ -13,6 +13,7 @@ import { Project } from '../projects/project.entity';
 import { ProjectUser } from '../project-users/project-user.entity';
 
 @Entity()
+@Exclude()
 export class User {
   @PrimaryGeneratedColumn('uuid')
   @Expose()

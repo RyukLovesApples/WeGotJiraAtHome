@@ -20,6 +20,7 @@
 ./test/rest
 ./test/rest/project.integration-spec.ts
 ./test/rest/project-permissions.integration-spec.ts
+./test/rest/epic.integration-spec.ts
 ./test/rest/auth.integration-spec.ts
 ./test/rest/tasks.integration-spec.ts
 ./test/rest/app.integration-spec.ts
@@ -172,6 +173,7 @@
 ./src/common/dtos
 ./src/common/dtos/params
 ./src/common/dtos/params/token.params.ts
+./src/common/dtos/params/epicId.params.ts
 ./src/common/dtos/params/taskId.params.ts
 ./src/common/dtos/params/projectId.params.ts
 ./src/password-reset
@@ -213,3 +215,16 @@
 ./src/users/dtos/create-user.dto.ts
 ./src/users/role.enum.ts
 ./src/app.controller.ts
+./src/epics
+./src/epics/types
+./src/epics/epics.controller.ts
+./src/epics/epics.module.ts
+./src/epics/epics.service.ts
+./src/epics/epics.entity.ts
+./src/epics/enums
+./src/epics/enums/epic-priority.enum.ts
+./src/epics/enums/epic-status.enum.ts
+./src/epics/dtos
+./src/epics/dtos/epic.dto.ts
+./src/epics/dtos/create-epic.dto.ts
+./src/epics/dtos/update-epic.dto.ts

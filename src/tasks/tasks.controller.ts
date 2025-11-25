@@ -16,7 +16,6 @@ import {
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dtos/create-task.dto';
-import { FindOneParams } from './params/find-one.params';
 import { UpdateTaskDto } from './dtos/update-task.dto';
 import { Task } from './task.entity';
 import { CreateTaskLabelDto } from './dtos/create-task-label.dto';
@@ -29,8 +28,9 @@ import { transformToDto } from 'src/utils/transform';
 import { Resources } from 'src/project-permissions/decorators/resource.decorator';
 import { Resource } from 'src/project-permissions/enums/resource.enum';
 import { TaskIdParams } from 'src/common/dtos/params/taskId.params';
-import { ProjectIdParams } from 'src/common/dtos/params/projectId.params';
 import { AssignUserDto } from './dtos/assign-user.dto';
+import { EpicIdParams } from 'src/common/dtos/params/epicId.params';
+import { ProjectIdParams } from 'src/common/dtos/params/projectId.params';
 
 @Controller()
 @Resources(Resource.TASK)
@@ -43,12 +43,12 @@ export class TasksController {
     @CurrentUserId() _: string,
     @Query() filters: FindTaskParams,
     @Query() pagination: PaginationParams,
-    @Param('projectId') projectId: string,
+    @Param() { epicId }: EpicIdParams,
   ): Promise<PaginationResponse<TaskDto>> {
     const [tree, total] = await this.tasksService.getAll(
       filters,
       pagination,
-      projectId,
+      epicId,
     );
 
     return {
@@ -61,12 +61,13 @@ export class TasksController {
     };
   }
 
-  @Get('/:id')
+  @Get(':taskId')
   public async findOne(
     @CurrentUserId() _: string,
-    @Param() params: FindOneParams,
+    @Param() { epicId }: EpicIdParams,
+    @Param() { taskId }: TaskIdParams,
   ): Promise<TaskDto> {
-    const task = await this.findOneOrFail(params.id);
+    const task = await this.findOneOrFail(epicId, taskId);
     return transformToDto(TaskDto, task);
   }
 
@@ -74,12 +75,14 @@ export class TasksController {
   public async create(
     @CurrentUserId() userId: string,
     @Body() createTaskDto: CreateTaskDto,
-    @Param('projectId') projectId: string,
+    @Param() { projectId }: ProjectIdParams,
+    @Param() { epicId }: EpicIdParams,
   ): Promise<TaskDto> {
     const task = await this.tasksService.create(
       createTaskDto,
       userId,
       projectId,
+      epicId,
     );
     return transformToDto(TaskDto, task);
   }
@@ -88,6 +91,7 @@ export class TasksController {
   async createSubtask(
     @CurrentUserId() userId: string,
     @Param() { projectId }: ProjectIdParams,
+    @Param() { epicId }: EpicIdParams,
     @Param() { taskId }: TaskIdParams,
     @Body() createTaskDto: CreateTaskDto,
   ): Promise<TaskDto> {
@@ -96,6 +100,7 @@ export class TasksController {
       createTaskDto,
       userId,
       projectId,
+      epicId,
     );
     return transformToDto(TaskDto, subtask);
   }
@@ -110,54 +115,62 @@ export class TasksController {
     return transformToDto(TaskDto, task);
   }
 
-  @Patch('/:id')
+  @Patch(':taskId')
   public async updateTask(
     @CurrentUserId() _: string,
-    @Param() params: FindOneParams,
+    @Param() { epicId }: EpicIdParams,
+    @Param() { taskId }: TaskIdParams,
     @Body() updateTaskDto: UpdateTaskDto,
   ): Promise<TaskDto> {
-    const task: Task = await this.findOneOrFail(params.id);
+    const task: Task = await this.findOneOrFail(epicId, taskId);
     const updatedTask = await this.tasksService.updateTask(task, updateTaskDto);
     return transformToDto(TaskDto, updatedTask);
   }
 
-  @Delete('/:id')
+  @Delete(':taskId')
   @HttpCode(HttpStatus.NO_CONTENT)
   public async delete(
-    @Param() params: FindOneParams,
+    @Param() { epicId }: EpicIdParams,
+    @Param() { taskId }: TaskIdParams,
     @CurrentUserId() userId: string,
   ): Promise<void> {
-    const task: Task = await this.findOneOrFail(params.id);
+    const task: Task = await this.findOneOrFail(epicId, taskId);
     this.checkOwnership(task, userId);
     await this.tasksService.delete(task);
   }
 
-  @Post('/:id/labels')
+  @Post(':taskId/labels')
   public async addLabels(
-    @Param() param: FindOneParams,
+    @Param() { epicId }: EpicIdParams,
+    @Param() { taskId }: TaskIdParams,
     @Body() labels: CreateTaskLabelDto[],
     @CurrentUserId() userId: string,
   ): Promise<TaskDto> {
-    const task = await this.findOneOrFail(param.id);
+    const task = await this.findOneOrFail(epicId, taskId);
     this.checkOwnership(task, userId);
-    const updatedTask = await this.tasksService.addLabels(param.id, labels);
+    const updatedTask = await this.tasksService.addLabels(
+      epicId,
+      taskId,
+      labels,
+    );
     return transformToDto(TaskDto, updatedTask);
   }
 
-  @Delete('/:id/labels')
+  @Delete(':taskId/labels')
   @HttpCode(HttpStatus.NO_CONTENT)
   public async removeLabels(
-    @Param() params: FindOneParams,
+    @Param() { epicId }: EpicIdParams,
+    @Param() { taskId }: TaskIdParams,
     @Body() labelIds: string[],
     @CurrentUserId() userId: string,
-  ): Promise<Task | null> {
-    const task = await this.findOneOrFail(params.id);
+  ): Promise<void> {
+    const task = await this.findOneOrFail(epicId, taskId);
     this.checkOwnership(task, userId);
-    return this.tasksService.removeLabel(params.id, labelIds);
+    await this.tasksService.removeLabel(epicId, taskId, labelIds);
   }
 
-  private async findOneOrFail(id: string): Promise<Task> {
-    const task = await this.tasksService.getOneTask(id);
+  private async findOneOrFail(epicId: string, taskId: string): Promise<Task> {
+    const task = await this.tasksService.getOneTask(epicId, taskId);
     if (!task) {
       throw new NotFoundException('Task not found');
     }

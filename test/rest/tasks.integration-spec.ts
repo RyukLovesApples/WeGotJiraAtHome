@@ -11,6 +11,7 @@ import {
   dummyTasks,
   dummyProjects,
   secondUser,
+  dummyEpics,
 } from '../dummy-variables/dummy-variables';
 import {
   registerAndLogin,
@@ -28,28 +29,48 @@ import { ProjectRole } from 'src/project-users/project-role.enum';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from 'jsonwebtoken';
 import { HttpErrorResponse } from 'test/types/test.types';
+import { EpicDto } from 'src/epics/dtos/epic.dto';
+import { TaskDto } from 'src/tasks/dtos/task.dto';
 
 describe('Tasks Integration', () => {
   let testSetup: TestSetup;
-  let accessToken: string | undefined;
+  let accessToken: string;
   let taskId: string | undefined;
   let server: Http2Server;
   let baseUrl: string;
   let projectId: string;
+  let epicId: string;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     testSetup = await TestSetup.create(AppModule);
     server = testSetup.app.getHttpServer() as Http2Server;
+  });
+
+  beforeEach(async () => {
     const token = await registerAndLogin(server, { ...defaultUser });
-    const project = await createProject(server, token, {
-      ...dummyProjects[0],
-      tasks: [{ ...dummyTasks[0] }],
-    });
-    const projectBody = project.body as ProjectDto;
-    projectId = projectBody.id;
-    baseUrl = `/projects/${projectBody.id}`;
-    taskId = projectBody.tasks![0].id;
     accessToken = token;
+    const projectRes = await createProject(server, token, dummyProjects[0]);
+    const projectBody = projectRes.body as ProjectDto;
+    projectId = projectBody.id;
+
+    const epicRes = await request(server)
+      .post(`/projects/${projectId}/epics`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send(dummyEpics[1])
+      .expect(201);
+    const epic = epicRes.body as EpicDto;
+    epicId = epic.id;
+
+    baseUrl = `/projects/${projectBody.id}/epics/${epicId}`;
+
+    const taskRes = await createTask(
+      server,
+      accessToken,
+      dummyTasks[0],
+      baseUrl,
+    );
+    const task = taskRes.body as TaskDto;
+    taskId = task.id;
   });
 
   afterEach(async () => {
@@ -75,6 +96,7 @@ describe('Tasks Integration', () => {
         expect(res.body.labels?.length).toEqual(0);
       });
   });
+
   it('/tasks/id (GET), denies access to non-user', async () => {
     const token = await registerAndLogin(server, unauthorizedUser);
     return await request(server)
@@ -85,6 +107,7 @@ describe('Tasks Integration', () => {
         expect(res.body.message).toContain('User is not part of project.');
       });
   });
+
   it('/tasks/id (GET), should throw not found exception, wrong id', async () => {
     const wrongId = randomUUID();
     const token = await registerAndLogin(server, defaultUser);
@@ -97,6 +120,7 @@ describe('Tasks Integration', () => {
         expect(errorBody?.message).toContain('Task not found');
       });
   });
+
   it('/tasks/id (GET), should throw 400 for invalid UUID', async () => {
     return await request(server)
       .get(`${baseUrl}/tasks/invalid_id`)
@@ -104,9 +128,10 @@ describe('Tasks Integration', () => {
       .expect(400)
       .expect((res) => {
         const errorBody = parseErrorText(res);
-        expect(errorBody?.message).toContain('id must be a UUID');
+        expect(errorBody?.message).toContain('taskId must be a UUID');
       });
   });
+
   it('/tasks (POST), should validate the input, empty title', async () => {
     await registerAndLogin(server, defaultUser);
     return request(server)
@@ -115,6 +140,7 @@ describe('Tasks Integration', () => {
       .send({ ...dummyTasks[0], title: '' })
       .expect(400);
   });
+
   it('/tasks/id (POST), should validate the input, invalid input type', async () => {
     await registerAndLogin(server, defaultUser);
     return request(server)
@@ -123,6 +149,7 @@ describe('Tasks Integration', () => {
       .send({ ...dummyTasks[0], title: 2 })
       .expect(400);
   });
+
   it('/tasks/id (PATCH), sould return changed task', async () => {
     return request(server)
       .patch(`${baseUrl}/tasks/${taskId}`)
@@ -135,6 +162,7 @@ describe('Tasks Integration', () => {
         expect(res.body.description).toBe(dummyTasks[1].description);
       });
   });
+
   it('/tasks/id (PATCH), should throw custom WrongTaskStatusException', async () => {
     return request(server)
       .patch(`${baseUrl}/tasks/${taskId}`)
@@ -145,35 +173,24 @@ describe('Tasks Integration', () => {
         expect(res.body.message).toContain('Cannot change task status from');
       });
   });
+
   it('/tasks/id (DELETE), should delete task', async () => {
     return request(server)
       .delete(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(204);
   });
+
   it('/tasks/id (DELETE), should throw not found exceptoin', async () => {
     return request(server)
       .delete(`${baseUrl}/tasks/${randomUUID()}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(404);
   });
-  it('/tasks (GET), should only show list of user tasks', async () => {
-    const token = await registerAndLogin(server, unauthorizedUser);
-    await createProject(server, token, {
-      ...dummyProjects[0],
-      tasks: [dummyTasks[0]],
-    });
-    await createTask(server, defaultUser, dummyTasks[1], baseUrl);
-    const res: { body: PaginationResponse<Task> } = await request(server)
-      .get(`${baseUrl}/tasks`)
-      .set('Authorization', `Bearer ${accessToken}`)
-      .expect(200);
-    expect(Array.isArray(res.body.data)).toBe(true);
-    expect(res.body.data.length).toEqual(2);
-  });
+
   it('/tasks (GET), should return user tasks with pagination limit', async () => {
     await Promise.all(
-      dummyTasks.map((task) => createTask(server, defaultUser, task, baseUrl)),
+      dummyTasks.map((task) => createTask(server, accessToken, task, baseUrl)),
     );
     return request(server)
       .get(`${baseUrl}/tasks?limit=3`)
@@ -184,13 +201,14 @@ describe('Tasks Integration', () => {
         expect(res.body.meta.total).toEqual(5);
       });
   });
+
   it('/tasks (GET), should return user tasks and skip offset, orderBy: createdAt "DESC"', async () => {
     await request(server)
       .delete(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(204);
     for (const task of dummyTasks) {
-      await createTask(server, defaultUser, task, baseUrl);
+      await createTask(server, accessToken, task, baseUrl);
     }
     return request(server)
       .get(`${baseUrl}/tasks?limit=3&offset=2`)
@@ -203,13 +221,14 @@ describe('Tasks Integration', () => {
         expect(res.body.meta.total).toEqual(4);
       });
   });
+
   it('/tasks (GET), should return user tasks orderBy: title "ASC"', async () => {
     await request(server)
       .delete(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(204);
     for (const task of dummyTasks) {
-      await createTask(server, defaultUser, task, baseUrl);
+      await createTask(server, accessToken, task, baseUrl);
     }
     return request(server)
       .get(`${baseUrl}/tasks?orderBy=title&sortingOrder=ASC`)
@@ -222,13 +241,14 @@ describe('Tasks Integration', () => {
         expect(res.body.data[3].title).toBe(dummyTasks[3].title);
       });
   });
+
   it('/tasks (GET), should not allow to order by description', async () => {
     await request(server)
       .delete(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(204);
     for (const task of dummyTasks) {
-      await createTask(server, defaultUser, task, baseUrl);
+      await createTask(server, accessToken, task, baseUrl);
     }
     return request(server)
       .get(`${baseUrl}/tasks?orderBy=description&sortingOrder=ASC`)
@@ -241,9 +261,10 @@ describe('Tasks Integration', () => {
         expect(res.body.data[3].title).toBe(dummyTasks[3].title);
       });
   });
+
   it('/tasks (GET), should return user tasks with searched word', async () => {
     await Promise.all(
-      dummyTasks.map((task) => createTask(server, defaultUser, task, baseUrl)),
+      dummyTasks.map((task) => createTask(server, accessToken, task, baseUrl)),
     );
     return request(server)
       .get(`${baseUrl}/tasks?search=keyword`)
@@ -253,9 +274,10 @@ describe('Tasks Integration', () => {
         expect(res.body.data.length).toEqual(2);
       });
   });
+
   it('/tasks (GET), should return empty array, searched word not found', async () => {
     await Promise.all(
-      dummyTasks.map((task) => createTask(server, defaultUser, task, baseUrl)),
+      dummyTasks.map((task) => createTask(server, accessToken, task, baseUrl)),
     );
     return request(server)
       .get(`${baseUrl}/tasks?search=notIncluded`)
@@ -265,9 +287,10 @@ describe('Tasks Integration', () => {
         expect(res.body.data.length).toEqual(0);
       });
   });
+
   it('/tasks (GET), should return user tasks with searched word UPPERCASE', async () => {
     await Promise.all(
-      dummyTasks.map((task) => createTask(server, defaultUser, task, baseUrl)),
+      dummyTasks.map((task) => createTask(server, accessToken, task, baseUrl)),
     );
     return request(server)
       .get(`${baseUrl}/tasks?search=KEYWORD`)
@@ -277,13 +300,14 @@ describe('Tasks Integration', () => {
         expect(res.body.data.length).toEqual(2);
       });
   });
+
   it('/tasks (GET), should return user tasks with searched word, orderBy title, limit 3, ASC order', async () => {
     await request(server)
       .delete(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(204);
     for (const task of dummyTasks) {
-      await createTask(server, defaultUser, task, baseUrl);
+      await createTask(server, accessToken, task, baseUrl);
     }
     return request(server)
       .get(
@@ -297,6 +321,7 @@ describe('Tasks Integration', () => {
         expect(res.body.data.length).toEqual(2);
       });
   });
+
   it('/tasks/id/labels (POST), should create label', async () => {
     return request(server)
       .post(`${baseUrl}/tasks/${taskId}/labels`)
@@ -308,6 +333,7 @@ describe('Tasks Integration', () => {
         expect(res.body.labels?.length).toEqual(2);
       });
   });
+
   it('/tasks/id (DELETE), should delete labels with task', async () => {
     let labelId;
     await request(server)
@@ -327,6 +353,7 @@ describe('Tasks Integration', () => {
       .findOne({ where: { id: labelId } })) as TaskLabel;
     expect(labels).toBe(null);
   });
+
   it('/tasks/id/labels (DELETE), should delete label from task', async () => {
     const labelId: string[] = [];
     await request(server)
@@ -355,12 +382,9 @@ describe('Tasks Integration', () => {
         expect(res.body.labels?.length).toEqual(1);
       });
   });
+
   it('resource guard, resource guard should deny access to a unknown project user', async () => {
     const token = await registerAndLogin(server, unauthorizedUser);
-    await createProject(server, token, {
-      ...dummyProjects[0],
-      tasks: [dummyTasks[0]],
-    });
     await request(server)
       .get(`${baseUrl}/tasks/${taskId}`)
       .set('Authorization', `Bearer ${token}`)
@@ -384,6 +408,7 @@ describe('Tasks Integration', () => {
       .set('Authorization', `Bearer ${token}`)
       .expect(401);
   });
+
   it('resource guard, new project user of ProjectRole USER should only be able to read from tasks routes', async () => {
     const token = await registerAndLogin(server, unauthorizedUser);
     const { dataSource } = testSetup;
@@ -420,6 +445,7 @@ describe('Tasks Integration', () => {
       .set('Authorization', `Bearer ${token}`)
       .expect(403);
   });
+
   describe('Subtasks', () => {
     it('should create subtask', async () => {
       return request(server)

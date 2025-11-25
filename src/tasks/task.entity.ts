@@ -14,6 +14,7 @@ import { User } from '../users/users.entity';
 import { TaskLabel } from './task-label.entity';
 import { Exclude, Expose } from 'class-transformer';
 import { Project } from '../projects/project.entity';
+import { Epic } from 'src/epics/epics.entity';
 
 @Entity()
 @Exclude()
@@ -21,6 +22,7 @@ export class Task {
   @Expose()
   @PrimaryGeneratedColumn('uuid')
   id!: string;
+
   @Column({
     type: 'varchar',
     length: 50,
@@ -28,12 +30,14 @@ export class Task {
   })
   @Expose()
   title!: string;
+
   @Column({
     type: 'text',
     nullable: false,
   })
   @Expose()
   description!: string;
+
   @Column({
     type: 'enum',
     enum: TaskStatus,
@@ -89,6 +93,14 @@ export class Task {
   @JoinColumn({ name: 'assignedToId' })
   @Expose()
   assignedTo?: User;
+
+  @ManyToOne(() => Epic, (epic) => epic.tasks, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'epicId' })
+  epic!: Epic;
+
+  @Column({ type: 'uuid' })
+  @Expose()
+  epicId!: string;
 
   @Column({ nullable: true })
   @Expose()

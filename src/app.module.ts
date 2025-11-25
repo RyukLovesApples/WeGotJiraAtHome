@@ -37,6 +37,8 @@ import { EmailVerificationModule } from './email-verification/email-verification
 import { EmailVerification } from './email-verification/email-verification.entity';
 import { PasswordResetModule } from './password-reset/password-reset.module';
 import { PasswordReset } from './password-reset/password-reset.entity';
+import { EpicModule } from './epics/epics.module';
+import { Epic } from './epics/epics.entity';
 
 @Module({
   imports: [
@@ -60,6 +62,7 @@ import { PasswordReset } from './password-reset/password-reset.entity';
           User,
           TaskLabel,
           Project,
+          Epic,
           ProjectUser,
           ProjectUserInvite,
           ProjectPermission,
@@ -91,8 +94,14 @@ import { PasswordReset } from './password-reset/password-reset.entity';
         module: ProjectsModule,
         children: [
           {
-            path: ':projectId/tasks',
-            module: TasksModule,
+            path: ':projectId/epics',
+            module: EpicModule,
+            children: [
+              {
+                path: ':epicId/tasks',
+                module: TasksModule,
+              },
+            ],
           },
           {
             path: ':projectId/invite',
@@ -111,6 +120,7 @@ import { PasswordReset } from './password-reset/password-reset.entity';
     CacheModule.register(),
     EmailVerificationModule,
     PasswordResetModule,
+    EpicModule,
   ],
   controllers: [AppController],
   providers: [

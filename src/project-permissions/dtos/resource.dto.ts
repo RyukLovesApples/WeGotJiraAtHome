@@ -16,6 +16,11 @@ export class ResourceDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => ActionDto)
+  epics?: ActionDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => ActionDto)
   'project-users'?: ActionDto;
 
   @IsOptional()

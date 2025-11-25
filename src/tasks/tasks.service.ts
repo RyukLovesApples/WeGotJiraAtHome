@@ -19,6 +19,7 @@ import { UpdateEmbeddedTaskDto } from './dtos/update-embedded-task.dto';
 import { buildTaskTree } from './utils/build-task-tree';
 import { plainToInstance } from 'class-transformer';
 import { TaskDto } from './dtos/task.dto';
+import { Epic } from 'src/epics/epics.entity';
 
 @Injectable()
 export class TasksService {
@@ -27,6 +28,8 @@ export class TasksService {
     private taskRepository: Repository<Task>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Epic)
+    private epicRepository: Repository<Epic>,
     @InjectRepository(TaskLabel)
     private labelRepository: Repository<TaskLabel>,
   ) {}
@@ -34,25 +37,29 @@ export class TasksService {
   public async getAll(
     filters: FindTaskParams,
     pagination: PaginationParams,
-    projectId: string,
+    epicId: string,
   ): Promise<[TaskDto[], number]> {
     const queryBuilder = this.taskRepository
       .createQueryBuilder('task')
       .leftJoinAndSelect('task.user', 'user')
       .leftJoinAndSelect('task.labels', 'labels')
-      .where(`task.project.id = :projectId`, { projectId });
+      .where(`task.epicId = :epicId`, { epicId });
+
     if (filters.status) {
       queryBuilder.andWhere('task.status = :status', {
         status: filters.status,
       });
     }
+
     const search = filters.search?.trim();
+
     if (search) {
       queryBuilder.andWhere(
         '(task.title ILIKE :search OR task.description ILIKE :search)',
         { search: `%${search}%` },
       );
     }
+
     if (filters.labels?.length) {
       const subQuery = queryBuilder
         .subQuery()
@@ -73,13 +80,17 @@ export class TasksService {
     const dtos = plainToInstance(TaskDto, flatTasks, {
       excludeExtraneousValues: true,
     });
+
     const tree = buildTaskTree(dtos);
     return [tree, total];
   }
 
-  public async getOneTask(id: string): Promise<Task | null> {
+  public async getOneTask(
+    epicId: string,
+    taskId: string,
+  ): Promise<Task | null> {
     return await this.taskRepository.findOne({
-      where: { id },
+      where: { epicId, id: taskId },
       relations: ['labels', 'user', 'subtasks', 'subtasks.labels'],
     });
   }
@@ -88,14 +99,25 @@ export class TasksService {
     createTaskDto: CreateTaskDto,
     userId: string,
     projectId: string,
+    epicId: string,
   ): Promise<Task> {
+    const epic = await this.epicRepository.findOneBy({ id: epicId });
+    if (!epic) throw new NotFoundException('Epic not found');
+
+    if (epic.archived) {
+      throw new BadRequestException('Cannot create tasks on an archived epic.');
+    }
+
     const user = await this.userRepository.findOneBy({
       id: userId,
     });
+
     if (!user) throw new NotFoundException('User not found');
+
     if (createTaskDto.labels) {
       createTaskDto.labels = this.uniqueLabels(createTaskDto.labels);
     }
+
     const labels = createTaskDto.labels?.map((label) =>
       this.labelRepository.create({ name: label.name }),
     );
@@ -106,7 +128,8 @@ export class TasksService {
       status: createTaskDto.status,
       userId: userId,
       labels: labels,
-      projectId: projectId,
+      epicId,
+      projectId,
     });
 
     const task: Task = await this.taskRepository.save(newTask);
@@ -118,11 +141,26 @@ export class TasksService {
     createTaskDto: CreateTaskDto,
     userId: string,
     projectId: string,
+    epicId: string,
   ): Promise<Task> {
+    const epic = await this.epicRepository.findOneBy({ id: epicId });
+    if (!epic) throw new NotFoundException('Epic not found');
+
+    if (epic.archived) {
+      throw new BadRequestException(
+        'Cannot create subtasks on an archived epic.',
+      );
+    }
+
     const parentTask = await this.taskRepository.findOne({
       where: { id: parentId },
     });
+
     if (!parentTask) throw new NotFoundException('Parent task not found');
+
+    if (parentTask.epicId !== epicId) {
+      throw new BadRequestException('Parent task does not belong to this Epic');
+    }
 
     if (parentTask.layer >= 2) {
       throw new BadRequestException('Max task depth (3 levels) reached');
@@ -145,6 +183,7 @@ export class TasksService {
       status: createTaskDto.status || TaskStatus.OPEN,
       userId,
       labels,
+      epicId,
       projectId,
       parentId: parentTask.id,
       layer: parentTask.layer + 1,
@@ -156,6 +195,11 @@ export class TasksService {
   public async assignTask(taskId: string, userId: string): Promise<Task> {
     const task = await this.taskRepository.findOne({ where: { id: taskId } });
     if (!task) throw new NotFoundException('Task not found');
+
+    const epic = await this.epicRepository.findOneBy({ id: task.epicId });
+
+    if (epic?.archived)
+      throw new BadRequestException('Cannot assign tasks in an archived epic.');
 
     const user = await this.userRepository.findOneBy({ id: userId });
     if (!user) throw new NotFoundException('User not found');
@@ -181,9 +225,20 @@ export class TasksService {
     return await this.taskRepository.save(task);
   }
 
-  public async updateTaskById(updateDto: UpdateEmbeddedTaskDto): Promise<Task> {
-    const task = await this.getOneTask(updateDto.id);
+  public async updateTaskById(
+    epicId: string,
+    updateDto: UpdateEmbeddedTaskDto,
+  ): Promise<Task> {
+    const epic = await this.epicRepository.findOneBy({ id: epicId });
+    if (!epic) throw new NotFoundException('Epic not found');
+
+    if (epic.archived) {
+      throw new BadRequestException('Cannot update tasks in an archived epic.');
+    }
+
+    const task = await this.getOneTask(epicId, updateDto.id);
     if (!task) throw new NotFoundException('Task not found!');
+
     if (
       updateDto.status &&
       !this.isValidStatusTransition(task.status, updateDto.status)
@@ -200,16 +255,33 @@ export class TasksService {
   }
 
   public async delete(task: Task): Promise<void> {
+    const epic = await this.epicRepository.findOneBy({ id: task.epicId });
+
+    if (epic?.archived) {
+      throw new BadRequestException(
+        'Cannot delete tasks belonging to an archived epic.',
+      );
+    }
     await this.taskRepository.delete(task.id);
   }
 
   public async addLabels(
+    epicId: string,
     taskId: string,
     labelDto: CreateTaskLabelDto[],
   ): Promise<Task> {
-    const task = await this.getOneTask(taskId);
+    const task = await this.getOneTask(epicId, taskId);
     if (!task) throw new NotFoundException('Task not found');
+
+    const epic = await this.epicRepository.findOneBy({ id: epicId });
+    if (epic?.archived) {
+      throw new BadRequestException(
+        'Cannot modify labels on an archived epic.',
+      );
+    }
+
     const existingLabelNames = new Set(task.labels!.map((label) => label.name));
+
     const labels = this.uniqueLabels(labelDto)
       .filter((dto) => !existingLabelNames.has(dto.name))
       .map((label) => this.labelRepository.create({ ...label, task }));
@@ -222,16 +294,24 @@ export class TasksService {
   }
 
   public async removeLabel(
+    epicId: string,
     taskId: string,
     labelIds: string[],
-  ): Promise<Task | null> {
-    const task = await this.getOneTask(taskId);
+  ): Promise<void> {
+    const task = await this.getOneTask(epicId, taskId);
     if (!task) throw new NotFoundException('Task not found');
+
+    const epic = await this.epicRepository.findOneBy({ id: epicId });
+    if (epic?.archived) {
+      throw new BadRequestException(
+        'Cannot modify labels on an archived epic.',
+      );
+    }
+
     await this.labelRepository.delete({
       id: In(labelIds),
       taskId,
     });
-    return this.getOneTask(taskId);
   }
 
   private isValidStatusTransition(

@@ -38,9 +38,12 @@ describe('Project user Integration (GraphQL)', () => {
   let anotherUserId: string;
   let permissionAccessToken: string;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     testSetup = await TestSetup.create(AppModule);
     server = testSetup.app.getHttpServer() as Http2Server;
+  });
+
+  beforeEach(async () => {
     accessToken = await registerAndLogin(server, defaultUser);
     const project = await createProject(server, accessToken, {
       ...dummyProjects[0],
