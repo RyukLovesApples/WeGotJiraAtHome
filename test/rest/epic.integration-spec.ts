@@ -1,7 +1,7 @@
 import { AppModule } from 'src/app.module';
 import { TestSetup } from '../test.setup';
 import * as request from 'supertest';
-import { Http2Server } from 'http2';
+import { Server as HttpServer } from 'http';
 import {
   defaultUser,
   dummyProjects,
@@ -31,13 +31,13 @@ import { ProjectRole } from 'src/project-users/project-role.enum';
 describe('Epics Integration', () => {
   let testSetup: TestSetup;
   let accessToken: string;
-  let server: Http2Server;
+  let server: HttpServer;
   let baseUrl: string;
   let projectId: string;
 
   beforeAll(async () => {
     testSetup = await TestSetup.create(AppModule);
-    server = testSetup.app.getHttpServer() as Http2Server;
+    server = testSetup.app.getHttpServer() as HttpServer;
   });
 
   beforeEach(async () => {

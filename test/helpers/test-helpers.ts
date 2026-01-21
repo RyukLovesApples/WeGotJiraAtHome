@@ -1,5 +1,4 @@
 import * as request from 'supertest';
-import { Http2Server } from 'http2';
 import { CreateUserDto } from 'src/users/dtos/create-user.dto';
 import { Role } from 'src/users/role.enum';
 import { Test } from 'supertest';
@@ -20,15 +19,13 @@ import { CreateProjectUserInput } from 'src/project-users/dtos/create-project-us
 import { ProjectUserDto } from 'src/project-users/dtos/project-user.dto';
 import { z } from 'zod';
 import { CreateEpicDto } from 'src/epics/dtos/create-epic.dto';
+import { Server as HttpServer } from 'http';
 
-export const registerUser = (
-  server: Http2Server,
-  user: CreateUserDto,
-): Test => {
+export const registerUser = (server: HttpServer, user: CreateUserDto): Test => {
   return request(server).post('/users/register').send(user).expect(201);
 };
 
-export const loginUser = (server: Http2Server, user: CreateUserDto): Test => {
+export const loginUser = (server: HttpServer, user: CreateUserDto): Test => {
   return request(server).post('/auth/login').send(user);
 };
 
@@ -46,7 +43,7 @@ export const createUserWithRole = async (
 };
 
 export const registerAndLogin = async (
-  server: Http2Server,
+  server: HttpServer,
   user: CreateUserDto,
 ): Promise<string> => {
   await request(server).post('/users/register').send(user);
@@ -61,7 +58,7 @@ export const registerAndLogin = async (
 };
 
 export const createTask = async (
-  server: Http2Server,
+  server: HttpServer,
   accessToken: string,
   task: CreateTaskDto,
   baseUrl: string,
@@ -82,7 +79,7 @@ export const parseErrorText = (
 };
 
 export const createEpic = (
-  server: Http2Server,
+  server: HttpServer,
   token: string,
   epic: CreateEpicDto,
   baseUrl: string,
@@ -94,7 +91,7 @@ export const createEpic = (
 };
 
 export const createProject = (
-  server: Http2Server,
+  server: HttpServer,
   token: string,
   project: CreateProjectDto,
 ): Test => {
@@ -117,7 +114,7 @@ export const logErrorAndFail = (response: {
 // GraphQL
 
 export const createProjectUser = async (
-  server: Http2Server,
+  server: HttpServer,
   variables: { input: CreateProjectUserInput },
   accessToken: string,
 ): Promise<

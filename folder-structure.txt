@@ -1,5 +1,6 @@
 .
 ./Dockerfile.init
+./.DS_Store
 ./test
 ./test/dummy-variables
 ./test/dummy-variables/dummy-variables.ts
@@ -12,6 +13,9 @@
 ./test/workflows/email-verification.integration-spec.ts
 ./test/workflows/invitation.integration-spec.ts
 ./test/workflows/password-reset.integration-spec.ts
+./test/websockets
+./test/websockets/activity.integration-spec.ts
+./test/websockets/io-server.adapter.ts
 ./test/graphql
 ./test/graphql/project-users.integration-spec.ts
 ./test/jest-integration.json
@@ -95,6 +99,9 @@
 ./src/config/typed-config.service.ts
 ./src/config/app.config.ts
 ./src/config/db.config.ts
+./src/activity
+./src/activity/activity.module.ts
+./src/activity/activity.gateway.ts
 ./src/projects
 ./src/projects/projects.controller.ts
 ./src/projects/projects-creation.service.ts
@@ -119,6 +126,9 @@
 ./src/mailer/templates/email-verification.template.ts
 ./src/mailer/templates/invitation.template.ts
 ./src/mailer/mailer.service.spec.ts
+./src/shared
+./src/shared/enums
+./src/shared/enums/project-events.ts
 ./src/exception-filters
 ./src/exception-filters/catch-all.exception-filter.ts
 ./src/app.module.ts
@@ -126,7 +136,6 @@
 ./src/project-users/project-users.service.ts
 ./src/project-users/project-users.module.ts
 ./src/project-users/project-role.enum.ts
-./src/project-users/project-users.service.spec.ts
 ./src/project-users/schemas
 ./src/project-users/schemas/project-user.graphql
 ./src/project-users/dtos

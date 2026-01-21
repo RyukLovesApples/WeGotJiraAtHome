@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { JwtService } from '@nestjs/jwt';
 import * as request from 'supertest';
-import { Http2Server } from 'http2';
+import { Server as HttpServer } from 'http';
 import { JwtPayload } from 'jsonwebtoken';
 import { AppModule } from 'src/app.module';
 import { EmailVerification } from 'src/email-verification/email-verification.entity';
@@ -12,11 +12,11 @@ import { Role } from 'src/users/role.enum';
 
 describe('Email verification workflow', () => {
   let testSetup: TestSetup;
-  let server: Http2Server;
+  let server: HttpServer;
 
   beforeAll(async () => {
     testSetup = await TestSetup.create(AppModule);
-    server = testSetup.app.getHttpServer() as Http2Server;
+    server = testSetup.app.getHttpServer() as HttpServer;
   });
 
   afterEach(async () => {

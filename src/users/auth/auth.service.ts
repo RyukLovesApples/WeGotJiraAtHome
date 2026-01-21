@@ -11,6 +11,9 @@ import { User } from '../users.entity';
 import { JwtService } from '@nestjs/jwt';
 import { LoginUserDto } from '../dtos/login-user.dto';
 import { LoginResponse } from '../responses/login-user.response';
+import { ConfigService } from '@nestjs/config';
+import { AuthConfig } from 'src/config/auth.config';
+import { JwtPayload } from 'jsonwebtoken';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +21,7 @@ export class AuthService {
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
     private readonly passwordService: PasswordService,
+    private readonly configService: ConfigService,
   ) {}
   public async register(createUserDto: CreateUserDto): Promise<User> {
     const user = await this.userService.findOneByEmail(createUserDto.email);
@@ -53,5 +57,20 @@ export class AuthService {
       roles: user.roles,
     };
     return this.jwtService.sign(payload);
+  }
+
+  public async validateToken(token: string): Promise<JwtPayload> {
+    if (!token) {
+      throw new UnauthorizedException('Token missing.');
+    }
+    const secret = this.configService.get<AuthConfig>('auth')?.jwt.secret;
+    try {
+      const payload: JwtPayload = await this.jwtService.verifyAsync(token, {
+        secret: secret,
+      });
+      return payload;
+    } catch {
+      throw new UnauthorizedException('Invalid or expired token.');
+    }
   }
 }

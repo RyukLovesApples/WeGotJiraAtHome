@@ -39,6 +39,7 @@ import { PasswordResetModule } from './password-reset/password-reset.module';
 import { PasswordReset } from './password-reset/password-reset.entity';
 import { EpicModule } from './epics/epics.module';
 import { Epic } from './epics/epics.entity';
+import { ActivityModule } from './activity/activity.module';
 
 @Module({
   imports: [
@@ -117,10 +118,11 @@ import { Epic } from './epics/epics.entity';
     MailerModule,
     InviteModule,
     PermissionsModule,
-    CacheModule.register(),
+    CacheModule.register({ isGlobal: true }),
     EmailVerificationModule,
     PasswordResetModule,
     EpicModule,
+    ActivityModule,
   ],
   controllers: [AppController],
   providers: [

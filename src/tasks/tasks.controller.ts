@@ -31,12 +31,17 @@ import { TaskIdParams } from 'src/common/dtos/params/taskId.params';
 import { AssignUserDto } from './dtos/assign-user.dto';
 import { EpicIdParams } from 'src/common/dtos/params/epicId.params';
 import { ProjectIdParams } from 'src/common/dtos/params/projectId.params';
+import { ActivityGateway } from 'src/activity/activity.gateway';
+import { ProjectEvents } from 'src/shared/enums/project-events';
 
 @Controller()
 @Resources(Resource.TASK)
 @UseInterceptors(ClassSerializerInterceptor)
 export class TasksController {
-  constructor(private readonly tasksService: TasksService) {}
+  constructor(
+    private readonly tasksService: TasksService,
+    private readonly activityGateway: ActivityGateway,
+  ) {}
 
   @Get()
   public async findAll(
@@ -84,7 +89,15 @@ export class TasksController {
       projectId,
       epicId,
     );
-    return transformToDto(TaskDto, task);
+    const transformedTask = transformToDto(TaskDto, task);
+
+    this.activityGateway.broadcastProjectEntityChange(
+      projectId,
+      ProjectEvents.TASK_CREATED,
+      transformedTask,
+    );
+
+    return transformedTask;
   }
 
   @Post(':taskId')
@@ -102,7 +115,15 @@ export class TasksController {
       projectId,
       epicId,
     );
-    return transformToDto(TaskDto, subtask);
+    const transformedTask = transformToDto(TaskDto, subtask);
+
+    this.activityGateway.broadcastProjectEntityChange(
+      projectId,
+      ProjectEvents.TASK_CREATED,
+      transformedTask,
+    );
+
+    return transformedTask;
   }
 
   @Post(':taskId/assign')
@@ -124,7 +145,16 @@ export class TasksController {
   ): Promise<TaskDto> {
     const task: Task = await this.findOneOrFail(epicId, taskId);
     const updatedTask = await this.tasksService.updateTask(task, updateTaskDto);
-    return transformToDto(TaskDto, updatedTask);
+
+    const transformedTask = transformToDto(TaskDto, updatedTask);
+
+    this.activityGateway.broadcastProjectEntityChange(
+      task.projectId,
+      ProjectEvents.TASK_UPDATED,
+      transformedTask,
+    );
+
+    return transformedTask;
   }
 
   @Delete(':taskId')
@@ -137,6 +167,12 @@ export class TasksController {
     const task: Task = await this.findOneOrFail(epicId, taskId);
     this.checkOwnership(task, userId);
     await this.tasksService.delete(task);
+
+    this.activityGateway.broadcastProjectEntityChange(
+      task.projectId,
+      ProjectEvents.TASK_DELETED,
+      { taskId },
+    );
   }
 
   @Post(':taskId/labels')
