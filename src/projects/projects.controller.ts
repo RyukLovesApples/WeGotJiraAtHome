@@ -95,7 +95,15 @@ export class ProjectsController {
   ) {
     const project = await this.findOneOrFail(projectId);
     await this.projectService.delete(project);
+    this.activityGateway.broadcastProjectEntityChange(
+      projectId,
+      ProjectEvents.PROJECT_DELETED,
+      { projectId },
+    );
+
+    this.activityGateway.removeProjectRoom(projectId);
   }
+
   private async findOneOrFail(id: string): Promise<Project> {
     const project = await this.projectService.getOneById(id);
     if (!project) {

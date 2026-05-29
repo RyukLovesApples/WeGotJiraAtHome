@@ -1,5 +1,9 @@
 export enum ProjectEvents {
   JOIN_PROJECT = 'joinProject',
+  USER_JOINED_PROJECT = 'userJoinedProject',
+
+  USER_ONLINE = 'userOnline',
+  USER_OFFLINE = 'userOffline',
 
   PROJECT_UPDATED = 'projectUpdated',
   PROJECT_DELETED = 'projectDeleted',
@@ -10,5 +14,9 @@ export enum ProjectEvents {
 
   TASK_CREATED = 'taskCreated',
   TASK_UPDATED = 'taskUpdated',
+  TASK_ASSIGNED = 'taskAssigned',
   TASK_DELETED = 'taskDeleted',
+
+  // Test env
+  CONNECTION_READY = 'connection-ready',
 }

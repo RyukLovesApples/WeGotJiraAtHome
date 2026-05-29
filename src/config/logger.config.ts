@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { utilities as nestWinstonModuleUtilities } from 'nest-winston';
 import * as path from 'path';
 import * as winston from 'winston';

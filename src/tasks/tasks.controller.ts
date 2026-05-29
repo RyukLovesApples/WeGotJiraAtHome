@@ -129,11 +129,18 @@ export class TasksController {
   @Post(':taskId/assign')
   async assignTask(
     @CurrentUserId() _: string,
+    @Param() { projectId }: ProjectIdParams,
     @Param() { taskId }: TaskIdParams,
     @Body() dto: AssignUserDto,
   ): Promise<TaskDto> {
     const task = await this.tasksService.assignTask(taskId, dto.userId);
-    return transformToDto(TaskDto, task);
+    const transformedTask = transformToDto(TaskDto, task);
+    this.activityGateway.broadcastProjectEntityChange(
+      projectId,
+      ProjectEvents.TASK_ASSIGNED,
+      transformedTask,
+    );
+    return transformedTask;
   }
 
   @Patch(':taskId')
