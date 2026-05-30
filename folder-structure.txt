@@ -6,6 +6,7 @@
 ./test/dummy-variables/dummy-variables.ts
 ./test/types
 ./test/types/test.types.ts
+./test/types/test.socket-events.types.ts
 ./test/test.setup.ts
 ./test/config
 ./test/config/test.config.ts
@@ -28,10 +29,8 @@
 ./test/rest/auth.integration-spec.ts
 ./test/rest/tasks.integration-spec.ts
 ./test/rest/app.integration-spec.ts
-./dist
 ./folder-structure.txt
 ./Dockerfile
-./git-commit-history.txt
 ./nest-cli.json
 ./node_modules
 ./README.md
@@ -54,6 +53,7 @@
 ./docker-compose.yml
 ./.http
 ./.git
+./git-history.txt
 ./eslint.config.mjs
 ./src
 ./src/migrations
@@ -101,6 +101,7 @@
 ./src/config/db.config.ts
 ./src/activity
 ./src/activity/activity.module.ts
+./src/activity/activity.types.ts
 ./src/activity/activity.gateway.ts
 ./src/projects
 ./src/projects/projects.controller.ts
