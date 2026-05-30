@@ -14,6 +14,13 @@ async function bootstrap() {
       whitelist: true,
     }),
   );
+  app.enableCors({
+    origin:
+      process.env.NODE_ENV === 'test' ? '*' : (process.env.FRONTEND_URL ?? '*'),
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  });
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
