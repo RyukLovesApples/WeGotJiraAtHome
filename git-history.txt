@@ -1,0 +1,205 @@
+* b158598 Adonis Smlatic 2026-01-21 Implement WebSocket gateway with session caching
+*   cc8f3cf RyukLovesApples 2025-11-25 Merge pull request #17 from RyukLovesApples/feature/epic
+|\  
+| * 646891b Adonis Smlatic 2025-11-08 Update README.md. Add Epics section and remove test suite warning
+| * 3e57683 Adonis Smlatic 2025-11-08 test: Add integration suite for Epics
+| * 8d8a692 Adonis Smlatic 2025-11-08 feat: Introduce Epics resource and integrate with Projects/Tasks and permissions tree
+| * 4e2e38d Adonis Smlatic 2025-11-08 fix tests: Stabilize test suite setup to resolve MaxListenersExceededWarning
+|/  
+*   e869e1f RyukLovesApples 2025-08-11 Merge pull request #16 from RyukLovesApples/feature/subtasks
+|\  
+| * b1a36ca Adonis Smlatic 2025-08-11 Refactor task DTO, entity, and service to prevent exposing user passwords when fetching all tasks
+| * 6bced15 Adonis Smlatic 2025-08-11 Update README.md
+| * de64639 Adonis Smlatic 2025-08-10 Add subtask happy-path and edge-case tests to task suite
+| * ce97a01 Adonis Smlatic 2025-08-07 Add createSubtask and assignUser to TasksController; add AssignUserDto; add buildTaskTree util
+| * 71d6193 Adonis Smlatic 2025-08-07 Refactor task: service, DTOs, and entity for subtask support; add assignedTo and dueDate for real-world usability
+|/  
+*   995c788 RyukLovesApples 2025-07-29 Merge pull request #15 from RyukLovesApples/feature/password-reset
+|\  
+| * 8387126 Adonis Smlatic 2025-07-29 Update README.md; add license
+| * 8628050 Adonis Smlatic 2025-07-29 Update README.md
+| * a4c705d Adonis Smlatic 2025-07-29 Add src/test/workflows/password-reset.integration-spec.ts with workflow and edge case tests
+| * 453162b Adonis Smlatic 2025-07-24 Add password update endpoint to UsersController and service; include PasswordResetDto for input validation
+| * ea9031f Adonis Smlatic 2025-07-24 Add password reset controller methods (confirm, send); add DTO for email validation; refactor service for better security
+| * b3b4be7 Adonis Smlatic 2025-07-24 Add src/password-reset/ entity, service with needed methods, password reset template
+|/  
+*   0d05f2b RyukLovesApples 2025-07-23 Merge pull request #13 from RyukLovesApples/fix/windows-env
+|\  
+| * 6220b28 RyukLovesApples 2025-07-23 Update Dockerfile.init
+|/  
+*   66bbb0a RyukLovesApples 2025-07-23 Merge pull request #12 from RyukLovesApples/chore/setup-improvements
+|\  
+| * 9e02343 Adonis Smlatic 2025-07-23 Add .gitattributes for line endings and use imports to relative path email-verification module
+* | 4c3ba2d RyukLovesApples 2025-07-20 Merge pull request #11 from RyukLovesApples/chore/setup-improvements
+|\| 
+| * 1f0b2e0 Adonis Smlatic 2025-07-20 Update README.md
+| * 7c4e877 Adonis Smlatic 2025-07-20 Refactor setup; split init process into env-init and db-init services
+| * 81d378e Adonis Smlatic 2025-07-17 Implement Dockerfile.init into docker compose setup
+| * bd57068 Adonis Smlatic 2025-07-17 Add Dockerfile.init bash environment for idiomatic project setup
+|/  
+*   dbf5168 RyukLovesApples 2025-07-20 Merge pull request #10 from RyukLovesApples/feature/email-verification
+|\  
+| * b846040 Adonis Smlatic 2025-07-20 Update README.md
+| * b32cfb0 Adonis Smlatic 2025-07-17 Implement email verification into user registration. Add integration tests to test/workflows/email-verification.integration-spec.ts
+| * d535cac Adonis Smlatic 2025-07-15 Add src/common/dtos/params for common param DTOs: projectId, taskId, and token with validation pipes
+| * f90582a Adonis Smlatic 2025-07-15 Add confirm and send verification endpoints to EmailVerificationController; add deleteById to EmailVerificationService
+| * cd9aa2d Adonis Smlatic 2025-07-14 Add email verification template to mailer/templates
+| * 091c7e8 Adonis Smlatic 2025-07-14 Add EmailVerificationService methods: create, deleteExpired, getByToken, and isExpired
+| * c314ee1 Adonis Smlatic 2025-07-14 Add EmailVerification entity and import into module
+| * 817ca27 Adonis Smlatic 2025-07-14 Add email-verification module with service and controller; import MailerModule and UserModule
+|/  
+*   088abba RyukLovesApples 2025-07-11 Merge pull request #9 from RyukLovesApples/fix/app-setup/docker/bash
+|\  
+| * fcb9d76 Adonis Smlatic 2025-07-11 Update README.md
+| * 5470576 Adonis Smlatic 2025-07-11 Refactor Docker and to make init script work
+|/  
+* 6fa079c RyukLovesApples 2025-07-10 Update package.json
+* 29a1a84 RyukLovesApples 2025-07-10 Update README.md
+*   54e8e89 RyukLovesApples 2025-07-10 Merge pull request #8 from RyukLovesApples/deploy/dockerxbash/playground
+|\  
+| * 97afe44 Adonis Smlatic 2025-07-10 Change comment in init-env.sh
+| * ce0e23a Adonis Smlatic 2025-07-10 Update README.md
+| * b28df10 Adonis Smlatic 2025-07-10 Add frontend setup script and update package.json scripts
+| * 836d5ac Adonis Smlatic 2025-07-10 Update README.md
+| * ea7df26 Adonis Smlatic 2025-07-10 Refactor test.config.ts for Docker compatibility and .env setup via bash script
+| * a87610a Adonis Smlatic 2025-07-10 Add Dockerfile for Node.js app and integrate it with docker-compose.yml
+| * 81a04e0 Adonis Smlatic 2025-07-09 Add scripts/init-env.sh to simplify .env setup and prevent manual typos
+|/  
+* 8ee0715 RyukLovesApples 2025-07-04 Update README.md
+*   67651eb RyukLovesApples 2025-07-04 Merge pull request #7 from RyukLovesApples/feature/custom-permissions
+|\  
+| * 2716d7c Adonis Smlatic 2025-07-04 Update README.md
+| * 33eb03d Adonis Smlatic 2025-07-04 Add tests for project-permissions: happy and failure paths covered
+| * eb33540 Adonis Smlatic 2025-07-03 Improve naming for clarity in integration tests
+| * 033476d Adonis Smlatic 2025-07-03 Add first test to project-Permissions.e2e-spec.ts
+| * d0a44c4 Adonis Smlatic 2025-07-03 Add @Resources decorator with PROJECT_PERMISSION to enable permission checks via ResourceGuard
+| * 7ec9218 Adonis Smlatic 2025-07-03 Add a OWNER role check for the input of create and update methods of ProjectPermissionsController, to garantee no change of OWNER permissions
+| * aacee49 Adonis Smlatic 2025-07-03 Refactor Resource enum and DTO; add new resource to default permissions for access through ResourceGuard
+| * 2116769 Adonis Smlatic 2025-07-03 Add project-permissions.e2e-spec.ts test setup in src/test/rest and rename ProjectRole enum value VISITOR to GUEST for clarity
+| * 9384a93 Adonis Smlatic 2025-07-02 Refactor checkProjectPermission in ProjectPermissionsService to support custom permissions via ProjectPermissionsGuard
+| * a5bfd2a Adonis Smlatic 2025-07-02 Add getProjectPermissions and resetToDefaultProjectPermissions with caching
+| * 33f3783 Adonis Smlatic 2025-07-02 Refactor createOrUpdateProjectPermissions and updateRolePermission in ProjectPermissionsController to cache returned value of ProjectPermissionsService methods
+| * f7a7105 Adonis Smlatic 2025-07-02 Add resetToDefaultProjectPermissions method to ProjectPermissionsService
+| * d785dd6 Adonis Smlatic 2025-07-02 Add getProjectPermissions method to ProjectPermissionsService
+| * 6045260 Adonis Smlatic 2025-07-02 Simplify and refactor permission mapping and normalization to align with DTOs
+| * 393e5f5 Adonis Smlatic 2025-07-01 Add mapPermissionsToRole in src/project-permissions/utils/ to map stored permissions to expected object shape
+| * 17a48f2 Adonis Smlatic 2025-07-01 Add normalizeAllPermissions in src/project-permissions/utils/ to normalize all stored role permissions to all default role permissions
+| * 0949f59 Adonis Smlatic 2025-07-01 Add normalizeRolePermissionsDeep in src/project-permissions/utils/ to normalize stored role permission to default role permission
+| * 06cd771 Adonis Smlatic 2025-07-01 Add updateRolePermission method to ProjectPermissionController.
+| * ea7229e Adonis Smlatic 2025-07-01 Add updateRolePermission method to ProjectPermissionsService for partial update option
+| * 2ae7735 Adonis Smlatic 2025-06-30 Add upsertProjectPermissions method to ProjectPermissionsService - Checks if permissions exist and calls create or update accordingly - Moves project existence check and permission instance creation from createProjectPermissions into upsertProjectPermissions
+| * 582e6d8 Adonis Smlatic 2025-06-30 Add createProjectPermissions method to service & controller. Refactor CreateProjectPermissionsDto: remove ResourceDto inheritance, add explicit 'permissions' property.
+| * bfcbc97 Adonis Smlatic 2025-06-30 Set up caching: install cache-manager, register CacheModule in AppModule, and inject in ProjectPermissionsController
+| * edf84f9 Adonis Smlatic 2025-06-28 Add action.dto.ts, resource.dto.ts, project-permission-map.dto.ts and create-project-permission.dto.ts to src/project-permissions/dtos
+| * 02d87d2 Adonis Smlatic 2025-06-28 Add project-permissions.entity.ts in src/project-permissions; link to Project entity with relationship
+| * ad42481 Adonis Smlatic 2025-06-28 Add controller and integrate with RouterModule
+|/  
+*   b4d2319 RyukLovesApples 2025-06-26 Merge pull request #6 from RyukLovesApples/feature/permissions
+|\  
+| * 3cac7f0 Adonis Smlatic 2025-06-26 Remove unused Zod import from project-users.e2e-spec.ts. Update error response message in tasks.e2e-spec.ts.
+| * 2311ded Adonis Smlatic 2025-06-26 Add resource guard tests for unauthorized and forbidden access in project-users.e2e-spec.ts
+| * 1a4fe42 Adonis Smlatic 2025-06-25 Refactor resource guard to support GraphQL and restructure project user flow
+| * 3946095 Adonis Smlatic 2025-06-25 Add resource guard tests for unauthorized and forbidden access in project.e2e-spec.ts. Remove redundant ownership check in ProjectsController
+| * 89a8ecb Adonis Smlatic 2025-06-25 Add resource guard tests for unauthorized and forbidden access in tasks.e2e-spec.ts. Remove redundant ownership check in TasksController
+| * 92c1d11 Adonis Smlatic 2025-06-25 Align routes and tests with ResourcePermissionGuard behavior
+| * ebb4ac2 Adonis Smlatic 2025-06-24 Add SkipResourceGuard decorator and integrate in ResourcePermissionGuard; apply to create and getAllUserProjects routes
+| * 222c329 Adonis Smlatic 2025-06-24 Register ResourcePermissionGuard globally in AppModule. Reorder AuthGuard and RolesGuard for proper execution. Note: test suites currently failing
+| * 48b7885 Adonis Smlatic 2025-06-24 Add src/permissions/guards/resource-permission.guard.ts for access control via REST and GraphQL routes
+| * 4267303 Adonis Smlatic 2025-06-24 Add @Resources decorator to controller level to define default resource
+| * 12285de Adonis Smlatic 2025-06-24 Add src/permissions/decorators/resource.decorator.ts for meta data access via guard to support permission checks
+| * fecba21 Adonis Smlatic 2025-06-24 Add checkPermission method to permission service for check in auth guard. Rework mapPermissionAction to return Action enum value instead of plain string
+| * 82adedb Adonis Smlatic 2025-06-24 Add src/permissions/utils/map-permissions-action.ts as a helper to map HTTP method to action e.g. GET -> read
+| * 93410b7 Adonis Smlatic 2025-06-23 Create src/utils/deepFreeze.ts: generic function to deeply freeze nested objects. Integrate into default permissions to prevent accidental mutation
+| * 8b6312e Adonis Smlatic 2025-06-23 Add permission config with first defaultPermission draft using ProjectRole -> controller prefix e.g. tasks -> method CRUD
+| * 671d6fd Adonis Smlatic 2025-06-23 Add permissions module with service. Add Resource and Action enum
+|/  
+*   24e103e RyukLovesApples 2025-06-23 Merge pull request #5 from RyukLovesApples/feature/project-users
+|\  
+| * 8b6a9c2 Adonis Smlatic 2025-06-23 Update src/folder-structure.txt and add commit history src/git-commit-history.txt for an overview of development process
+| * c835839 Adonis Smlatic 2025-06-23 Fix circular JSON error during logging by updating Winston config and error metadata handling in CatchEverythingFilter
+| * 406f1a7 Adonis Smlatic 2025-06-23 Remove loggerService and messageFormatter (replaced by winstonLogger). Add GraphResponse type to invitaion workflow test
+| * 7c2a929 Adonis Smlatic 2025-06-22 Fix error.log not being populated due to incorrect path/import in winston transport
+| * b66cb49 Adonis Smlatic 2025-06-22 Implement global exception filter for REST and GraphQL. Integrate WinstonLogger to log errors to logs/error.log
+| * 88ddbbb Adonis Smlatic 2025-06-20 Add workflow test for the invitation cycle and refactor CurrentUserId decorator and Auth Guard to handle GraphQL and REST. All existing tests pass
+| * 533e110 Adonis Smlatic 2025-06-16 Move project creation to ProjectCreationService (orchestrator) and centralize ProjectUser auto-creation
+| * fd63387 Adonis Smlatic 2025-06-16 Implement automatic ProjectUser creation for owner. Fix return value of getAllProjectUsers in test suite
+| * 023e016 Adonis Smlatic 2025-06-16 Fix dependency circle for invite implementation. By using forwardRef for ProjectModule import in the InviteModule to break the circular dependency
+| * ea061fa Adonis Smlatic 2025-06-16 Rework ProjectUser test setup to fit ProjectUser creation of project owner by default
+* | b7abd49 RyukLovesApples 2025-06-14 Update README.md
+* | e6d671b RyukLovesApples 2025-06-14 Merge pull request #4 from RyukLovesApples/feature/project-users
+|\| 
+| * 30bc117 Adonis Smlatic 2025-06-14 Add mutation to create ProjectUser via invitation token
+| * f48bb86 Adonis Smlatic 2025-06-12 Rework createInvite method to fit invitation cycle and implement createInvite endpoint
+| * 4127886 Adonis Smlatic 2025-06-12 Create Mailer module and integrate with ProjectUserInviteService
+| * 8124fda Adonis Smlatic 2025-06-10 Implement ProjectUserInviteService for project invitaions
+| * c1e6496 Adonis Smlatic 2025-06-09 Complete GraphQL CRUD and add integration tests
+| * 25c4094 Adonis Smlatic 2025-06-04 Add first GraphQL resolver for ProjectUser creation to verify GraphQL setup with service method and integration test
+| * 8c4d71c Adonis Smlatic 2025-06-03 Fix imports: ProjectUser entity moved to its own folder
+| * 15921bc Adonis Smlatic 2025-06-03 Rework ProjectUser entity to support access guards. Set up GraphQL and add InputType and ObjectType definitions.
+|/  
+*   abc8c4d RyukLovesApples 2025-06-03 Merge pull request #3 from RyukLovesApples/db/migration
+|\  
+| * f1cd0a6 Adonis Smlatic 2025-06-03 Add TypeORM config file and integrate migration setup in test environment
+| * 70f9a01 Adonis Smlatic 2025-06-03 Recreat db with new name (we_got_jira_at_home) and test db name (we_got_jira_at_home_e2e). Change config for db setup, test db setup and docker compose
+|/  
+*   07bdb24 RyukLovesApples 2025-06-02 Merge pull request #2 from RyukLovesApples/feature/projects
+|\  
+| * a92252e Adonis Smlatic 2025-06-02 Refactor task feature and tests to pass after implementing project URL layer
+| * 8dad0cf Adonis Smlatic 2025-05-31 Add project url to task url. Start to rework task test suite to fit project layer (/projects/projectId/tasks/taskId).
+|/  
+*   72a0a2a RyukLovesApples 2025-05-28 Merge pull request #1 from RyukLovesApples/feature/projects
+|\  
+| * ae25a02 Adonis Smlatic 2025-05-28 Change structure in README
+| * bd4b453 Adonis Smlatic 2025-05-28 Implement CRUD for Projects / Projects with Tasks. Rework related task files (dto´s). Add happy path tests for routes
+| * 88bc7cc Adonis Smlatic 2025-05-23 Refactor task controller, service, and DTO to ensure password is not exposed in relational data
+|/  
+* 9e45bac Adonis Smlatic 2025-05-20 Add README for project documentation
+* 59a2d49 Adonis Smlatic 2025-05-19 Implement project creation with task and project-user relationships
+* 20954fc Adonis Smlatic 2025-05-18 Reorganize project structure and fix minor typos
+* 57105a3 Adonis Smlatic 2025-05-18 Add tests covering all core task features; refactor task service, controller, task label entity, and incorrect status exception handling
+* 5ab8bc2 Adonis Smlatic 2025-05-16 Move functions from test environments to test-helper file
+* 50f1517 Adonis Smlatic 2025-05-16 Move types and interfaces from test environments to testTypes file
+* 01b9067 Adonis Smlatic 2025-05-16 Move mock data from test environments to mockVariables file
+* 382a056 Adonis Smlatic 2025-05-16 Improve auth test setup using helper functions
+* c4797f4 Adonis Smlatic 2025-05-15 Clean up and improve test setup for Tasks integration tests
+* 271c193 Adonis Smlatic 2025-05-15 Fix bug where get all tasks returned no data. Remove 'excludeAll' SerializeOptions and use @Exclude/@Expose decorators directly in the entity.
+* fe653e6 Adonis Smlatic 2025-05-14 Add params decorator for current user id and refactor create method of task service and controller
+* d4fa35a Adonis Smlatic 2025-05-14 Add role based guard and test route protection
+* ba12232 Adonis Smlatic 2025-05-12 Add auth test for JWT payload data check and include user role
+* ee5f80d Adonis Smlatic 2025-05-12 Add Role enum and integrate roles into User entity and JWT generation
+* 250ffc9 Adonis Smlatic 2025-05-12 Add auth test to test global AuthGuard (unauthorized access to tasks)
+* 46ceb45 Adonis Smlatic 2025-05-12 Apply AuthGuard globally and add @Public() decorator to allow unauthenticated access on select routes
+* 0828fb2 Adonis Smlatic 2025-05-11 Add test for failed access through guard
+* 89913cb Adonis Smlatic 2025-05-10 Disable type check for plainToInstance in profileAccess method of auth controller (revisit/fix later)
+* 89d67a8 Adonis Smlatic 2025-05-10 add test for profile access through guard
+* b5c5cc7 Adonis Smlatic 2025-05-10 add integration tests for failed login (invalid email, non-existing user, wrong password)
+* baefad0 Adonis Smlatic 2025-05-09 Add integration test for failed login, mismatched password
+* f18f545 Adonis Smlatic 2025-05-09 Add integration tests for registration and successful login with JWT response
+* 992a943 Adonis Smlatic 2025-05-09 refactor: simplify error handling using NestJS built-in exception filter and remove unneeded try/catch blocks
+* 21e6bc6 Adonis Smlatic 2025-05-08 Enable strict mode and refactor DTOs, params, entities, and tests for type safety
+* 5e5cd21 Adonis Smlatic 2025-05-08 Add first integration test for user registration
+* e5e2b95 Adonis Smlatic 2025-05-07 Set up a new database for e2e testing and execute first test to verify environment configuration.
+* 7d19b7e Adonis Smlatic 2025-05-07 Implement test environment setup for e2e testing
+* 225c984 Adonis Smlatic 2025-05-07 Implement test config for e2e testing
+* bfcca7a Adonis Smlatic 2025-05-07 Implement auth controller for login and user login DTO
+* b395aaa Adonis Smlatic 2025-05-06 Implement user authentication with JWT
+* 3f0ff74 Adonis Smlatic 2025-05-05 add testing for password hashing and comparison for bycrypt
+* d4c67f8 Adonis Smlatic 2025-05-05 change formatting
+* 7013fc9 Adonis Smlatic 2025-05-05 implement password service for hashing and comparing password using bcrypt
+* edeb12a Adonis Smlatic 2025-05-05 add additional tests for password validation
+* e85d405 Adonis Smlatic 2025-05-05 replace @IsStrongPassword with @Matches for custom password validation message
+* d294892 Adonis Smlatic 2025-05-05 add user DTO validation for email and password
+* 4048ea7 Adonis Smlatic 2025-05-02 create auth config and implement it in the user module
+* 6b8481c Adonis Smlatic 2025-04-25 Removed not needed imports
+* 037b425 Adonis Smlatic 2025-04-25 feat(task): added password to the user entity for auth functionality and testing
+* 3b9171a Adonis Smlatic 2025-04-25 feat(task): implement sortBy and orderBy
+* 11f9867 Adonis Smlatic 2025-04-25 feat(task): implement label-based search functionality
+* 127f0f4 Adonis Smlatic 2025-04-25 feat(task): fixed no return for getAllTasks with query search
+* 1119b15 Adonis Smlatic 2025-04-24 feat(task): implement search functionality for title and description
+* 11834e9 Adonis Smlatic 2025-04-24 Add pagination to GET all tasks and change response object
+* ce6daab Adonis Smlatic 2025-04-23 Implement query filter for task status
+* 3aa3fb3 Adonis Smlatic 2025-04-23 Formatting file structure
+* e0f283d Adonis Smlatic 2025-04-23 Implement DELETE /tasks/:id/labels to allow removing multiple labels from a task.
+* 91ae02d Adonis Smlatic 2025-04-23 Add unique labels check for UPDATE CREATE task and adding new labels
+* 753fb33 Adonis Smlatic 2025-04-22 Implement POST /tasks/:id/labels to allow adding multiple labels to a task.
+* 44ddbe9 Adonis Smlatic 2025-04-22 Initial commit

@@ -1,5 +1,5 @@
 import * as request from 'supertest';
-import { Http2Server } from 'http2';
+import { Server as HttpServer } from 'http';
 import { TestSetup } from '../test.setup';
 import { AppModule } from 'src/app.module';
 import {
@@ -31,7 +31,7 @@ import { JwtPayload } from 'jsonwebtoken';
 
 describe('Project user Integration (GraphQL)', () => {
   let testSetup: TestSetup;
-  let server: Http2Server;
+  let server: HttpServer;
   let accessToken: string;
   let projectId: string;
   let projectOwnerId: string;
@@ -40,7 +40,7 @@ describe('Project user Integration (GraphQL)', () => {
 
   beforeAll(async () => {
     testSetup = await TestSetup.create(AppModule);
-    server = testSetup.app.getHttpServer() as Http2Server;
+    server = testSetup.app.getHttpServer() as HttpServer;
   });
 
   beforeEach(async () => {

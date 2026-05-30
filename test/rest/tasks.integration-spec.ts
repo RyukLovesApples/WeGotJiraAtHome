@@ -4,7 +4,7 @@ import { TestSetup } from '../test.setup';
 import * as request from 'supertest';
 import { Task } from 'src/tasks/task.entity';
 import { PaginationResponse } from 'src/tasks/responses/pagination.response';
-import { Http2Server } from 'http2';
+import { Server as HttpServer } from 'http';
 import {
   defaultUser,
   unauthorizedUser,
@@ -36,14 +36,14 @@ describe('Tasks Integration', () => {
   let testSetup: TestSetup;
   let accessToken: string;
   let taskId: string | undefined;
-  let server: Http2Server;
+  let server: HttpServer;
   let baseUrl: string;
   let projectId: string;
   let epicId: string;
 
   beforeAll(async () => {
     testSetup = await TestSetup.create(AppModule);
-    server = testSetup.app.getHttpServer() as Http2Server;
+    server = testSetup.app.getHttpServer() as HttpServer;
   });
 
   beforeEach(async () => {

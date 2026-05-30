@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import * as request from 'supertest';
-import { Http2Server } from 'http2';
+import { Server as HttpServer } from 'http';
 import { AppModule } from 'src/app.module';
 import { TestSetup } from '../test.setup';
 import { registerAndLogin } from '../helpers/test-helpers';
@@ -13,11 +13,11 @@ import { randomUUID } from 'crypto';
 
 describe('Password reset workflow', () => {
   let testSetup: TestSetup;
-  let server: Http2Server;
+  let server: HttpServer;
 
   beforeAll(async () => {
     testSetup = await TestSetup.create(AppModule);
-    server = testSetup.app.getHttpServer() as Http2Server;
+    server = testSetup.app.getHttpServer() as HttpServer;
   });
 
   afterEach(async () => {

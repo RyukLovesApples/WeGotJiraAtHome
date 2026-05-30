@@ -8,11 +8,12 @@ A full-featured, test-driven project and task management API inspired by Jira. T
 
 ## Overview
 
-**WeGotJiraAtHome** is a backend application built using NestJS that provides:
+**WeGotJiraAtHome** is a backend application built with NestJS that provides:
 
 - Role-based access control (Admin, Regular User)
 - Authentication via JWT
-- Projects, Epics and Tasks for hierarchical work organization
+- Projects, Epics, and Tasks for hierarchical work organization
+- Real-time activity updates via WebSockets
 - Modular architecture for maintainability and scalability
 - Full integration test coverage
 - Isolated environment setup for testing
@@ -27,169 +28,171 @@ A full-featured, test-driven project and task management API inspired by Jira. T
 - JWT authentication with embedded role info
 - Guards for public/private and role-restricted routes
 - Custom decorators for cleaner controller logic
-- Email Verification (via Mailer & Email-Driven Workflows) – Verifies a user’s email before granting access to sensitive routes (e.g., project creation, profile).
-- Password Reset (via Mailer & Email-Driven Workflows) – Allows secure password recovery through a time-limited token sent via email.
+- Email Verification – Verifies a user's email before granting access to sensitive routes (e.g., project creation, profile)
+- Password Reset – Allows secure password recovery through a time-limited token sent via email
 
 ### Mailer & Email-Driven Workflows
 
 The Mailer is its own dedicated module responsible for sending and managing all application emails. It serves as the central hub for workflows that involve email as part of the user journey.
 
-- Email Verification – Ensures users validate their email before accessing sensitive routes (e.g., project creation, profile)
+- Email Verification – Ensures users validate their email before accessing sensitive routes
 - Project Invitations – Sends invite links via email and automatically creates a ProjectUser record with permissions upon acceptance
-- Password Reset – Allows users to request a reset token and update their password securely.
+- Password Reset – Allows users to request a reset token and update their password securely
 
 ### Projects, Epics & ProjectUsers
 
-- Create projects
-- Epics: Introduced as an intermediate organizational layer between Projects and Tasks. Epics help group related tasks under a single, larger objective within a project.
-- Automatically assign project to Project User
-- Designed for full CRUD of project users
-- ProjectUser module serves as the canonical source for project membership and roles to enable consistent permissions enforcement
-- Invitation System (via Mailer & Email-Driven Workflows) – Sends project invites via email and handles automated user creation with default permissions on acceptance.
+- Create and manage projects
+- Epics as an intermediate layer between Projects and Tasks, grouping related work under a larger objective
+- Automatically assign creator as Project User on project creation
+- Full CRUD for project users
+- ProjectUser module as the canonical source for membership and roles, enabling consistent permission enforcement
+- Invitation System – Sends project invites via email and handles automated user creation with default permissions on acceptance
 
 ### Tasks
 
 - Full CRUD for tasks
-- Support for subtasks (up to two levels deep)
+- Subtask support (up to two levels deep)
 - Assign users to tasks and subtasks
 - Attach multiple labels to tasks and subtasks
 - Filter by status, labels, title, and description
 - Pagination and sorting support
 - DTO validation and robust error handling
 
+### Real-Time Activity (WebSockets)
+
+Built with Socket.IO, the activity module broadcasts project changes in real time to all connected members of a project room. Connections are authenticated via JWT and users must be project members to join a room.
+
+**Emitted events:**
+
+| Event | Trigger |
+|---|---|
+| `projectUpdated` | Project is updated |
+| `projectDeleted` | Project is deleted |
+| `epicCreated` / `epicUpdated` / `epicDeleted` | Epic lifecycle |
+| `taskCreated` / `taskUpdated` / `taskDeleted` | Task lifecycle |
+| `taskAssigned` | Task is assigned to a user |
+| `userJoinedProject` | A member connects to the project room |
+| `userOnline` / `userOffline` | Presence tracking with a grace period before offline broadcast |
+
+User sessions and presence state are cached to avoid redundant DB lookups and support multi-tab connections per user.
+
+Full integration test coverage for auth, room access, event broadcasting, presence, and session caching is in `test/websockets/activity.integration-spec.ts`.
+
 ### Permission System
 
-The permission system is designed to be lightweight, cache-efficient, and secure. Here's how it works:
+The permission system is designed to be lightweight, cache-efficient, and secure.
 
 #### Structure
 
 Permissions follow a consistent structure:
 - Project → Role → Resource → Action
-- Each project assigns users a role (OWNER, ADMIN, USER, GUEST).
-- Each role defines permissions over resources (e.g., projects, tasks, project-users).
-- Each resource supports actions (read, create, update, delete).
+- Each project assigns users a role (OWNER, ADMIN, USER, GUEST)
+- Each role defines permissions over resources (e.g., projects, tasks, project-users)
+- Each resource supports actions (read, create, update, delete)
+
 > Only explicitly allowed actions (`true`) grant access. All others are denied by default — keeping permission objects slim and secure.
 
 #### Default Permissions
 
-- Default permissions are defined in the codebase (config/project-permissions.config.ts) and do not exist in the database.
-- They are deeply frozen using a utility (deepFreeze) to prevent accidental mutation at runtime.
-- Since they reside entirely in memory, accessing them is O(1) and incurs no I/O cost.
+- Default permissions are defined in code (`config/project-permissions.config.ts`) and do not exist in the database
+- Deeply frozen using a `deepFreeze` utility to prevent accidental mutation at runtime
+- Since they reside entirely in memory, access is O(1) with no I/O cost
 
 #### Storage
 
-- A default permission map (defaultProjectPermissions) is used as a baseline.
-- If no custom permissions are defined, the database remains empty — reducing storage and keeping the table clean.
-- If custom permissions are added, only those changes are stored in the DB and merged with the default.
-
-#### Utilities
-
-Utility functions like normalizeAllPermissions and mapPermissionsToRole ensure:
-- Default values are filled in for missing fields.
-- The resulting permission map is complete, consistent, and based on a known baseline.
+- A `defaultProjectPermissions` map is used as a baseline
+- If no custom permissions are defined, the database remains empty — reducing storage and keeping the table clean
+- If custom permissions are added, only those changes are stored in the DB and merged with the default
 
 #### Performance
 
-- Permissions are cached per project (project-permissions:{projectId}).
-- Read access is O(1) from cache.
-- Cache is updated only on permission changes — minimizing unnecessary DB queries.
+- Permissions are cached per project (`project-permissions:{projectId}`)
+- Read access is O(1) from cache
+- Cache is updated only on permission changes — minimizing unnecessary DB queries
 
-This design is especially efficient for smaller teams and projects where permissions rarely change.
+### Security
+
+- Rate limiting via `@nestjs/throttler` — global on all REST endpoints, excluded on GraphQL
+- CORS policy — origin controlled by `FRONTEND_URL` in `.env`, defaults to `*`
 
 ---
 
 ## Testing
 
 - Integration tests with Jest
-- Modular test setup (`test-setup.ts`)
+- Modular test setup (`test/test.setup.ts`)
 - Test helpers and dummy data
-- Isolated test environment and dedicated test DB
+- Isolated test environment with a dedicated test database
+- Coverage across REST, GraphQL, and WebSocket layers
 
 ---
 
 ## Tech Stack
 
 - **Framework**: NestJS
-- **Auth**: AuthGuard, bcrypt, JwtModule
-- **Database**: PostgreSQL (via TypeORM)
+- **Auth**: JWT, bcrypt
+- **Database**: PostgreSQL via TypeORM
+- **Real-Time**: Socket.IO
 - **Testing**: Jest (integration and unit tests)
 - **Environment**: dotenv + Joi schema validation
-- **Docker**: Compose setup for DB and app
+- **Infrastructure**: Docker + Docker Compose
 
 ---
 
 ## Architecture
 
 - Modular, feature-based structure using NestJS modules
-- Separation of concerns: services, controllers, and utilities
+- Separation of concerns: services, controllers, utilities
 - Centralized configuration and validation via Joi
-- Cache layer for permission system (via NestJS CacheManager)
+- Cache layer for permission system and WebSocket sessions via NestJS CacheManager
 - Decoupled test setup with isolated test DB and custom bootstrap
+
+---
+
+## Requirements
+
+> **Docker is required.** There is no supported local setup without it.
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (includes Docker Compose v2)
 
 ---
 
 ## Installation & Running the App
 
-### Local Setup (optional)
-Requires Node.js and PostgreSQL to be installed manually.
+### Option 1 — With Bash (macOS / Linux / WSL)
 
-#### Install dependencies
+Runs `init-project-setup.sh` directly. This will:
 
-```bash
-npm install
-```
-
-#### Initialize .env interactively
-Creates a .env file with required environment variables. Prompts for DB name, user, password, and JWT secret (auto-generated if left blank).
-
-```bash
-npm run init:lite
-```
-
-### Run the app in development mode
-
-```bash
-npm run start:dev
-```
-
-### Docker setup (recommended)
-
-#### Initialize .env and spin up containers
-Run the init-project-setup.sh script via the command below. This will:
-- Create your .env file (if missing)
-- Set up PostgreSQL with required databases
-- Start the app and database containers and creates main and test db
-- Generate and run the initial migration based on current entities
+- Create your `.env` file interactively
+- Start PostgreSQL and app containers
+- Create the main and integration databases
+- Generate and run the initial migration
 
 ```bash
 npm run init:app
 ```
 
-#### No Bash? Use this instead
-This will:
-- Create a temporary Linux shell container
-- Create your .env file (if missing) → runs init-env.sh inside env-init service
-- Build the Docker Compose for DB connection and app
-- Create main and test DB → runs create-dbs.sh inside init service
-- Generate and run initial migration based on current entities
+### Option 2 — Without Bash (Windows, no WSL)
+
+Builds a temporary Linux container to handle the setup. Does the same as Option 1, but the bash environment runs inside Docker.
 
 ```bash
 npm run init:bash
 ```
 
-#### Restart Docker containers (after first setup)
+### Restart containers (after first setup)
 
 ```bash
 npm run docker:restart
 ```
 
-#### Open a shell inside the app container
+### Open a shell inside the app container
 
 ```bash
 npm run enter
 ```
 
-#### Start the app in development mode (inside container)
+### Start the app in development mode (inside container)
 
 ```bash
 npm run enter:start
@@ -199,29 +202,13 @@ npm run enter:start
 
 ## Running Tests
 
-### Local Setup (optional)
-
-#### Run all integration tests
-
-```bash
-npm run test:integration
-```
-
-#### Run a specific integration test file
-
-```bash
-npm run test:integration -- filename
-```
-
-### Docker Setup (recommended)
-
-#### Run all integration tests
+### Run all integration tests (inside container)
 
 ```bash
 npm run enter:test
 ```
 
-#### Run a specific integration test file
+### Run a specific integration test file
 
 ```bash
 npm run enter:test -- filename
@@ -231,114 +218,40 @@ npm run enter:test -- filename
 
 ## Environment Variables
 
-#### Optional greeting prefix
-APP_MESSAGE_PREFIX=HelloWorld
+| Variable | Description |
+|---|---|
+| `APP_MESSAGE_PREFIX` | Optional greeting prefix |
+| `DB_HOST` | `db` for Docker setup |
+| `DB_PORT` | Default `5432` |
+| `DB_USER` | Database username |
+| `DB_PASSWORD` | Database password |
+| `DB_NAME` | Database name |
+| `DB_SYNC` | Set to `1` to auto-sync schema (not recommended) |
+| `JWT_SECRET` | Secret key for JWT signing |
+| `JWT_EXPIRES_IN` | Token expiration (e.g. `60m`) |
+| `NODE_ENV` | `development` or `test` |
 
-#### Database host
-DB_HOST=localhost # for local setup
-DB_HOST=db # docker setup
-
-#### Database port
-DB_PORT=5432
-
-#### Database username (required)
-DB_USER=your_db_user
-
-#### Database password (required)
-DB_PASSWORD=your_db_password
-
-#### Database name (required)
-DB_NAME=your_db_name
-
-#### Set to 1 to auto-sync schema (not recommended in prod)
-DB_SYNC=0
-
-#### Secret key for JWT (required)
-JWT_SECRET=your_jwt_secret
-
-#### Token expiration time (e.g., 3600s)
-JWT_EXPIRES_IN=3600s
-
-Check src/config/config.types.ts joi object for current .env setup if db connection fails
-
----
-
-## ⚠️ Experimental Frontend Setup — DO NOT RUN YET!
-
-> **IMPORTANT:** This script is **experimental** and **does NOT work reliably at this time.**
-> Running it **may break project structure** or cause unexpected issues.
-> Only run if you want to explore at your own risk. I will update this notice when the script is stable.
-
-What it does:
-
-- Moves all backend files into a ./backend folder
-- Creates a .env file with default values (postgres user/pass, random JWT secret, etc.)
-- Starts the backend via Docker for database initialization
-- Creates a ./frontend folder and runs the Vite CLI (npm create vite@latest) so you can pick your preferred setup (e.g., React, Vue, etc.)
-
-#### To try it:
-Run this once from the root:
-```bash
-npm run frontend:init
-```
-
-Once the structure is set up, you can start the backend using:
-```bash
-npm run start:backend
-```
-
-When you're done developing:
-
-```bash
-cd backend
-docker-compose down -v
-```
-
-API documentation will be added once core features are finalized. Until then, check out the entity and DTO files if you’re curious.
+> See `src/config/config.types.ts` for the full Joi schema if you run into connection issues.
 
 ---
 
 ## Folder Structure
 
-To see the current layout of the project, run:
-
 ```bash
 cat folder-structure.txt
 ```
 
-Or just open the folder-structure.txt file in the root directory.
-> I’ll keep this file updated as the project structure evolves.
+> I keep this file updated as the project evolves.
 
 ---
 
 ## Author
 
-Adonis Smlatic
-Junior Full-Stack Developer
-https://www.linkedin.com/in/adonis-smlatic-3b072a2b8/
+Adonis Smlatic — Backend Developer
+[LinkedIn](https://www.linkedin.com/in/adonis-smlatic-3b072a2b8/)
 
 ---
 
 ## License
 
-MIT License
-
-Copyright (c) 2025 Adonis Smlatic
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+MIT License — Copyright (c) 2025 Adonis Smlatic

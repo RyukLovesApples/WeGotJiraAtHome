@@ -20,11 +20,16 @@ import { CreateEpicDto } from './dtos/create-epic.dto';
 import { UpdateEpicDto } from './dtos/update-epic.dto';
 import { Resource } from 'src/project-permissions/enums/resource.enum';
 import { Resources } from 'src/project-permissions/decorators/resource.decorator';
+import { ActivityGateway } from 'src/activity/activity.gateway';
+import { ProjectEvents } from 'src/shared/enums/project-events';
 
 @Controller()
 @Resources(Resource.EPIC)
 export class EpicController {
-  constructor(private readonly epicService: EpicService) {}
+  constructor(
+    private readonly epicService: EpicService,
+    private readonly activityGateway: ActivityGateway,
+  ) {}
   @Get()
   async getAll(
     @CurrentUserId() _: string,
@@ -57,7 +62,13 @@ export class EpicController {
       projectId,
       createEpicDto,
     );
-    return transformToDto(EpicDto, epic);
+    const transformedEpic = transformToDto(EpicDto, epic);
+    this.activityGateway.broadcastProjectEntityChange(
+      projectId,
+      ProjectEvents.EPIC_CREATED,
+      transformedEpic,
+    );
+    return transformedEpic;
   }
 
   @Patch(':epicId')
@@ -72,7 +83,13 @@ export class EpicController {
       projectId,
       epicId,
     );
-    return transformToDto(EpicDto, epic);
+    const transformedEpic = transformToDto(EpicDto, epic);
+    this.activityGateway.broadcastProjectEntityChange(
+      projectId,
+      ProjectEvents.EPIC_UPDATED,
+      transformedEpic,
+    );
+    return transformedEpic;
   }
 
   @Delete(':epicId')
@@ -83,5 +100,10 @@ export class EpicController {
     @Param() { epicId }: EpicIdParams,
   ): Promise<void> {
     await this.epicService.deleteEpic(projectId, epicId);
+    this.activityGateway.broadcastProjectEntityChange(
+      projectId,
+      ProjectEvents.EPIC_DELETED,
+      { epicId },
+    );
   }
 }

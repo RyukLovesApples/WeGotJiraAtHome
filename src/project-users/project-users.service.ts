@@ -30,6 +30,7 @@ export class ProjectUsersService {
     const projectUser = this.projectUserRepo.create({ ...input, projectId });
     return this.projectUserRepo.save(projectUser);
   }
+
   public async getAllProjectUsers(projectId: string): Promise<ProjectUser[]> {
     const projectUsers = await this.projectUserRepo.find({
       where: { projectId },
@@ -37,6 +38,7 @@ export class ProjectUsersService {
     });
     return projectUsers;
   }
+
   public async getOneProjectUser(
     userId: string,
     projectId: string,
@@ -50,6 +52,7 @@ export class ProjectUsersService {
     }
     return projectUser;
   }
+
   public async updateProjectUserRole(
     input: UpdateProjectUserRoleInput,
     projectId: string,
@@ -59,11 +62,23 @@ export class ProjectUsersService {
     projectUser.role = role;
     return this.projectUserRepo.save(projectUser);
   }
+
   public async deleteProjectUser(
     userId: string,
     projectId: string,
   ): Promise<void> {
     const projectUser = await this.getOneProjectUser(userId, projectId);
     await this.projectUserRepo.remove(projectUser);
+  }
+
+  public async getProjectIdForUser(userId: string): Promise<string[]> {
+    const projectUsers = await this.projectUserRepo.findBy({ userId });
+    if (projectUsers.length === 0) {
+      return [];
+    }
+    const projectIds = projectUsers.map((proU) => {
+      return proU.projectId;
+    });
+    return projectIds;
   }
 }

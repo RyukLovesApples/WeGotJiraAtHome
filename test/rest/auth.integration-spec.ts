@@ -7,7 +7,7 @@ import { Role } from 'src/users/role.enum';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from 'jsonwebtoken';
 import { AdminResponse } from '../../src/users/responses/Admin.response';
-import { Http2Server } from 'http2';
+import { Server as HttpServer } from 'http';
 import { defaultUser } from '../dummy-variables/dummy-variables';
 import { LoginResponse, RegisterResponse } from '../types/test.types';
 import {
@@ -19,11 +19,11 @@ import {
 
 describe('Auth Integration', () => {
   let testSetup: TestSetup;
-  let server: Http2Server;
+  let server: HttpServer;
 
   beforeAll(async () => {
     testSetup = await TestSetup.create(AppModule);
-    server = testSetup.app.getHttpServer() as Http2Server;
+    server = testSetup.app.getHttpServer() as HttpServer;
   });
 
   afterEach(async () => {

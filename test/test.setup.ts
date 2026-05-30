@@ -5,10 +5,12 @@ import { DataSource } from 'typeorm';
 import { testConfig } from './config/test.config';
 import { ValidationPipe } from '@nestjs/common';
 import { MailerService } from 'src/mailer/mailer.service';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 
 export class TestSetup {
   app!: INestApplication;
   dataSource!: DataSource;
+  cacheManager!: Cache;
 
   static async create(module: any) {
     const instance = new TestSetup();
@@ -38,8 +40,12 @@ export class TestSetup {
     this.app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
     this.dataSource = moduleFixture.get(DataSource);
     await this.app.init();
+
+    this.cacheManager = this.app.get(CACHE_MANAGER);
+
     await this.dataSource.runMigrations();
   }
+
   async cleanup() {
     const entities = this.dataSource.entityMetadatas;
     const tableNames = entities
@@ -49,6 +55,7 @@ export class TestSetup {
       `TRUNCATE ${tableNames} RESTART IDENTITY CASCADE`,
     );
   }
+
   async teardown() {
     await this.dataSource.destroy();
     await this.app.close();

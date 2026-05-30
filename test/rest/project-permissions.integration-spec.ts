@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { AppModule } from '../../src/app.module';
 import { TestSetup } from '../test.setup';
-import { Http2Server } from 'http2';
+import { Server as HttpServer } from 'http';
 import { createProject, registerAndLogin } from '../helpers/test-helpers';
 import {
   secondUser,
@@ -23,7 +23,7 @@ import { EpicDto } from 'src/epics/dtos/epic.dto';
 
 describe('Project permissions Integration', () => {
   let testSetup: TestSetup;
-  let server: Http2Server;
+  let server: HttpServer;
   let accessToken: string;
   let projectId: string;
   let secondUserAccessToken: string;
@@ -32,7 +32,7 @@ describe('Project permissions Integration', () => {
 
   beforeAll(async () => {
     testSetup = await TestSetup.create(AppModule);
-    server = testSetup.app.getHttpServer() as Http2Server;
+    server = testSetup.app.getHttpServer() as HttpServer;
   });
 
   beforeEach(async () => {
@@ -130,6 +130,7 @@ describe('Project permissions Integration', () => {
         },
       },
     };
+
     await request(server)
       .post(`${baseUrl}/permissions`)
       .set('Authorization', `Bearer ${accessToken}`)
@@ -182,7 +183,6 @@ describe('Project permissions Integration', () => {
       .get(JwtService)
       .verify(thirdUserToken);
     const thirdUserId = jwtDataThirdUser.sub;
-    console.log(thirdUserId);
     const thirdProjectUserData = {
       userId: thirdUserId,
       projectId,

@@ -32,6 +32,6 @@ import { PasswordResetModule } from 'src/password-reset/password-reset.module';
   ],
   controllers: [UsersController, AuthController],
   providers: [UsersService, PasswordService, AuthService, AuthGuard],
-  exports: [UsersService, JwtModule],
+  exports: [UsersService, JwtModule, AuthService],
 })
 export class UsersModule {}

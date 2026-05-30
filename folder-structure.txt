@@ -1,10 +1,12 @@
 .
 ./Dockerfile.init
+./.DS_Store
 ./test
 ./test/dummy-variables
 ./test/dummy-variables/dummy-variables.ts
 ./test/types
 ./test/types/test.types.ts
+./test/types/test.socket-events.types.ts
 ./test/test.setup.ts
 ./test/config
 ./test/config/test.config.ts
@@ -12,6 +14,9 @@
 ./test/workflows/email-verification.integration-spec.ts
 ./test/workflows/invitation.integration-spec.ts
 ./test/workflows/password-reset.integration-spec.ts
+./test/websockets
+./test/websockets/activity.integration-spec.ts
+./test/websockets/io-server.adapter.ts
 ./test/graphql
 ./test/graphql/project-users.integration-spec.ts
 ./test/jest-integration.json
@@ -24,10 +29,8 @@
 ./test/rest/auth.integration-spec.ts
 ./test/rest/tasks.integration-spec.ts
 ./test/rest/app.integration-spec.ts
-./dist
 ./folder-structure.txt
 ./Dockerfile
-./git-commit-history.txt
 ./nest-cli.json
 ./node_modules
 ./README.md
@@ -50,6 +53,7 @@
 ./docker-compose.yml
 ./.http
 ./.git
+./git-history.txt
 ./eslint.config.mjs
 ./src
 ./src/migrations
@@ -95,6 +99,10 @@
 ./src/config/typed-config.service.ts
 ./src/config/app.config.ts
 ./src/config/db.config.ts
+./src/activity
+./src/activity/activity.module.ts
+./src/activity/activity.types.ts
+./src/activity/activity.gateway.ts
 ./src/projects
 ./src/projects/projects.controller.ts
 ./src/projects/projects-creation.service.ts
@@ -119,6 +127,9 @@
 ./src/mailer/templates/email-verification.template.ts
 ./src/mailer/templates/invitation.template.ts
 ./src/mailer/mailer.service.spec.ts
+./src/shared
+./src/shared/enums
+./src/shared/enums/project-events.ts
 ./src/exception-filters
 ./src/exception-filters/catch-all.exception-filter.ts
 ./src/app.module.ts
@@ -126,7 +137,6 @@
 ./src/project-users/project-users.service.ts
 ./src/project-users/project-users.module.ts
 ./src/project-users/project-role.enum.ts
-./src/project-users/project-users.service.spec.ts
 ./src/project-users/schemas
 ./src/project-users/schemas/project-user.graphql
 ./src/project-users/dtos

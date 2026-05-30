@@ -39,6 +39,8 @@ import { PasswordResetModule } from './password-reset/password-reset.module';
 import { PasswordReset } from './password-reset/password-reset.entity';
 import { EpicModule } from './epics/epics.module';
 import { Epic } from './epics/epics.entity';
+import { ActivityModule } from './activity/activity.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -81,6 +83,9 @@ import { Epic } from './epics/epics.entity';
       debug: true,
       playground: true,
     }),
+    ThrottlerModule.forRoot([
+      { ttl: 60000, limit: process.env.NODE_ENV === 'test' ? 100 : 20 },
+    ]),
     WinstonModule.forRoot(winstonLoggerConfig),
     TasksModule,
     UsersModule,
@@ -117,10 +122,11 @@ import { Epic } from './epics/epics.entity';
     MailerModule,
     InviteModule,
     PermissionsModule,
-    CacheModule.register(),
+    CacheModule.register({ isGlobal: true }),
     EmailVerificationModule,
     PasswordResetModule,
     EpicModule,
+    ActivityModule,
   ],
   controllers: [AppController],
   providers: [
@@ -133,6 +139,7 @@ import { Epic } from './epics/epics.entity';
       provide: APP_FILTER,
       useClass: CatchEverythingFilter,
     },
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
     {
       provide: APP_GUARD,
       useClass: AuthGuard,

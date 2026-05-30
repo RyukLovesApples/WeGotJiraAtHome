@@ -24,6 +24,8 @@ import { UpdateProjectWithTasks } from './dtos/update-project.dto';
 import { Resources } from 'src/project-permissions/decorators/resource.decorator';
 import { Resource } from 'src/project-permissions/enums/resource.enum';
 import { SkipResourceGuard } from 'src/project-permissions/decorators/skip-resource.decorator';
+import { ActivityGateway } from 'src/activity/activity.gateway';
+import { ProjectEvents } from 'src/shared/enums/project-events';
 
 @Controller()
 @Resources(Resource.PROJECT)
@@ -32,6 +34,7 @@ export class ProjectsController {
   constructor(
     private readonly projectService: ProjectsService,
     private readonly projectCreationService: ProjectCreationService,
+    private readonly activityGateway: ActivityGateway,
   ) {}
   @Post()
   @SkipResourceGuard()
@@ -39,20 +42,13 @@ export class ProjectsController {
     @CurrentUserId() userId: string,
     @Body() createProjectDto: CreateProjectDto,
   ): Promise<ProjectDto | null> {
-    // if (createProjectDto.tasks) {
-    //   const projectWithTasks =
-    //     await this.projectCreationService.createProjectWithTasks(
-    //       createProjectDto,
-    //       userId,
-    //     );
-    //   return transformToDto(ProjectDto, projectWithTasks);
-    // }
     const project = await this.projectCreationService.create(
       createProjectDto,
       userId,
     );
     return transformToDto(ProjectDto, project);
   }
+
   @Get()
   @SkipResourceGuard()
   async getAll(@CurrentUserId() userId: string): Promise<ProjectDto[]> {
@@ -61,6 +57,7 @@ export class ProjectsController {
       excludeExtraneousValues: true,
     });
   }
+
   @Get('/:projectId')
   async getOne(
     @CurrentUserId() userId: string,
@@ -69,6 +66,7 @@ export class ProjectsController {
     const project = await this.findOneOrFail(projectId);
     return transformToDto(ProjectDto, project);
   }
+
   @Patch('/:projectId')
   async update(
     @CurrentUserId() userId: string,
@@ -76,20 +74,19 @@ export class ProjectsController {
     @Body() updateProjectDto: UpdateProjectWithTasks,
   ) {
     const project = await this.findOneOrFail(projectId);
-    // if (updateProjectDto.tasks) {
-    //   const updateProjectTasks =
-    //     await this.projectCreationService.updateProjectWithTasks(
-    //       project,
-    //       updateProjectDto,
-    //     );
-    //   return transformToDto(ProjectDto, updateProjectTasks);
-    // }
     const updatedProject = await this.projectService.update(
       project,
       updateProjectDto,
     );
-    return transformToDto(ProjectDto, updatedProject);
+    const transformedProject = transformToDto(ProjectDto, updatedProject);
+    this.activityGateway.broadcastProjectEntityChange(
+      projectId,
+      ProjectEvents.PROJECT_UPDATED,
+      transformedProject,
+    );
+    return transformedProject;
   }
+
   @Delete('/:projectId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(
@@ -98,7 +95,15 @@ export class ProjectsController {
   ) {
     const project = await this.findOneOrFail(projectId);
     await this.projectService.delete(project);
+    this.activityGateway.broadcastProjectEntityChange(
+      projectId,
+      ProjectEvents.PROJECT_DELETED,
+      { projectId },
+    );
+
+    this.activityGateway.removeProjectRoom(projectId);
   }
+
   private async findOneOrFail(id: string): Promise<Project> {
     const project = await this.projectService.getOneById(id);
     if (!project) {
@@ -106,11 +111,4 @@ export class ProjectsController {
     }
     return project;
   }
-  // private checkOwnership(project: Project, userId: string) {
-  //   if (project.user.id !== userId) {
-  //     throw new ForbiddenException(
-  //       'Access to project denied. You are not the owner or a user of this project!',
-  //     );
-  //   }
-  // }
 }
