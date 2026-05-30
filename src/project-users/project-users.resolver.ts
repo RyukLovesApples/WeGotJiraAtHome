@@ -18,7 +18,9 @@ import { ProjectUserInvite } from 'src/invite/project-user-invite.entity';
 import { Resources } from 'src/project-permissions/decorators/resource.decorator';
 import { Resource } from 'src/project-permissions/enums/resource.enum';
 import { SkipResourceGuard } from 'src/project-permissions/decorators/skip-resource.decorator';
+import { SkipThrottle } from '@nestjs/throttler';
 
+@SkipThrottle()
 @UseInterceptors(ClassSerializerInterceptor)
 @Resources(Resource.PROJECT_USER)
 @Resolver(() => ProjectUser)
