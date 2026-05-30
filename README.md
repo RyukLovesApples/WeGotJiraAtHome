@@ -110,6 +110,11 @@ Permissions follow a consistent structure:
 - Read access is O(1) from cache
 - Cache is updated only on permission changes — minimizing unnecessary DB queries
 
+### Security
+
+- Rate limiting via `@nestjs/throttler` — global on all REST endpoints, excluded on GraphQL
+- CORS policy — origin controlled by `FRONTEND_URL` in `.env`, defaults to `*`
+
 ---
 
 ## Testing
